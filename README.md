@@ -99,33 +99,33 @@
 #### Select Query Example:
 	
     SQLSelectQuery query = new SQLQuery.Builder(QueryType.SELECT)
-									.columns()
-									.from("Passenger")
-									.build();
+					   .columns()
+					   .from("Passenger")
+					   .build();
 	
     SQLSelectQuery query = new SQLQuery.Builder(QueryType.SELECT)
-							.columns("name", "id")
-							.from("Passenger")
-							.build();
+					   .columns("name", "id")
+					   .from("Passenger")
+					   .build();
                             
   	SQLQuery query = new SQLQuery.Builder(QueryType.SELECT)
-									.columns("name","age")
-									.from("Passenger")
-									.whereParams(Logic.OR, "id", "age")
-									.build();
+				     .columns("name","age")
+				     .from("Passenger")
+				     .whereParams(Logic.OR, "id", "age")
+				     .build();
                 
 	Predicate predicate = new Where("id")
-							.isEqualTo(229)
-							.and("age")
-							.isGreaterThenOrEqual(24)
-							.or("name")
-							.isLike("soha");
+				.isEqualTo(229)
+				.and("age")
+				.isGreaterThenOrEqual(24)
+				.or("name")
+				.isLike("soha");
     
 	SQLQuery query = new SQLQuery.Builder(QueryType.SELECT)
-									.columns()
-									.from("Passenger")
-									.where(predicate)
-									.build();
+				     .columns()
+				     .from("Passenger")
+				     .where(predicate)
+				     .build();
                                     
 	System.out.printls(query.toString()); //Will print the SQL statement, that can be used any JDBC implementation.
     
@@ -142,14 +142,14 @@
  	
     Expression comps = new Expression("name", Operator.EQUAL);
     SQLQuery count = new SQLQuery.Builder(QueryType.COUNT)
-										.columns().on("Passenger")
-										.where(comps)
-										.build();
+				     .columns().on("Passenger")
+				     .where(comps)
+				     .build();
                                         
 	SQLQuery distinct = new SQLQuery.Builder(QueryType.DISTINCT)
-									.columns().from("Passenger")
-									.where(comps)
-									.build();
+					.columns().from("Passenger")
+					.where(comps)
+					.build();
     
   
  #### Insert, Update & Delete
@@ -159,25 +159,25 @@
 	Property[] values =  (Property[]) nP.getCloneProperties().toArray(new Property[0]);
 		
 	SQLInsertQuery insert = new SQLQuery.Builder(QueryType.INSERT)
-									.into("Passenger")
-									.values(values)
-									.build();
+					.into("Passenger")
+					.values(values)
+					.build();
                                     
 	//Update
     ExpressionInterpreter clause = new AndExpression(new Expression("name", Operator.EQUAL)
-    											, new Expression("age", Operator.GREATER_THAN));
+    				, new Expression("age", Operator.GREATER_THAN));
 		
 	SQLUpdateQuery update = new SQLQuery.Builder(QueryType.UPDATE)
-								.columns("name","age")
-								.from("Passenger")
-								.where(clause)
-								.build();
+					.columns("name","age")
+					.from("Passenger")
+					.where(clause)
+					.build();
                                 
 	//Delete
     SQLQuery delete = new SQLQuery.Builder(QueryType.DELETE)
-										.rowsFrom("Passenger")
-										.where(clause)
-										.build();
+				.rowsFrom("Passenger")
+				.where(clause)
+				.build();
     
     
 #### OrderBY, GroupBy, Limit, Offset
@@ -278,9 +278,9 @@
 ##### How to work with Person.java entiry.
 	
     Connection conn = new JDBConnection.Builder("jdbc:mysql://localhost:3306/testDB")
-										.driver(DriverClass.MYSQL)
-										.credential("root","****")
-										.build();
+					.driver(DriverClass.MYSQL)
+					.credential("root","****")
+					.build();
                                         
 	SQLExecutor exe = new SQLExecutor(conn);
     
