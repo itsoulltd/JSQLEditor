@@ -13,10 +13,11 @@
 
 ##### Creating Connections:
 	
-    Connection conn = new JDBConnection.Builder("jdbc:mysql://localhost:3306/testDB")
-										.driver(DriverClass.MYSQL)
-										.credential("root","****")
-										.build();
+    Connection conn = new JDBConnection.Builder(DriverClass.MYSQL)
+                      		.host("localhost", "3306")
+                      		.database("testDB")
+                      		.credential("root","********")
+                      		.build();
     
 ##### Closing Connections :
 	
