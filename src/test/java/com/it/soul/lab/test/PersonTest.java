@@ -76,11 +76,11 @@ public class PersonTest {
 		}
 		
 		person.setAge(getRandomAge());
-		person.setIsActive(false);
+		person.setActive(false);
 		person.setSalary(200.00);
 		person.setDob(new Date(Calendar.getInstance().getTimeInMillis()));
 		try {
-			Boolean res = person.update(exe, "age","isActive","salary","dob");
+			Boolean res = person.update(exe, "age","active","salary","dob");
 			Assert.assertTrue("Updated", res);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -93,7 +93,7 @@ public class PersonTest {
 		person.setUuid(UUID.randomUUID().toString());
 		//person.setName(getRandomName());
 		person.setAge(getRandomAge());
-		//person.setIsActive(true);
+		//person.setActive(true);
 		person.setSalary(89200.00);
 		
 		//person.setDob(new Date(Calendar.getInstance().getTimeInMillis()));

@@ -31,8 +31,9 @@ public abstract class Entity implements EntityInterface{
 		super();
 	}
 	private boolean hasColumnAnnotation(Field field) {
-		boolean hasPropertyAnno = field.isAnnotationPresent(Column.class);
-		return hasPropertyAnno;
+		boolean isAnnotated = field.isAnnotationPresent(Column.class)
+				|| field.isAnnotationPresent(PrimaryKey.class);
+		return isAnnotated;
 	}
 	protected List<Property> getProperties(SQLExecutor exe, boolean skipPrimary) {
 		List<Property> result = new ArrayList<>();

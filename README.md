@@ -251,7 +251,7 @@
         private Integer age;
 
         @Property(defaultValue="true", type = DataType.BOOL)
-        private Boolean isActive;
+        private Boolean active;
 
         @Property(defaultValue="0.00", type = DataType.DOUBLE)
         private Double salary;
@@ -296,7 +296,7 @@
 	person.setIsActive(false);
 	person.setSalary(200.00);
 	person.setDob(new Date(Calendar.getInstance().getTimeInMillis()));
-    Boolean isUpdated = person.update(exe, "age","isActive","salary","dob");
+    Boolean isUpdated = person.update(exe, "age","active","salary","dob");
     
     //Delete
     Boolean isDeleted = person.delete(exe);

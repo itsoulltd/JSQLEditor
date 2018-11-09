@@ -16,7 +16,7 @@ import com.it.soul.lab.sql.query.models.DataType;
     uuid varchar(512) PRIMARY KEY NOT NULL,
     name varchar(512),
     age int,
-    isActive boolean,
+    active boolean,
     salary double,
     dob DATETIME,
     height float
@@ -25,7 +25,7 @@ import com.it.soul.lab.sql.query.models.DataType;
 
 @TableName(value = "Person", acceptAll = false)
 public class Person extends Entity {
-	@Column
+
 	@PrimaryKey(name = "uuid", autoIncrement = false)
 	private String uuid;
 	public String getUuid() {
@@ -41,7 +41,7 @@ public class Person extends Entity {
 	private Integer age;
 	
 	@Column(defaultValue="true", type = DataType.BOOL)
-	private Boolean isActive;
+	private Boolean active;
 	
 	@Column(defaultValue="0.00", type = DataType.DOUBLE)
 	private Double salary;
@@ -74,11 +74,11 @@ public class Person extends Entity {
 	public void setAge(Integer age) {
 		this.age = age;
 	}
-	public Boolean getIsActive() {
-		return isActive;
+	public Boolean getActive() {
+		return active;
 	}
-	public void setIsActive(Boolean isActive) {
-		this.isActive = isActive;
+	public void setActive(Boolean active) {
+		this.active = active;
 	}
 	public Double getSalary() {
 		return salary;
