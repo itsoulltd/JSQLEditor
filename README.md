@@ -26,7 +26,7 @@
     
 #### JDBC Connection Pool (J2EE/Servlet Container using JNDI Naming)
 
-##### First Define a context.xml in /src/main/resources/META-INF/context.xml OR /WebContent/META-INF/context.xml
+##### First Define a context.xml in /src/main/webapp/META-INF/context.xml (:Maven-Project Structure) OR /WebContent/META-INF/context.xml (:J2EE Webapp Structure in Eclipse)
 	
     <?xml version="1.0" encoding="UTF-8"?>
 	<Context>
