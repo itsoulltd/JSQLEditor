@@ -26,7 +26,7 @@
     
 #### JDBC Connection Pool (J2EE/Servlet Container using JNDI Naming)
 
-##### First Define a context.xml in /src/main/resources/META-INF/context.xml or /WebContent/META-INF/context.xml
+##### First Define a context.xml in /src/main/resources/META-INF/context.xml OR /WebContent/META-INF/context.xml
 	
     <?xml version="1.0" encoding="UTF-8"?>
 	<Context>
@@ -59,6 +59,27 @@
  
  #### Using JPA persistence.xml
  
+ ##### First Define a persistence.xml in /src/main/resources/META-INF/persistence.xml OR /src/META-INF/persistence.xml
+    
+    <?xml version="1.0" encoding="UTF-8"?>
+    <persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+            http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+        <persistence-unit name="testDB">
+            <!-- <provider>org.hibernate.ejb.HibernatePersistence</provider> -->
+            <properties>
+                 <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver"/>
+                 <property name="hibernate.connection.username" value="root"/>
+                 <property name="hibernate.connection.password" value="****"/>
+                 <property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/testDB?useUnicode=true&amp;useJDBCCompliantTimezoneShift=true&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC"/>
+                 <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
+            </properties>
+       </persistence-unit>
+    </persistence>
+ 
+ ##### Sample Code:
+ 
  	
     ORMController controller = new ORMController("persistence-unit-name");
     EntityManager em = controller.getEntityManager();
@@ -67,9 +88,11 @@
     //We may have an entity that represent person_tbl in database
     @Entiry
     @Table(name="person_tbl")
-    class Person{
-    	@ID
-    	private int id;
+    public class Person{
+    
+        @ID
+        private int id;
+        
         @Column
         private String name;
         ...
@@ -235,44 +258,50 @@
 	
     @TableName(value = "Person", acceptAll = false)
 	public class Person extends Entity {
-		@Property
-		@PrimaryKey(name = "uuid", autoIncrement = false)
-		private String uuid;
+		
+	    //Must have to be same as declaired property and as name in @PrimaryKey
+	    @PrimaryKey(name = "uuid", autoIncrement = false)
+	    private String uuid;
+        
+        @Column(defaultValue="Mr/Mrs")
+        private String name;
+
+        @Column(defaultValue="34", type = DataType.INT)
+        private Integer age;
+
+        @Column(defaultValue="true", type = DataType.BOOL)
+        private Boolean active;
+
+        @Column(defaultValue="0.00", type = DataType.DOUBLE)
+        private Double salary;
+
+        private Date dob;
+
+        @Column(defaultValue="2010-06-21 21:01:01", type=DataType.SQLTIMESTAMP, parseFormat="yyyy-MM-dd HH:mm:ss")
+        private Timestamp createDate;
+
+        private Float height;
+
+        @Column(defaultValue="2010-06-21" , type=DataType.SQLDATE, parseFormat="yyyy-MM-dd")
+        private Date dobDate;
+
+        @Column(defaultValue="21:01:01" , type=DataType.SQLTIMESTAMP, parseFormat="HH:mm:ss")
+        private Timestamp createTime;
+
+        public Person() {
+            super();
+        }
+        
+        /////////// Setter & Getters //////////
+        
         public String getUuid() {
             return uuid;
         }
         public void setUuid(String uuid) {
             this.uuid = uuid;
         }
-        @Property(defaultValue="Mr/Mrs")
-        private String name;
-
-        @Property(defaultValue="34", type = DataType.INT)
-        private Integer age;
-
-        @Property(defaultValue="true", type = DataType.BOOL)
-        private Boolean active;
-
-        @Property(defaultValue="0.00", type = DataType.DOUBLE)
-        private Double salary;
-
-        private Date dob;
-
-        @Property(defaultValue="2010-06-21 21:01:01", type=DataType.SQLTIMESTAMP, parseFormat="yyyy-MM-dd HH:mm:ss")
-        private Timestamp createDate;
-
-        private Float height;
-
-        @Property(defaultValue="2010-06-21" , type=DataType.SQLDATE, parseFormat="yyyy-MM-dd")
-        private Date dobDate;
-
-        @Property(defaultValue="21:01:01" , type=DataType.SQLTIMESTAMP, parseFormat="HH:mm:ss")
-        private Timestamp createTime;
-
-        public Person() {
-            super();
-        }
-        ...... Setter & Getters ........
+        .....
+        
     }
     
 
@@ -302,7 +331,8 @@
     Boolean isDeleted = person.delete(exe);
     
     //Read All
-    ExpressionInterpreter clause = new Expression(new Property("name", "Jake"), Operator.EQUAL);
+    //ExpressionInterpreter clause = new Expression(new Property("name", "Jake"), Operator.EQUAL);
+    Predicate clause = new Where("name").isEqualTo("Jake");
 	List<Person> sons = Person.read(Person.class, exe, clause); //if clause is null the return all.
     
     
