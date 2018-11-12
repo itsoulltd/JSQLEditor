@@ -107,13 +107,20 @@ public class QueryExecutionTest {
 			SQLScalerQuery max = (SQLScalerQuery) new SQLQuery.Builder(QueryType.MAX).columns("id").on("Passenger").build();
 			int autoId = exe.getScalerValue(max);
 			Assert.assertTrue("Get Max value", true);
-			
-			Expression compareWith = new Expression("id", Operator.EQUAL).setPropertyValue(autoId, DataType.INT);
 
-			SQLUpdateQuery upQuery = (SQLUpdateQuery) new SQLQuery.Builder(QueryType.UPDATE)
-											.set(new Property("name","tanvir Islam"), new Property("age", 29, DataType.INT))
+			Row nP = new Row()
+					.add("name","tanvir Islam")
+					.add("age", 29);
+			Property[] values =  nP.getCloneProperties().toArray(new Property[0]);
+
+			//Expression compareWith = new Expression("id", Operator.EQUAL).setPropertyValue(autoId, DataType.INT);
+			Predicate compareWith = new Where("id").isEqualTo(autoId);
+
+					SQLUpdateQuery upQuery = new SQLQuery.Builder(QueryType.UPDATE)
+											.set(values)
 											.from("Passenger")
-											.where(compareWith).build();
+											.where(compareWith)
+											.build();
 
 			int updateId = exe.executeUpdate(upQuery);
 			Assert.assertTrue("Updated Successfull", true);

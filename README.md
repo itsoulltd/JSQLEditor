@@ -179,8 +179,11 @@
  #### Insert, Update & Delete
  	
     //Insert
-    Row nP = new Row().add("name").add("age").add("sex");
-	Property[] values =  (Property[]) nP.getCloneProperties().toArray(new Property[0]);
+    Row nP = new Row()
+    	.add("name","Peter Thiel")
+    	.add("age", 51);
+    	
+    Property[] values =  nP.getCloneProperties().toArray(new Property[0]);
 		
 	SQLInsertQuery insert = new SQLQuery.Builder(QueryType.INSERT)
 					.into("Passenger")
@@ -188,14 +191,14 @@
 					.build();
                                     
 	//Update
-    ExpressionInterpreter clause = new AndExpression(new Expression("name", Operator.EQUAL)
-    				, new Expression("age", Operator.GREATER_THAN));
+	
+    Predicate compareWith = new Where("id").isEqualTo(autoId);
 		
 	SQLUpdateQuery update = new SQLQuery.Builder(QueryType.UPDATE)
-					.columns("name","age")
-					.from("Passenger")
-					.where(clause)
-					.build();
+                            	.set(values)
+                            	.from("Passenger")
+                            	.where(compareWith)
+                            	.build();
                                 
 	//Delete
     SQLQuery delete = new SQLQuery.Builder(QueryType.DELETE)

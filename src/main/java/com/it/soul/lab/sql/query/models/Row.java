@@ -27,11 +27,12 @@ public class Row {
 		properties.add(prop);
 		return this;
 	}
-	public Row add(String name){
-		return add(new Property(name));
-	}
+	public Row add(String name){return add(new Property(name));}
 	public Row add(String name, Object value, DataType type){
 		return add(new Property(name, value, type));
+	}
+	public Row add(String name, Object value){
+		return add(new Property(name, value, DataType.getDataType(value)));
 	}
 	public List<Property> getCloneProperties(){
 		//All standard collections have copy constructors.
