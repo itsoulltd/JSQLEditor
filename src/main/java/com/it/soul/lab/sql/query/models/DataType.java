@@ -18,6 +18,7 @@ public enum DataType {
 	OBJECT;
 	
 	public static DataType getDataType(Object value) {
+		if (value == null) return DataType.OBJECT;
 		if(value instanceof Integer) {
 			return DataType.INT;
 		}else if(value instanceof Double) {

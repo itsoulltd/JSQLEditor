@@ -13,17 +13,18 @@ public class Property {
 	private DataType type = null;
 	private Object value = null;
 	
-	private Property(Object value, DataType type){
+	private Property(Object value){
 		this.value = value;
-		this.type = type;
-		if (value != null && value instanceof java.util.Date){
-			this.type = DataType.SQLDATE;
-		}
+		this.type = DataType.getDataType(value);
+	}
+
+	public Property(String key, Object value){
+		this(value);
+		this.key = key;
 	}
 	
 	public Property(String key, Object value, DataType type){
-		this(value,type);
-		this.key = key;
+		this(key, value);
 	}
 	
 	public Property(String key){
