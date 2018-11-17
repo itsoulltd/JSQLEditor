@@ -553,37 +553,35 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		List result = table.inflate(type);
 		return result;
 	}
-	
-////////////////////////////////////Block Of Queries///////////////////////
-	
-	 
-	public boolean executeTableManipulation(String query)
-    throws SQLException,Exception{
-		
-		if(query == null 
-				|| query.length() <=0 
+
+	public Boolean executeDDLQuery(String query) throws SQLException{
+
+		if(query == null
+				|| query.length() <=0
 				|| !query.trim().toLowerCase().startsWith("create")
 				|| !query.trim().toLowerCase().startsWith("delete")
 				|| !query.trim().toLowerCase().startsWith("alter")){
-			throw new Exception("Bad Formated Query : " + query);
+			throw new SQLException("Bad Formated Query : " + query);
 		}
-    	
-        boolean isCreated = false;
-        PreparedStatement stmt = null;
-        try{ 
-            if(conn != null){
-            	//
-                stmt = conn.prepareStatement(query);
-                stmt.executeUpdate();
-                isCreated = true;
-            }            
-        }catch(SQLException exp){
-        	throw exp;
-        }finally{
-        	if(stmt != null) stmt.close();
-        }
-        return isCreated;		
-    }
+
+		boolean isCreated = false;
+		PreparedStatement stmt = null;
+		try{
+			if(conn != null){
+				//
+				stmt = conn.prepareStatement(query);
+				stmt.executeUpdate();
+				isCreated = true;
+			}
+		}catch(SQLException exp){
+			throw exp;
+		}finally{
+			if(stmt != null) stmt.close();
+		}
+		return isCreated;
+	}
+	
+////////////////////////////////////Block Of Queries///////////////////////
 	
 	
     /**

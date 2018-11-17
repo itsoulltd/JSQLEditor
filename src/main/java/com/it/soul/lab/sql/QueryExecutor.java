@@ -14,6 +14,8 @@ public interface QueryExecutor<S extends SQLQuery
         , D extends SQLQuery
         , C extends SQLQuery> extends AutoCloseable {
 
+    Boolean executeDDLQuery(String query) throws SQLException;
+
     Integer executeUpdate(U query) throws SQLException;
     Integer[] executeBatchUpdate(int batchSize, U query, List<Row> updateProperties, List<Row> whereClause) throws SQLException,IllegalArgumentException;
 
