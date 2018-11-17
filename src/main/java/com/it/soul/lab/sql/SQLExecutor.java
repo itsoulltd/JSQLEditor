@@ -11,11 +11,7 @@ import java.sql.*;
 import java.sql.Date;
 import java.util.*;
 
-public class SQLExecutor<S extends SQLSelectQuery
-		, I extends SQLInsertQuery
-		, U extends SQLUpdateQuery
-		, D extends SQLDeleteQuery
-		, C extends SQLScalerQuery> extends AbstractExecutor implements QueryExecutor<S, I, U, D, C>, QueryTransaction{
+public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSelectQuery, SQLInsertQuery, SQLUpdateQuery, SQLDeleteQuery, SQLScalerQuery>, QueryTransaction{
 
 	private Connection conn = null;
 
@@ -195,7 +191,7 @@ public class SQLExecutor<S extends SQLSelectQuery
 		return rowUpdated;
 	}
 
-	public Integer[] executeBatchUpdate(int batchSize, U updateQuery, List<Row> updateProperties, List<Row> whereClause) throws SQLException, IllegalArgumentException{
+	public Integer[] executeBatchUpdate(int batchSize, SQLUpdateQuery updateQuery, List<Row> updateProperties, List<Row> whereClause) throws SQLException, IllegalArgumentException{
 
 		if(updateProperties == null
 				|| updateProperties.size() <= 0){
@@ -284,7 +280,7 @@ public class SQLExecutor<S extends SQLSelectQuery
 		return rowUpdated;
 	}
 
-	public Integer executeBatchDelete(int batchSize, D deleteQuery, List<Row> whereClause) throws SQLException{
+	public Integer executeBatchDelete(int batchSize, SQLDeleteQuery deleteQuery, List<Row> whereClause) throws SQLException{
 
 		if(deleteQuery.getWhereParams() == null || deleteQuery.getWhereParams().length <= 0){
 			throw new SQLException("Where parameter should not be null or empty!!!");
@@ -551,7 +547,7 @@ public class SQLExecutor<S extends SQLSelectQuery
 	}
 
 	@Override
-	public <T> List<T> executeSelect(S query, Class<T> type) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
+	public <T> List<T> executeSelect(SQLSelectQuery query, Class<T> type) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
 		ResultSet set = executeSelect(query);
 		Table table = collection(set);
 		List result = table.inflate(type);
