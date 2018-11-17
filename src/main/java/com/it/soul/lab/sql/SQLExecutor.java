@@ -561,14 +561,13 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 				|| !query.trim().toLowerCase().startsWith("create")
 				|| !query.trim().toLowerCase().startsWith("delete")
 				|| !query.trim().toLowerCase().startsWith("alter")){
-			throw new SQLException("Bad Formated Query : " + query);
+			throw new SQLException("Bad Formatted Query : " + query);
 		}
 
 		boolean isCreated = false;
 		PreparedStatement stmt = null;
 		try{
 			if(conn != null){
-				//
 				stmt = conn.prepareStatement(query);
 				stmt.executeUpdate();
 				isCreated = true;
