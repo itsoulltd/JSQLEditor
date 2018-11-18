@@ -7,6 +7,7 @@ import com.it.soul.lab.sql.query.models.Row;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 public interface QueryExecutor<S extends SQLQuery
         , I extends SQLQuery
@@ -31,5 +32,8 @@ public interface QueryExecutor<S extends SQLQuery
 
     <T> List<T> executeCRUDQuery(String query, Class<T> type) throws SQLException, IllegalAccessException, InstantiationException;
     <T> List<T> executeSelect(String query, Class<T> type) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException;
+    <T> List<T> executeSelect(String query, Class<T> type, Map<String, String> mappingKeys) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException;
+
     <T> List<T> executeSelect(S query, Class<T> type) throws SQLException,IllegalArgumentException, IllegalAccessException, InstantiationException;
+    <T> List<T> executeSelect(S query, Class<T> type, Map<String, String> mappingKeys) throws SQLException,IllegalArgumentException, IllegalAccessException, InstantiationException;
 }
