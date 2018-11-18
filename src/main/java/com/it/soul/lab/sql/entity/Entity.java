@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
+import com.it.soul.lab.sql.QueryExecutor;
 import com.it.soul.lab.sql.query.SQLDeleteQuery;
 import com.it.soul.lab.sql.query.SQLInsertQuery;
 import com.it.soul.lab.sql.query.SQLQuery;
@@ -35,7 +35,7 @@ public abstract class Entity implements EntityInterface{
 				|| field.isAnnotationPresent(PrimaryKey.class);
 		return isAnnotated;
 	}
-	protected List<Property> getProperties(Executor exe, boolean skipPrimary) {
+	protected List<Property> getProperties(QueryExecutor exe, boolean skipPrimary) {
 		List<Property> result = new ArrayList<>();
 		boolean acceptAll = shouldAcceptAllProperty();
 		for (Field field : this.getClass().getDeclaredFields()) {
@@ -67,7 +67,7 @@ public abstract class Entity implements EntityInterface{
 		}
 		return null;
 	}
-	private Object getFieldValue(Field field, Executor exe) throws IllegalArgumentException, IllegalAccessException, SQLException {
+	private Object getFieldValue(Field field, QueryExecutor exe) throws IllegalArgumentException, IllegalAccessException, SQLException {
 		Object value = field.get(this);
 		//
 		if(value == null && field.isAnnotationPresent(Column.class) == true) {
@@ -105,7 +105,7 @@ public abstract class Entity implements EntityInterface{
 		//always.
 		return value;
 	}
-	protected Property getProperty(String key, Executor exe, boolean skipPrimary) {
+	protected Property getProperty(String key, QueryExecutor exe, boolean skipPrimary) {
 		Property result = null;
 		try {
 			Field field = this.getClass().getDeclaredField(key);
@@ -165,7 +165,7 @@ public abstract class Entity implements EntityInterface{
 		}
 		return key;
 	}
-	private Property getPrimaryProperty(Executor exe) {
+	private Property getPrimaryProperty(QueryExecutor exe) {
 		Property result = null;
 		try {
 			String key = getPrimaryKey().name().trim();
@@ -175,7 +175,7 @@ public abstract class Entity implements EntityInterface{
 		}
 		return result;
 	}
-	public Boolean update(Executor exe, String...keys) throws SQLException, Exception {
+	public Boolean update(QueryExecutor exe, String...keys) throws SQLException, Exception {
 		List<Property> properties = new ArrayList<>();
 		if(keys.length > 0) {
 			for (String key : keys) {
@@ -199,7 +199,7 @@ public abstract class Entity implements EntityInterface{
 		return new Expression(getPrimaryProperty(null), Operator.EQUAL);
 	}
 	@Override
-	public Boolean insert(Executor exe, String... keys) throws SQLException, Exception {
+	public Boolean insert(QueryExecutor exe, String... keys) throws SQLException, Exception {
 		List<Property> properties = new ArrayList<>();
 		if(keys.length > 0) {
 			for (String key : keys) {
@@ -236,7 +236,7 @@ public abstract class Entity implements EntityInterface{
 		}
 	}
 	@Override
-	public Boolean delete(Executor exe) throws SQLException, Exception {
+	public Boolean delete(QueryExecutor exe) throws SQLException, Exception {
 		Expression exp = new Expression(getPrimaryProperty(exe), Operator.EQUAL);
 		SQLDeleteQuery query = (SQLDeleteQuery) new SQLQuery.Builder(QueryType.DELETE)
 														.rowsFrom(Entity.tableName(getClass()))
@@ -258,14 +258,24 @@ public abstract class Entity implements EntityInterface{
 		
 		Map<String, String> result = new HashMap<>();
 		for (Field field : type.getDeclaredFields()) {
-			if(acceptAll == false && field.isAnnotationPresent(Column.class) == false) {
+			if(acceptAll == false
+					&& field.isAnnotationPresent(Column.class) == false
+					&& field.isAnnotationPresent(PrimaryKey.class) == false) {
 				continue;
 			}
-			Column column = field.getAnnotation(Column.class);
-			String columnName = (column.name().trim().isEmpty() == false) ? column.name().trim() : field.getName();
-			field.setAccessible(true);
-			result.put(columnName, field.getName());
-			field.setAccessible(false);
+			if (field.isAnnotationPresent(Column.class)){
+				Column column = field.getAnnotation(Column.class);
+				String columnName = (column.name().trim().isEmpty() == false) ? column.name().trim() : field.getName();
+				field.setAccessible(true);
+				result.put(columnName, field.getName());
+				field.setAccessible(false);
+			}else if(field.isAnnotationPresent(PrimaryKey.class)){
+				PrimaryKey primaryKey = field.getAnnotation(PrimaryKey.class);
+				String columnName = (primaryKey.name().trim().isEmpty() == false) ? primaryKey.name().trim() : field.getName();
+				field.setAccessible(true);
+				result.put(columnName, field.getName());
+				field.setAccessible(false);
+			}
 		}
 		return result;
 	}
@@ -277,7 +287,7 @@ public abstract class Entity implements EntityInterface{
 		String name = (tableName.value().trim().length() == 0) ? type.getSimpleName() : tableName.value().trim();
 		return name;
 	}
-	public static <T extends Entity> List<T> read(Class<T>  type, Executor exe, Property...match) throws SQLException, Exception{
+	public static <T extends Entity> List<T> read(Class<T>  type, QueryExecutor exe, Property...match) throws SQLException, Exception{
 		ExpressionInterpreter and = null;
 		ExpressionInterpreter lhr = null;
 		for (int i = 0; i < match.length; i++) {
@@ -292,7 +302,7 @@ public abstract class Entity implements EntityInterface{
 		}
 		return T.read(type, exe, and);
 	}
-	public static <T extends Entity> List<T> read(Class<T>  type, Executor exe, ExpressionInterpreter expression) throws SQLException, Exception{
+	public static <T extends Entity> List<T> read(Class<T>  type, QueryExecutor exe, ExpressionInterpreter expression) throws SQLException, Exception{
 		String name = Entity.tableName(type);
 		SQLSelectQuery query = null;
 		if(expression != null) {
@@ -305,8 +315,9 @@ public abstract class Entity implements EntityInterface{
 					.columns()
 					.from(name).build();
 		}
-		ResultSet set = exe.executeSelect(query);
-		Table table = exe.collection(set);
-		return table.inflate(type, Entity.mapColumnsToProperties(type));
+		//ResultSet set = exe.executeSelect(query);
+		//Table table = exe.collection(set);
+		//return table.inflate(type, Entity.mapColumnsToProperties(type));
+		return exe.executeSelect(query, type, Entity.mapColumnsToProperties(type));
 	}
 }

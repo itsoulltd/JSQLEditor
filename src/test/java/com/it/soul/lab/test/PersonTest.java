@@ -87,7 +87,7 @@ public class PersonTest {
 		}
 	}
 
-	//@Test
+	@Test
 	public void testInsert() {
 		Person person = new Person();
 		person.setUuid(UUID.randomUUID().toString());
@@ -114,7 +114,7 @@ public class PersonTest {
 		}
 	}
 
-	//@Test
+	@Test
 	public void testDelete() {
 		Person person = new Person();
 		person.setUuid(UUID.randomUUID().toString());
@@ -129,7 +129,7 @@ public class PersonTest {
 		}
 	}
 
-	//@Test
+	@Test
 	public void testReadClassOfTSQLExecutorPropertyArray() {
 		try {
 			List<Person> sons = Person.read(Person.class, exe, new Property("name", "Sohana"));
@@ -139,7 +139,7 @@ public class PersonTest {
 		}
 	}
 
-	//@Test
+	@Test
 	public void testReadClassOfTSQLExecutorExpressionInterpreter() {
 		try {
 			ExpressionInterpreter exp = new Expression(new Property("name", "Sohana"), Operator.EQUAL);
@@ -161,7 +161,7 @@ public class PersonTest {
 		}
 	}
 	
-	//@Test 
+	@Test
 	public void getPropertyTest() {
 		Person person = new Person();
 		

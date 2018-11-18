@@ -75,7 +75,7 @@ public class PassengerTest {
 		}
 	}
 	
-	//@Test
+	@Test
 	public void testDelete() {
 		Passenger passenger = new Passenger();
 		passenger.setName(getRandomName());
