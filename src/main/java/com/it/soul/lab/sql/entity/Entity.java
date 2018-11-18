@@ -165,6 +165,16 @@ public abstract class Entity implements EntityInterface{
 		}
 		return key;
 	}
+	private List<PrimaryKey> getAllPrimaryKey() {
+		List<PrimaryKey> keys = new ArrayList<>();
+		Field[] fields = this.getClass().getDeclaredFields();
+		for (Field field : fields) {
+			if(field.isAnnotationPresent(PrimaryKey.class)) {
+				keys.add(field.getAnnotation(PrimaryKey.class));
+			}
+		}
+		return keys;
+	}
 	private Property getPrimaryProperty(QueryExecutor exe) {
 		Property result = null;
 		try {
@@ -174,6 +184,18 @@ public abstract class Entity implements EntityInterface{
 			e.printStackTrace();
 		}
 		return result;
+	}
+	private List<Property> getAllPrimaryProperty(QueryExecutor exe) {
+		List<Property> results = new ArrayList<>();
+		try {
+			for (PrimaryKey pmKey : getAllPrimaryKey()){
+				String key = pmKey.name().trim();
+				results.add(getProperty(key, exe, false));
+			}
+		} catch (SecurityException | IllegalArgumentException e) {
+			e.printStackTrace();
+		}
+		return results;
 	}
 	public Boolean update(QueryExecutor exe, String...keys) throws SQLException, Exception {
 		List<Property> properties = new ArrayList<>();
@@ -196,7 +218,21 @@ public abstract class Entity implements EntityInterface{
 		return isUpdate == 1;
 	}
 	protected ExpressionInterpreter updateWhereExpression() {
-		return new Expression(getPrimaryProperty(null), Operator.EQUAL);
+		//return new Expression(getPrimaryProperty(null), Operator.EQUAL);
+		List<Property> keys = getAllPrimaryProperty(null);
+		ExpressionInterpreter and = null;
+		ExpressionInterpreter lhr = null;
+		for (Property prop : keys) {
+			if(lhr == null) {
+				lhr = new Expression(prop, Operator.EQUAL);
+				and = lhr;
+			}else {
+				ExpressionInterpreter rhr = new Expression(prop, Operator.EQUAL);
+				and = new AndExpression(lhr, rhr);
+				lhr = and;
+			}
+		}
+		return and;
 	}
 	@Override
 	public Boolean insert(QueryExecutor exe, String... keys) throws SQLException, Exception {
