@@ -100,46 +100,6 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 	}
 	
 	/**
-	 * Display rows in a Result Set
-	 * @param rst
-	 */
-	public void displayResultSet(ResultSet rst){
-		StringBuffer buffer = new StringBuffer();
-		try{
-			if(rst.getType() == ResultSet.TYPE_SCROLL_SENSITIVE && rst.isAfterLast()){
-                rst.beforeFirst();
-            }
-			ResultSetMetaData rsmd = rst.getMetaData();
-			int numCol = rsmd.getColumnCount();
-			int totalHeaderLenght = 0;
-			for(int x = 1; x <= numCol; x++){
-				String columnName = "     " + rsmd.getColumnLabel(x) + "     ";
-				totalHeaderLenght += columnName.length();
-				buffer.append(columnName);
-			}
-			
-			buffer.append('\n');
-			for(int x = 0; x <= totalHeaderLenght; x++){
-				buffer.append("-");
-			}
-			buffer.append('\n');
-			
-			boolean more = rst.next();
-			while(more){
-				for(int x = 1; x <= numCol; x++){
-					buffer.append("     "+rst.getString(x)+"     ");
-				}
-				buffer.append('\n');
-				more=rst.next();
-			}
-		}catch(SQLException exp){
-			exp.getStackTrace();
-		}
-		
-		System.out.println(buffer.toString());
-	}
-	
-	/**
 	 * 
 	 * @param o
 	 */
@@ -297,7 +257,6 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 				int batchCount = 1;
 				stmt = conn.prepareStatement(query);
 				for (Row paramValue: whereClause) {
-
 					stmt = bindValueToStatement(stmt, 1, whereKeySet, paramValue.keyValueMap());
 					stmt.addBatch();
 					if ((++batchCount % batchSize) == 0) {
@@ -517,7 +476,6 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		try{
 			if(conn != null){
 				pstmt = conn.prepareStatement(query);
-
 				pstmt = bindValueToStatement(pstmt
 						, 1
 						, whereClause.getKeys()
@@ -591,6 +549,47 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 	}
 	
 ////////////////////////////////////Block Of Queries///////////////////////
+
+
+	/**
+	 * Display rows in a Result Set
+	 * @param rst
+	 */
+	public void displayResultSet(ResultSet rst){
+		StringBuffer buffer = new StringBuffer();
+		try{
+			if(rst.getType() == ResultSet.TYPE_SCROLL_SENSITIVE && rst.isAfterLast()){
+				rst.beforeFirst();
+			}
+			ResultSetMetaData rsmd = rst.getMetaData();
+			int numCol = rsmd.getColumnCount();
+			int totalHeaderLenght = 0;
+			for(int x = 1; x <= numCol; x++){
+				String columnName = "     " + rsmd.getColumnLabel(x) + "     ";
+				totalHeaderLenght += columnName.length();
+				buffer.append(columnName);
+			}
+
+			buffer.append('\n');
+			for(int x = 0; x <= totalHeaderLenght; x++){
+				buffer.append("-");
+			}
+			buffer.append('\n');
+
+			boolean more = rst.next();
+			while(more){
+				for(int x = 1; x <= numCol; x++){
+					buffer.append("     "+rst.getString(x)+"     ");
+				}
+				buffer.append('\n');
+				more=rst.next();
+			}
+		}catch(SQLException exp){
+			exp.getStackTrace();
+		}
+
+		System.out.println(buffer.toString());
+	}
 	
 	
     /**
