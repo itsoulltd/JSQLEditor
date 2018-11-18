@@ -625,52 +625,6 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
     		return executeSelect(query);
     	}	
     }
-
-	/**
-     * 
-     * @param query
-     * @param setParameter
-     * @return
-     * @throws SQLException
-     * @throws Exception
-     */
-    @Deprecated
-    public int executeUpdate(SQLUpdateQuery query
-    		, Row setParameter)
-    throws SQLException,Exception{
-    	
-    	if(setParameter == null 
-    			|| setParameter.size() <= 0){
-    		throw new Exception("Set Parameter Should not be bull or empty!!!");
-		}
-    	
-        int rowUpdated = 0;
-        PreparedStatement stmt=null;
-        String queryStr = query.toString();
-        String [] whereKeySet = query.getWhereProperties().getKeys();
-        
-        try{ 
-            if(conn != null){
-                stmt = conn.prepareStatement(queryStr);
-                
-                int length = setParameter.size();
-                stmt = bindValueToStatement(stmt, 1, setParameter.getKeys(), setParameter.keyValueMap());
-                if(whereKeySet != null)
-                	stmt = bindValueToStatement(stmt, length+1, whereKeySet, query.getWhereProperties().keyValueMap());
-                
-                rowUpdated = stmt.executeUpdate();
-                 
-            }            
-        }catch(SQLException exp){
-            throw exp;
-        }catch (IllegalArgumentException e) {
-            throw e;
-		}finally{
-        	if(stmt != null)
-        		stmt.close();
-        }
-        return rowUpdated;		
-    }
     
     private Row getLeastAppropriateProperties(List<Row> items, int index){
     	if(items == null || items.isEmpty()){
@@ -749,132 +703,81 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
     	if(columns.length == 0) {
     		return collection(rst);
     	}
-    	Table result = new Table();
-    	try{
-    		//IF cursor is moved till last row. Then set to the above first row. 
-    		if(rst.getType() == ResultSet.TYPE_SCROLL_SENSITIVE && rst.isAfterLast()){
-    			rst.beforeFirst();
-    		}
-    		ResultSetMetaData rsmd = rst.getMetaData();
-    		//Optimization
-    		List<Integer> columnIndecies = new ArrayList<Integer>();
-    		for(String columnName : columns){
-    			columnIndecies.add(rst.findColumn(columnName));
-    		}
-
-    		while(rst.next()){ //For each Row
-    			Row row = new Row();
-    			for(int x : columnIndecies){ //For each column in the columns
-    				String key = rsmd.getColumnName(x);
-    				DataType type = convertDataType(rsmd
-    						.getColumnTypeName(x));
-    				Object value = getValueFromResultSet(type, rst, x);
-    				Property property = new Property(key, value, type);
-    				row.add(property);
-    			}
-    			if(row.size() > 0)
-    				result.add(row);
-    		}
-    	}catch(SQLException exp){
-    		result = null;
-    		exp.getStackTrace();
-    	}
+		Table result = createTableFrom(rst, columns);
     	return result;
     }
-	
+
+	protected Table createTableFrom(ResultSet rst, String[] columns) {
+		Table result = new Table();
+		result.setRows(createRowsFrom(rst, columns));
+		return result;
+	}
+
 	/**
 	 * 
 	 * @param rst
 	 * @return
 	 */
     public Table collection(ResultSet rst){
-    	Table result = new Table();
-		try{
-			//IF cursor is moved till last row. Then set to the above first row. 
-			if(rst.getType() == ResultSet.TYPE_SCROLL_SENSITIVE && rst.isAfterLast()){
-                rst.beforeFirst();
-            }
-			ResultSetMetaData rsmd = rst.getMetaData();
-			int numCol = rsmd.getColumnCount();
-			
-			while(rst.next()){ //For each Row
-				Row row = new Row();
-				for(int x = 1; x <= numCol; x++){ //For each column in a Row
-					String key = rsmd.getColumnName(x);
-					DataType type = convertDataType(rsmd.getColumnTypeName(x));
-					Object value = getValueFromResultSet(type, rst, x);
-					
-					Property property = new Property(key, value, type);
-					row.add(property);
-				}
-				result.add(row);
-			}
-		}catch(SQLException exp){
-			result = null;
-			exp.getStackTrace();
-		}
+		Table result = createTableFrom(rst);
 		return result;
 	}
-	
+
+	protected Table createTableFrom(ResultSet rst) {
+		Table result = new Table();
+		result.setRows(createRowsFrom(rst));
+		return result;
+	}
+
 	public List<Row> convertToLists(ResultSet rst){
+		List<Row> result = createRowsFrom(rst);
+		return result;
+	}
+
+	protected List<Row> createRowsFrom(ResultSet rst) {
 		List<Row> result = new ArrayList<Row>();
 		try{
-			
-			//IF cursor is moved till last row. Then set to the above first row. 
+			//IF cursor is moved till last row. Then set to the above first row.
 			if(rst.getType() == ResultSet.TYPE_SCROLL_SENSITIVE && rst.isAfterLast()){
                 rst.beforeFirst();
             }
-			
 			ResultSetMetaData rsmd = rst.getMetaData();
 			int numCol = rsmd.getColumnCount();
-			
+
 			while(rst.next()){ //For each Row
-				Row row = new Row();
-				for(int x = 1; x <= numCol; x++){ //For each column in a Row
-					
-					String key = rsmd.getColumnName(x);
-					DataType type = convertDataType(rsmd.getColumnTypeName(x));
-					Object value = getValueFromResultSet(type, rst, x);
-					
-					Property property = new Property(key, value, type);
-					row.add(property);
-				}
-				result.add(row);
+				Row row = createRowFrom(rst, rsmd, numCol);
+				if(row.size() > 0)
+					result.add(row);
 			}
 		}catch(SQLException exp){
 			result = null;
 			exp.getStackTrace();
 		}
-		
 		return result;
 	}
-	
-	public List<Row> convertToLists(ResultSet rst, String...columns){
-		if(columns.length == 0){
-            return convertToLists(rst);
-        }
+
+	protected List<Row> createRowsFrom(ResultSet rst, String...columns) {
+
+    	if (columns == null || columns.length == 0) return createRowsFrom(rst);
+
 		List<Row> result = new ArrayList<Row>();
 		try{
-			//IF cursor is moved till last row. Then set to the above first row. 
+			//IF cursor is moved till last row. Then set to the above first row.
 			if(rst.getType() == ResultSet.TYPE_SCROLL_SENSITIVE && rst.isAfterLast()){
-                rst.beforeFirst();
-            }
-			
+				rst.beforeFirst();
+			}
 			ResultSetMetaData rsmd = rst.getMetaData();
+
 			//Optimization
-            List<Integer> columnIndecies = new ArrayList<Integer>();
-            for(String columnName : columns){
-                columnIndecies.add(rst.findColumn(columnName));
-            }
-			
+			List<Integer> columnIndecies = new ArrayList<Integer>();
+			for(String columnName : columns){
+				columnIndecies.add(rst.findColumn(columnName));
+			}
+
 			while(rst.next()){ //For each Row
 				Row row = new Row();
-				for(int x : columnIndecies){ //For each column in the paramProperties
-					String key = rsmd.getColumnName(x);
-					DataType type = convertDataType(rsmd
-							.getColumnTypeName(x));
-					Object value = getValueFromResultSet(type, rst, x);
-					Property property = new Property(key, value, type);
+				for(int x : columnIndecies){ //For each column in the columns
+					Property property = createPropertyFrom(rst, rsmd, x);
 					row.add(property);
 				}
 				if(row.size() > 0)
@@ -886,13 +789,35 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		}
 		return result;
 	}
+
+	protected Row createRowFrom(ResultSet rst, ResultSetMetaData rsmd, int numCol) throws SQLException {
+		Row row = new Row();
+		for(int x = 1; x <= numCol; x++){ //For each column in a Row
+			Property property = createPropertyFrom(rst, rsmd, x);
+			row.add(property);
+		}
+		return row;
+	}
+
+	protected Property createPropertyFrom(ResultSet rst, ResultSetMetaData rsmd, int x) throws SQLException {
+		String key = rsmd.getColumnName(x);
+		DataType type = convertDataType(rsmd.getColumnTypeName(x));
+		Object value = getValueFromResultSet(type, rst, x);
+		return new Property(key, value, type);
+	}
+
+	public List<Row> convertToLists(ResultSet rst, String...columns){
+		if(columns.length == 0){
+            return convertToLists(rst);
+        }
+		List<Row> result = createRowsFrom(rst, columns);
+		return result;
+	}
 	
 	public List<Map<String, Object>> convertToKeyValuePaire(ResultSet rst){
 		
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
-		
 		try{
-			
 			//IF cursor is moved till last row. Then set to the above first row. 
 			if(rst.getType() == ResultSet.TYPE_SCROLL_SENSITIVE && rst.isAfterLast()){
                 rst.beforeFirst();
@@ -902,10 +827,8 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 			int numCol = rsmd.getColumnCount();
 			
 			while(rst.next()){ //For each Row
-				
 				Map<String, Object> row = new HashMap<String, Object>(numCol);
 				for(int x = 1; x <= numCol; x++){ //For each column in a Row
-					
 					String key = rsmd.getColumnName(x);
 					DataType type = convertDataType(rsmd.getColumnTypeName(x));
 					Object value = getValueFromResultSet(type, rst, x);
@@ -930,15 +853,14 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
         }
 		
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
-		
 		try{
-			
 			//IF cursor is moved till last row. Then set to the above first row. 
 			if(rst.getType() == ResultSet.TYPE_SCROLL_SENSITIVE && rst.isAfterLast()){
                 rst.beforeFirst();
             }
 			
 			ResultSetMetaData rsmd = rst.getMetaData();
+
 			//Optimization
             List<Integer> columnIndecies = new ArrayList<Integer>();
             for(String columnName : paramProperties){
@@ -946,15 +868,12 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
             }
 			
 			while(rst.next()){ //For each Row
-				
 				Map<String, Object> row = new HashMap<String, Object>(columnIndecies.size());
 				for(int x : columnIndecies){ //For each column in paramProperties
-
 					String key = rsmd.getColumnName(x);
-
-					DataType type = convertDataType(rsmd
-							.getColumnTypeName(x));
+					DataType type = convertDataType(rsmd.getColumnTypeName(x));
 					Object value = getValueFromResultSet(type, rst, x);
+
 					row.put(key, value);
 				}
 				if(row.size() > 0)
@@ -982,7 +901,6 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		}
 		
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
-		
 		try{
 			
 			if(rst.getType() == ResultSet.TYPE_SCROLL_SENSITIVE && rst.isAfterLast()){
@@ -996,11 +914,9 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 			}
 			
 			while(rst.next()){ //For each Row
-				
 				HashMap<String, Object> row = new HashMap<String, Object>(columnIndices.size());
 				int newNameCount = 0;
 				for(int x : columnIndices){ //For each column in paramProperties
-					
 					String key = paramPropertyNames.get(newNameCount++);
 					DataType type = convertDataType(rsmd.getColumnTypeName(x));
 					Object value = getValueFromResultSet(type, rst, x);
@@ -1010,7 +926,6 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 				result.add(row);
 			}
 		}catch(SQLException exp){
-			
 			result = null;
 			exp.getStackTrace();
 		}
@@ -1021,9 +936,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 	public Map<Object, Map<String, Object>> convertToIndexedKeyValuePaire(ResultSet rst, String indexColumn){
 		
 		Map<Object,Map<String, Object>> result = new HashMap<Object, Map<String,Object>>();
-		
 		try{
-			
 			//IF cursor is moved till last row. Then set to the above first row. 
 			if(rst.getType() == ResultSet.TYPE_SCROLL_SENSITIVE && rst.isAfterLast()){
                 rst.beforeFirst();
@@ -1035,7 +948,6 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 			while(rst.next()){ //For each Row
 				
 				Object indexColValue = null;
-				
 				Map<String, Object> row = new HashMap<String, Object>(numCol);
 				for(int x = 1; x <= numCol; x++){ //For each column in a Row
 					
@@ -1045,7 +957,6 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 					
 					if(key.equals(indexColumn))
 						indexColValue = value;
-					
 					row.put(key, value);
 				}
 				if(indexColValue != null
@@ -1069,7 +980,6 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
         }
 		
 		Map<Object,Map<String, Object>> result = new HashMap<Object, Map<String,Object>>();
-		
 		try{
 			
 			//IF cursor is moved till last row. Then set to the above first row. 
@@ -1088,15 +998,14 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 			while(rst.next()){ //For each Row
 				
 				Object indexColValue = null;
-				
 				Map<String, Object> row = new HashMap<String, Object>(columnIndecies.size());
 				for(int x : columnIndecies){ //For each column in the paramProperties
 					
 					String key = rsmd.getColumnName(x);
-
 					DataType type = convertDataType(rsmd
 							.getColumnTypeName(x));
 					Object value = getValueFromResultSet(type, rst, x);
+
 					if (key.equals(indexColumn))
 						indexColValue = value;
 					row.put(key, value);
@@ -1158,8 +1067,8 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 					
 					if(key.equals(indexColumn))
 						indexColValue = value;
-					
 					row.put(keyConverted, value);
+
 				}
 				if(indexColValue != null
 						&& !result.containsKey(indexColValue))
@@ -1193,10 +1102,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
                 Row row = new Row();
                 
                 for(int x = 1; x <= numCol; x++){ //For each column in a Row
-                    String key = rsmd.getColumnName(x);
-                    DataType type = convertDataType(rsmd.getColumnTypeName(x));
-                    Object value = getValueFromResultSet(type, rst, x);
-                    Property property = new Property(key, value, type);
+                    Property property = createPropertyFrom(rst, rsmd, x);
                     row.add(property);
                 }
                 result = row;
@@ -1206,10 +1112,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
                         if(rowIndex == rst.getRow()){
                             Row row = new Row();
                             for(int x = 1; x <= numCol; x++){ //For each column in a Row
-                                String key = rsmd.getColumnName(x);
-                                DataType type = convertDataType(rsmd.getColumnTypeName(x));
-                                Object value = getValueFromResultSet(type, rst, x);
-                                Property property = new Property(key, value, type);
+								Property property = createPropertyFrom(rst, rsmd, x);
                                 row.add(property);
                             }
                             result = row;
