@@ -2,7 +2,6 @@ package com.it.soul.lab.sql.entity;
 
 import java.lang.reflect.Field;
 import java.sql.Date;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -24,7 +23,6 @@ import com.it.soul.lab.sql.query.models.Expression;
 import com.it.soul.lab.sql.query.models.ExpressionInterpreter;
 import com.it.soul.lab.sql.query.models.Operator;
 import com.it.soul.lab.sql.query.models.Property;
-import com.it.soul.lab.sql.query.models.Table;
 
 public abstract class Entity implements EntityInterface{
 	public Entity() {
@@ -213,11 +211,11 @@ public abstract class Entity implements EntityInterface{
 		SQLUpdateQuery query = (SQLUpdateQuery) exe.createBuilder(QueryType.UPDATE)
 														.set(properties.toArray(new Property[0]))
 														.from(tableName)
-														.where(updateWhereExpression()).build();
+														.where(primaryKeysInWhereExpression()).build();
 		int isUpdate = exe.executeUpdate(query);
 		return isUpdate == 1;
 	}
-	protected ExpressionInterpreter updateWhereExpression() {
+	protected ExpressionInterpreter primaryKeysInWhereExpression() {
 		//return new Expression(getPrimaryProperty(null), Operator.EQUAL);
 		List<Property> keys = getAllPrimaryProperty(null);
 		ExpressionInterpreter and = null;
@@ -273,7 +271,8 @@ public abstract class Entity implements EntityInterface{
 	}
 	@Override
 	public Boolean delete(QueryExecutor exe) throws SQLException, Exception {
-		Expression exp = new Expression(getPrimaryProperty(exe), Operator.EQUAL);
+		//Expression exp = new Expression(getPrimaryProperty(exe), Operator.EQUAL);
+		ExpressionInterpreter exp = primaryKeysInWhereExpression();
 		SQLDeleteQuery query = (SQLDeleteQuery) exe.createBuilder(QueryType.DELETE)
 														.rowsFrom(Entity.tableName(getClass()))
 														.where(exp).build();
