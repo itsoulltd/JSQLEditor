@@ -8,7 +8,8 @@ public class OrExpression extends AndExpression {
 
 	@Override
 	public String interpret() {
-		return "( " + lhr.interpret() + " OR " + rhr.interpret() + " )";
+		if (skipParenthesis() == false) return leftParenthesis + " " + lhr.interpret() + " OR " + rhr.interpret() + " " + rightParenthesis;
+		else return lhr.interpret() + " OR " + rhr.interpret();
 	}
 
 }
