@@ -1,11 +1,8 @@
 package com.it.soul.lab.sql;
 
-import com.it.soul.lab.sql.query.SQLInsertQuery;
 import com.it.soul.lab.sql.query.SQLQuery;
-import com.it.soul.lab.sql.query.SQLScalerQuery;
 import com.it.soul.lab.sql.query.models.Row;
 
-import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +13,7 @@ public interface QueryExecutor<S extends SQLQuery
         , D extends SQLQuery
         , C extends SQLQuery> extends AutoCloseable {
 
-    Blob createBlob(String val) throws SQLException;
+    Object createBlob(String val) throws SQLException;
     Boolean executeDDLQuery(String query) throws SQLException;
 
     Integer executeUpdate(U query) throws SQLException;

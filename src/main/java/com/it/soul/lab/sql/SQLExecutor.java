@@ -1190,7 +1190,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		return result;
 	}
 	
-	public Blob createBlob(String val) throws SQLException {
+	public Object createBlob(String val) throws SQLException {
 		byte[] bytes = val.getBytes();
 		Blob blob = conn.createBlob();
 		blob.setBytes(1, bytes);
