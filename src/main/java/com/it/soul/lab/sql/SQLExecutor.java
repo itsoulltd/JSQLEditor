@@ -109,6 +109,12 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 
 /////////////////////////////////////QueryExecutor-Interface///////////////
 
+
+	@Override
+	public SQLQuery.Builder createBuilder(QueryType queryType) {
+		return new SQLQuery.Builder(queryType);
+	}
+
 	@Override
 	public <T> List<T> executeCRUDQuery(String query, Class<T> type) throws SQLException, IllegalAccessException, InstantiationException {
 		ResultSet set = executeCRUDQuery(query);
