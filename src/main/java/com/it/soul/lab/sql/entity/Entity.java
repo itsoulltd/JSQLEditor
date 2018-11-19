@@ -28,7 +28,7 @@ public abstract class Entity implements EntityInterface{
 	public Entity() {
 		super();
 	}
-	private boolean hasColumnAnnotation(Field field) {
+	protected boolean hasColumnAnnotation(Field field) {
 		boolean isAnnotated = field.isAnnotationPresent(Column.class)
 				|| field.isAnnotationPresent(PrimaryKey.class);
 		return isAnnotated;
@@ -123,7 +123,7 @@ public abstract class Entity implements EntityInterface{
 		}
 		return result;
 	}
-	private String getPropertyKey(Field field) {
+	protected String getPropertyKey(Field field) {
 		//Introduce Column:name() -> So that, if we want to mapping different column naming in Database Schema.
 		//Logic: if column annotation not present OR Column:Name() is empty, then return field.getName() 
 		//       else return Column:name()
@@ -134,7 +134,7 @@ public abstract class Entity implements EntityInterface{
 		boolean hasValue = column.name().trim().isEmpty() == false;
 		return (hasValue) ? column.name().trim() : field.getName();
 	}
-	private boolean shouldAcceptAllProperty() {
+	protected boolean shouldAcceptAllProperty() {
 		if(this.getClass().isAnnotationPresent(TableName.class) == false) {
 			return true;
 		}
@@ -152,7 +152,7 @@ public abstract class Entity implements EntityInterface{
 		}
 		return _isAutoIncremented;
 	}
-	private PrimaryKey getPrimaryKey() {
+	protected PrimaryKey getPrimaryKey() {
 		PrimaryKey key = null;
 		Field[] fields = this.getClass().getDeclaredFields();
 		for (Field field : fields) {
@@ -163,7 +163,7 @@ public abstract class Entity implements EntityInterface{
 		}
 		return key;
 	}
-	private List<PrimaryKey> getAllPrimaryKey() {
+	protected List<PrimaryKey> getAllPrimaryKey() {
 		List<PrimaryKey> keys = new ArrayList<>();
 		Field[] fields = this.getClass().getDeclaredFields();
 		for (Field field : fields) {
@@ -173,7 +173,7 @@ public abstract class Entity implements EntityInterface{
 		}
 		return keys;
 	}
-	private Property getPrimaryProperty(QueryExecutor exe) {
+	protected Property getPrimaryProperty(QueryExecutor exe) {
 		Property result = null;
 		try {
 			String key = getPrimaryKey().name().trim();
@@ -183,7 +183,7 @@ public abstract class Entity implements EntityInterface{
 		}
 		return result;
 	}
-	private List<Property> getAllPrimaryProperty(QueryExecutor exe) {
+	protected List<Property> getAllPrimaryProperty(QueryExecutor exe) {
 		List<Property> results = new ArrayList<>();
 		try {
 			for (PrimaryKey pmKey : getAllPrimaryKey()){
@@ -280,14 +280,14 @@ public abstract class Entity implements EntityInterface{
 		return deletedId == 1;
 	}
 	///////////////////////////////////////Class API///////////////////////////////////////
-	private static <T extends Entity> boolean shouldAcceptAllProperty(Class<T> type) {
+	protected static <T extends Entity> boolean shouldAcceptAllProperty(Class<T> type) {
 		if(type.isAnnotationPresent(TableName.class) == false) {
 			return true;
 		}
 		TableName tableName = (TableName) type.getAnnotation(TableName.class);
 		return tableName.acceptAll();
 	}
-	private static <T extends Entity> Map<String, String> mapColumnsToProperties(Class<T> type) {
+	protected static <T extends Entity> Map<String, String> mapColumnsToProperties(Class<T> type) {
 		boolean acceptAll = Entity.shouldAcceptAllProperty(type);
 		if (acceptAll) {return null;}
 		
@@ -314,7 +314,7 @@ public abstract class Entity implements EntityInterface{
 		}
 		return result;
 	}
-	private static <T extends Entity> String tableName(Class<T> type) {
+	protected static <T extends Entity> String tableName(Class<T> type) {
 		if(type.isAnnotationPresent(TableName.class) == false) {
 			return type.getSimpleName();
 		}
