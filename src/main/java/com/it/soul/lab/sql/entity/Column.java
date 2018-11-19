@@ -11,8 +11,8 @@ import com.it.soul.lab.sql.query.models.DataType;
 @Retention(RUNTIME)
 @Target(FIELD)
 public @interface Column {
-	public String name() default "";
-	public String defaultValue() default "";
-	public DataType type() default DataType.STRING;
-	public String parseFormat() default "";
+	String name() default "";
+	String defaultValue() default "";
+	DataType type() default DataType.STRING;
+	String parseFormat() default "";
 }
