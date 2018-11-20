@@ -170,7 +170,7 @@ public abstract class Entity implements EntityInterface{
 		}
 		return keys;
 	}
-	protected PrimaryKey getPrimaryKey() {
+	private PrimaryKey getPrimaryKey() {
 		PrimaryKey key = null;
 		List<Field> fields = getPrimaryKeyFields();
 		for (Field field : fields) {
@@ -181,17 +181,7 @@ public abstract class Entity implements EntityInterface{
 		}
 		return key;
 	}
-	protected List<PrimaryKey> getAllPrimaryKey() {
-		List<PrimaryKey> keys = new ArrayList<>();
-		List<Field> fields = getPrimaryKeyFields();
-		for (Field field : fields) {
-			if(field.isAnnotationPresent(PrimaryKey.class)) {
-				keys.add(field.getAnnotation(PrimaryKey.class));
-			}
-		}
-		return keys;
-	}
-	protected Property getPrimaryProperty(QueryExecutor exe) {
+	private Property getPrimaryProperty(QueryExecutor exe) {
 		Property result = null;
 		try {
 			List<Field> primaryFields = getPrimaryKeyFields();
@@ -203,6 +193,16 @@ public abstract class Entity implements EntityInterface{
 			e.printStackTrace();
 		}
 		return result;
+	}
+	private List<PrimaryKey> getAllPrimaryKey() {
+		List<PrimaryKey> keys = new ArrayList<>();
+		List<Field> fields = getPrimaryKeyFields();
+		for (Field field : fields) {
+			if(field.isAnnotationPresent(PrimaryKey.class)) {
+				keys.add(field.getAnnotation(PrimaryKey.class));
+			}
+		}
+		return keys;
 	}
 	protected List<Property> getAllPrimaryProperty(QueryExecutor exe) {
 		List<Property> results = new ArrayList<>();
