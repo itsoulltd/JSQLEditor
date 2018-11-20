@@ -324,7 +324,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		return lastIncrementedID;
 	}
 
-	public Integer executeInsert(boolean isAutoGenaretedId, SQLInsertQuery insertQuery)
+	public Integer executeInsert(boolean autoId, SQLInsertQuery insertQuery)
 			throws SQLException, IllegalArgumentException{
 
 		if(insertQuery.getColumns() == null || insertQuery.getColumns().length <= 0){
@@ -337,7 +337,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 
 		try{
 			if(conn != null){
-				if(isAutoGenaretedId){
+				if(autoId){
 					stmt = conn.prepareStatement(query,	Statement.RETURN_GENERATED_KEYS);
 					stmt = bindValueToStatement(stmt, 1,insertQuery.getRow().getKeys(), insertQuery.getRow().keyValueMap());
 					stmt.executeUpdate();
@@ -361,7 +361,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		return affectedRows;
 	}
 
-	public Integer[] executeBatchInsert(boolean isAutoGenaretedId
+	public Integer[] executeBatchInsert(boolean autoId
 			, int batchSize
 			, String tableName
 			, List<Row> params)
@@ -390,7 +390,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 			batchSize = (batchSize < 100) ? 100 : batchSize;//Least should be 100
 			if(conn != null){
 				//
-				if(isAutoGenaretedId){
+				if(autoId){
 					stmt = conn.prepareStatement(query,Statement.RETURN_GENERATED_KEYS);
 					int batchCount = 1;
 					for (Row row : params) {
@@ -502,7 +502,6 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		return rowCount;
 	}
 
-	@Override
 	public <T> List<T> executeSelect(String query, Class<T> type) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
 		return executeSelect(query, type, null);
 	}
@@ -515,7 +514,6 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		return result;
 	}
 
-	@Override
 	public <T> List<T> executeSelect(SQLSelectQuery query, Class<T> type) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
 		return executeSelect(query, type, null);
 	}

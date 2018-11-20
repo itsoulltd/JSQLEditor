@@ -24,17 +24,12 @@ public interface QueryExecutor<S extends SQLQuery
     Integer executeDelete(D deleteQuery) throws SQLException;
     Integer executeBatchDelete(int batchSize, D deleteQuery, List<Row> whereClause) throws SQLException;
 
-    Integer executeInsert(boolean isAutoGenaretedId, String query) throws SQLException, IllegalArgumentException;
-    Integer executeInsert(boolean isAutoGenaretedId, I insertQuery) throws SQLException, IllegalArgumentException;
-    Integer[] executeBatchInsert(boolean isAutoGenaretedId, int batchSize, String tableName, List<Row> params) throws SQLException,IllegalArgumentException;
+    Integer executeInsert(boolean autoId, I insertQuery) throws SQLException, IllegalArgumentException;
+    Integer[] executeBatchInsert(boolean autoId, int batchSize, String tableName, List<Row> params) throws SQLException,IllegalArgumentException;
 
-    Integer getScalerValue(String query) throws SQLException;
     Integer getScalerValue(C scalerQuery) throws SQLException;
 
     <T> List<T> executeCRUDQuery(String query, Class<T> type) throws SQLException, IllegalAccessException, InstantiationException;
-    <T> List<T> executeSelect(String query, Class<T> type) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException;
     <T> List<T> executeSelect(String query, Class<T> type, Map<String, String> mappingKeys) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException;
-
-    <T> List<T> executeSelect(S query, Class<T> type) throws SQLException,IllegalArgumentException, IllegalAccessException, InstantiationException;
     <T> List<T> executeSelect(S query, Class<T> type, Map<String, String> mappingKeys) throws SQLException,IllegalArgumentException, IllegalAccessException, InstantiationException;
 }
