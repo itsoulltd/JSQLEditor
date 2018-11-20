@@ -29,7 +29,7 @@ public abstract class Entity implements EntityInterface{
 	}
 	protected List<Property> getProperties(QueryExecutor exe, boolean skipPrimary) {
 		List<Property> result = new ArrayList<>();
-		boolean acceptAll = shouldAcceptAllProperty();
+		boolean acceptAll = shouldAcceptAllAsProperty();
 		for (Field field : this.getClass().getDeclaredFields()) {
 			if(acceptAll == false && isFieldAnnotatedWith(field) == false) {
 				continue;
@@ -142,12 +142,8 @@ public abstract class Entity implements EntityInterface{
 			return field.getName();
 		}
 	}
-	protected boolean shouldAcceptAllProperty() {
-		if(this.getClass().isAnnotationPresent(TableName.class) == false) {
-			return true;
-		}
-		TableName tableName = (TableName) this.getClass().getAnnotation(TableName.class);
-		return tableName.acceptAll();
+	protected boolean shouldAcceptAllAsProperty() {
+		return Entity.shouldAcceptAllAsProperty(this.getClass());
 	}
 	private Boolean _isAutoIncremented = null;
 	private boolean isAutoIncrement() {
@@ -292,22 +288,27 @@ public abstract class Entity implements EntityInterface{
 															.into(Entity.tableName(getClass()))
 															.values(properties.toArray(new Property[0])).build();
 		
-		int insert = exe.executeInsert(isAutoIncrement(), query);
-		if(isAutoIncrement()) {
+		int result = exe.executeInsert(isAutoIncrement(), query);
+		if( result > 1 || isAutoIncrement()) {
 			//update primary key to insert
-			updateAutoID(insert);
+			updateAutoID(result);
 		}
-		return insert >= 1; //0=failed to insert, 1=successful to insert, >1=the auto incremented id which means inserted.
+		return result >= 1; //0=failed to insert, 1=successful to insert, >1=the auto incremented id which means inserted.
 	}
 	private void updateAutoID(int insert) throws NoSuchFieldException, IllegalAccessException {
 		List<Field> primaryFields = getPrimaryKeyFields();
 		if (primaryFields.isEmpty()) return;
 
 		try {
-			Field primaryField = primaryFields.get(0);
-			primaryField.setAccessible(true);
-			primaryField.set(this, insert);
-			primaryField.setAccessible(false);
+			//Update any primary field that has autoIncrement = yes
+			for (Field primaryField : primaryFields) {
+				if (primaryField.isAnnotationPresent(PrimaryKey.class) == false) continue;
+				if (primaryField.getAnnotation(PrimaryKey.class).autoIncrement() == false) continue;
+				primaryField.setAccessible(true);
+				primaryField.set(this, insert);
+				primaryField.setAccessible(false);
+				break;
+			}
 		} catch (SecurityException | IllegalArgumentException e) {
 			e.printStackTrace();
 		}
@@ -331,7 +332,7 @@ public abstract class Entity implements EntityInterface{
 		return deletedId == 1;
 	}
 	///////////////////////////////////////Class API///////////////////////////////////////
-	protected static <T extends Entity> boolean shouldAcceptAllProperty(Class<T> type) {
+	protected static <T extends Entity> boolean shouldAcceptAllAsProperty(Class<T> type) {
 		if(type.isAnnotationPresent(TableName.class) == false) {
 			return true;
 		}
@@ -339,7 +340,7 @@ public abstract class Entity implements EntityInterface{
 		return tableName.acceptAll();
 	}
 	protected static <T extends Entity> Map<String, String> mapColumnsToProperties(Class<T> type) {
-		boolean acceptAll = Entity.shouldAcceptAllProperty(type);
+		boolean acceptAll = Entity.shouldAcceptAllAsProperty(type);
 		if (acceptAll) {return null;}
 		
 		Map<String, String> result = new HashMap<>();
