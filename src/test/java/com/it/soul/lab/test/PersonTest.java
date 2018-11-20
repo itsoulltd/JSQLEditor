@@ -66,7 +66,7 @@ public class PersonTest {
 	@Test
 	public void testUpdate() {
 		Person person = new Person();
-		person.setUuid(UUID.randomUUID().toString());
+		person.setUuid_idx(UUID.randomUUID().toString());
 		person.setName_test(getRandomName());
 		try {
 			Boolean res = person.insert(exe);
@@ -90,7 +90,7 @@ public class PersonTest {
 	@Test
 	public void testInsert() {
 		Person person = new Person();
-		person.setUuid(UUID.randomUUID().toString());
+		person.setUuid_idx(UUID.randomUUID().toString());
 		//person.setName(getRandomName());
 		person.setAge(getRandomAge());
 		//person.setActive(true);
@@ -117,7 +117,7 @@ public class PersonTest {
 	@Test
 	public void testDelete() {
 		Person person = new Person();
-		person.setUuid(UUID.randomUUID().toString());
+		person.setUuid_idx(UUID.randomUUID().toString());
 		person.setName_test(getRandomName());
 		try {
 			Boolean res = person.insert(exe);
@@ -166,10 +166,10 @@ public class PersonTest {
 		Person person = new Person();
 		
 		//UseCase when uuid is @PrimaryKey and autoIncrement is false.
-		Property prop = person.getPropertyTest("uuid", exe, true);
+		Property prop = person.getPropertyTest("uuid_idx", exe, true);
 		Assert.assertTrue(prop == null);
 		
-		prop = person.getPropertyTest("uuid", exe, false);
+		prop = person.getPropertyTest("uuid_idx", exe, false);
 		Assert.assertTrue(prop != null);
 		
 		//prop = person.getPropertyTest("", exe, true);

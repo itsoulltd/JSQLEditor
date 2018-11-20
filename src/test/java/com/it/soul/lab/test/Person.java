@@ -13,7 +13,7 @@ import com.it.soul.lab.sql.query.models.DataType;
 /*
  * CREATE TABLE Person
 (
-    uuid varchar(512) PRIMARY KEY NOT NULL,
+    uuid_idx varchar(512) PRIMARY KEY NOT NULL,
     name varchar(512),
     age int,
     active boolean,
@@ -27,7 +27,7 @@ import com.it.soul.lab.sql.query.models.DataType;
 public class Person extends Entity {
 
 	@PrimaryKey(name = "uuid", autoIncrement = false)
-	private String uuid;
+	private String uuid_idx;
 
 	@Column(name="name", defaultValue="towhid-islam")
 	private String name_test;
@@ -57,11 +57,11 @@ public class Person extends Entity {
 	public Person() {
 		super();
 	}
-	public String getUuid() {
-		return uuid;
+	public String getUuid_idx() {
+		return uuid_idx;
 	}
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
+	public void setUuid_idx(String uuid_idx) {
+		this.uuid_idx = uuid_idx;
 	}
 	public String getName_test() {
 		return name_test;

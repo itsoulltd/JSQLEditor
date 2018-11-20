@@ -97,10 +97,18 @@ public abstract class Entity implements EntityInterface{
 		//always.
 		return value;
 	}
-	protected Property getProperty(String key, QueryExecutor exe, boolean skipPrimary) {
+
+	/**
+	 *
+	 * @param fieldName : must have to be the associated field name:
+	 * @param exe
+	 * @param skipPrimary
+	 * @return
+	 */
+	protected Property getProperty(String fieldName, QueryExecutor exe, boolean skipPrimary) {
 		Property result = null;
 		try {
-			Field field = this.getClass().getDeclaredField(key);
+			Field field = this.getClass().getDeclaredField(fieldName);
 			if(field.isAnnotationPresent(PrimaryKey.class)) {
 				if (skipPrimary) {return null;}
 				if (((PrimaryKey)field.getAnnotation(PrimaryKey.class)).autoIncrement() == true
@@ -121,12 +129,18 @@ public abstract class Entity implements EntityInterface{
 		//Introduce Column:name() -> So that, if we want to mapping different column naming in Database Schema.
 		//Logic: if column annotation not present OR Column:Name() is empty, then return field.getName() 
 		//       else return Column:name()
-		if(field.isAnnotationPresent(Column.class) == false) {
+		//Also consider @PrimaryKey:name() is also present.
+		if(field.isAnnotationPresent(Column.class)) {
+			Column column = field.getAnnotation(Column.class);
+			String clName = column.name().trim();
+			return (!clName.isEmpty()) ? clName : field.getName();
+		}else if(field.isAnnotationPresent(PrimaryKey.class)) {
+			PrimaryKey pm = field.getAnnotation(PrimaryKey.class);
+			String pmName = pm.name().trim();
+			return (!pmName.isEmpty()) ? pmName : field.getName();
+		}else {
 			return field.getName();
 		}
-		Column column = field.getAnnotation(Column.class);
-		boolean hasValue = column.name().trim().isEmpty() == false;
-		return (hasValue) ? column.name().trim() : field.getName();
 	}
 	protected boolean shouldAcceptAllProperty() {
 		if(this.getClass().isAnnotationPresent(TableName.class) == false) {
@@ -138,7 +152,7 @@ public abstract class Entity implements EntityInterface{
 	private Boolean _isAutoIncremented = null;
 	private boolean isAutoIncrement() {
 		if(_isAutoIncremented == null) {
-			PrimaryKey primAnno = getPrimaryKey(); 
+			PrimaryKey primAnno = getPrimaryKey();
 			if(primAnno == null) {
 				_isAutoIncremented = false;
 			}
@@ -146,9 +160,19 @@ public abstract class Entity implements EntityInterface{
 		}
 		return _isAutoIncremented;
 	}
+	protected List<Field> getPrimaryKeyFields() {
+		List<Field> keys = new ArrayList<>();
+		Field[] fields = this.getClass().getDeclaredFields();
+		for (Field field : fields) {
+			if(field.isAnnotationPresent(PrimaryKey.class)) {
+				keys.add(field);
+			}
+		}
+		return keys;
+	}
 	protected PrimaryKey getPrimaryKey() {
 		PrimaryKey key = null;
-		Field[] fields = this.getClass().getDeclaredFields();
+		List<Field> fields = getPrimaryKeyFields();
 		for (Field field : fields) {
 			if(field.isAnnotationPresent(PrimaryKey.class)) {
 				key = field.getAnnotation(PrimaryKey.class);
@@ -159,7 +183,7 @@ public abstract class Entity implements EntityInterface{
 	}
 	protected List<PrimaryKey> getAllPrimaryKey() {
 		List<PrimaryKey> keys = new ArrayList<>();
-		Field[] fields = this.getClass().getDeclaredFields();
+		List<Field> fields = getPrimaryKeyFields();
 		for (Field field : fields) {
 			if(field.isAnnotationPresent(PrimaryKey.class)) {
 				keys.add(field.getAnnotation(PrimaryKey.class));
@@ -170,7 +194,10 @@ public abstract class Entity implements EntityInterface{
 	protected Property getPrimaryProperty(QueryExecutor exe) {
 		Property result = null;
 		try {
-			String key = getPrimaryKey().name().trim();
+			List<Field> primaryFields = getPrimaryKeyFields();
+			if (primaryFields.isEmpty()) return result;
+			//
+			String key = primaryFields.get(0).getName();
 			result = getProperty(key, exe, false);
 		} catch (SecurityException | IllegalArgumentException e) {
 			e.printStackTrace();
@@ -180,8 +207,11 @@ public abstract class Entity implements EntityInterface{
 	protected List<Property> getAllPrimaryProperty(QueryExecutor exe) {
 		List<Property> results = new ArrayList<>();
 		try {
-			for (PrimaryKey pmKey : getAllPrimaryKey()){
-				String key = pmKey.name().trim();
+			List<Field> primaryFields = getPrimaryKeyFields();
+			if (primaryFields.isEmpty()) return results;
+			//
+			for (Field pmKeyField : primaryFields){
+				String key = pmKeyField.getName();
 				results.add(getProperty(key, exe, false));
 			}
 		} catch (SecurityException | IllegalArgumentException e) {
@@ -189,6 +219,16 @@ public abstract class Entity implements EntityInterface{
 		}
 		return results;
 	}
+
+	/**
+	 *
+	 * @param exe
+	 * @param keys
+	 * @return
+	 * @throws SQLException
+	 * @throws Exception
+	 */
+	@Override
 	public Boolean update(QueryExecutor exe, String...keys) throws SQLException, Exception {
 		List<Property> properties = new ArrayList<>();
 		if(keys.length > 0) {
@@ -205,13 +245,13 @@ public abstract class Entity implements EntityInterface{
 		SQLUpdateQuery query = exe.createBuilder(QueryType.UPDATE)
 														.set(properties.toArray(new Property[0]))
 														.from(tableName)
-														.where(primaryKeysInWhereExpression()).build();
+														.where(primaryKeysInWhereExpression(exe)).build();
 		int isUpdate = exe.executeUpdate(query);
 		return isUpdate == 1;
 	}
-	protected ExpressionInterpreter primaryKeysInWhereExpression() {
+	protected ExpressionInterpreter primaryKeysInWhereExpression(QueryExecutor exe) {
 		//return new Expression(getPrimaryProperty(null), Operator.EQUAL);
-		List<Property> keys = getAllPrimaryProperty(null);
+		List<Property> keys = getAllPrimaryProperty(exe);
 		ExpressionInterpreter and = null;
 		ExpressionInterpreter lhr = null;
 		for (Property prop : keys) {
@@ -226,6 +266,15 @@ public abstract class Entity implements EntityInterface{
 		}
 		return and;
 	}
+
+	/**
+	 *
+	 * @param exe
+	 * @param keys : must be field names associated with this class.
+	 * @return
+	 * @throws SQLException
+	 * @throws Exception
+	 */
 	@Override
 	public Boolean insert(QueryExecutor exe, String... keys) throws SQLException, Exception {
 		List<Property> properties = new ArrayList<>();
@@ -251,22 +300,30 @@ public abstract class Entity implements EntityInterface{
 		return insert >= 1; //0=failed to insert, 1=successful to insert, >1=the auto incremented id which means inserted.
 	}
 	private void updateAutoID(int insert) throws NoSuchFieldException, IllegalAccessException {
-		PrimaryKey pmKey = getPrimaryKey();
-		if(pmKey != null && pmKey.name().trim().isEmpty() == false) {
-			try {
-				Field primaryField = getClass().getDeclaredField(pmKey.name().trim());
-				primaryField.setAccessible(true);
-				primaryField.set(this, insert);
-				primaryField.setAccessible(false);
-			} catch (SecurityException | IllegalArgumentException e) {
-				e.printStackTrace();
-			} 
+		List<Field> primaryFields = getPrimaryKeyFields();
+		if (primaryFields.isEmpty()) return;
+
+		try {
+			Field primaryField = primaryFields.get(0);
+			primaryField.setAccessible(true);
+			primaryField.set(this, insert);
+			primaryField.setAccessible(false);
+		} catch (SecurityException | IllegalArgumentException e) {
+			e.printStackTrace();
 		}
 	}
+
+	/**
+	 *
+	 * @param exe
+	 * @return
+	 * @throws SQLException
+	 * @throws Exception
+	 */
 	@Override
 	public Boolean delete(QueryExecutor exe) throws SQLException, Exception {
 		//Expression exp = new Expression(getPrimaryProperty(exe), Operator.EQUAL);
-		ExpressionInterpreter exp = primaryKeysInWhereExpression();
+		ExpressionInterpreter exp = primaryKeysInWhereExpression(exe);
 		SQLDeleteQuery query = exe.createBuilder(QueryType.DELETE)
 														.rowsFrom(Entity.tableName(getClass()))
 														.where(exp).build();
