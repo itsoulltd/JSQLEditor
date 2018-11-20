@@ -194,7 +194,7 @@ public abstract class Entity implements EntityInterface{
 		}
 		return result;
 	}
-	private List<PrimaryKey> getAllPrimaryKey() {
+	private List<PrimaryKey> getPrimaryKeys() {
 		List<PrimaryKey> keys = new ArrayList<>();
 		List<Field> fields = getPrimaryKeyFields();
 		for (Field field : fields) {
@@ -204,7 +204,7 @@ public abstract class Entity implements EntityInterface{
 		}
 		return keys;
 	}
-	protected List<Property> getAllPrimaryProperty(QueryExecutor exe) {
+	protected List<Property> getPrimaryProperties(QueryExecutor exe) {
 		List<Property> results = new ArrayList<>();
 		try {
 			List<Field> primaryFields = getPrimaryKeyFields();
@@ -251,7 +251,7 @@ public abstract class Entity implements EntityInterface{
 	}
 	protected ExpressionInterpreter primaryKeysInWhereExpression(QueryExecutor exe) {
 		//return new Expression(getPrimaryProperty(null), Operator.EQUAL);
-		List<Property> keys = getAllPrimaryProperty(exe);
+		List<Property> keys = getPrimaryProperties(exe);
 		ExpressionInterpreter and = null;
 		ExpressionInterpreter lhr = null;
 		for (Property prop : keys) {
