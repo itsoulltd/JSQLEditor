@@ -353,15 +353,11 @@ public abstract class Entity implements EntityInterface{
 			if (field.isAnnotationPresent(Column.class)){
 				Column column = field.getAnnotation(Column.class);
 				String columnName = (column.name().trim().isEmpty() == false) ? column.name().trim() : field.getName();
-				field.setAccessible(true);
 				result.put(columnName, field.getName());
-				field.setAccessible(false);
 			}else if(field.isAnnotationPresent(PrimaryKey.class)){
 				PrimaryKey primaryKey = field.getAnnotation(PrimaryKey.class);
 				String columnName = (primaryKey.name().trim().isEmpty() == false) ? primaryKey.name().trim() : field.getName();
-				field.setAccessible(true);
 				result.put(columnName, field.getName());
-				field.setAccessible(false);
 			}
 		}
 		return result;
