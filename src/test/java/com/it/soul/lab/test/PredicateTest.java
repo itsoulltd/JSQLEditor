@@ -4,7 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.it.soul.lab.sql.query.SQLQuery;
-import com.it.soul.lab.sql.query.SQLQuery.QueryType;
+import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.SQLSelectQuery;
 import com.it.soul.lab.sql.query.models.AndExpression;
 import com.it.soul.lab.sql.query.models.Expression;

@@ -1,5 +1,6 @@
 package com.it.soul.lab.sql;
 
+import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.SQLQuery;
 import com.it.soul.lab.sql.query.builder.QueryBuilderImpl;
 import com.it.soul.lab.sql.query.models.Row;
@@ -14,7 +15,7 @@ public interface QueryExecutor<S extends SQLQuery
         , D extends SQLQuery
         , C extends SQLQuery> extends AutoCloseable {
 
-    QueryBuilderImpl createBuilder(SQLQuery.QueryType queryType);
+    QueryBuilderImpl createBuilder(QueryType queryType);
     Object createBlob(String val) throws SQLException;
     Boolean executeDDLQuery(String query) throws SQLException;
 

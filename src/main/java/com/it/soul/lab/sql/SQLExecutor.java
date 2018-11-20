@@ -1,7 +1,7 @@
 package com.it.soul.lab.sql;
 
 import com.it.soul.lab.sql.query.*;
-import com.it.soul.lab.sql.query.SQLQuery.QueryType;
+import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.models.DataType;
 import com.it.soul.lab.sql.query.models.Property;
 import com.it.soul.lab.sql.query.models.Row;
