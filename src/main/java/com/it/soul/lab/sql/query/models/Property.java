@@ -25,6 +25,11 @@ public class Property {
 	
 	public Property(String key, Object value, DataType type){
 		this(key, value);
+		this.type = type;
+	}
+
+	public Property(String key, DataType type){
+		this(key, null, type);
 	}
 	
 	public Property(String key){
