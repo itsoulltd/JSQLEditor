@@ -22,7 +22,7 @@ public abstract class Entity implements EntityInterface{
 	public Entity() {
 		super();
 	}
-	protected boolean hasColumnAnnotation(Field field) {
+	protected boolean isFieldAnnotatedWith(Field field) {
 		boolean isAnnotated = field.isAnnotationPresent(Column.class)
 				|| field.isAnnotationPresent(PrimaryKey.class);
 		return isAnnotated;
@@ -31,7 +31,7 @@ public abstract class Entity implements EntityInterface{
 		List<Property> result = new ArrayList<>();
 		boolean acceptAll = shouldAcceptAllProperty();
 		for (Field field : this.getClass().getDeclaredFields()) {
-			if(acceptAll == false && hasColumnAnnotation(field) == false) {
+			if(acceptAll == false && isFieldAnnotatedWith(field) == false) {
 				continue;
 			}
 			Property prop = getProperty(field.getName(), exe, skipPrimary);
