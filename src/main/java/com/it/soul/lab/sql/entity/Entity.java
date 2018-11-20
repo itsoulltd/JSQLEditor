@@ -156,7 +156,7 @@ public abstract class Entity implements EntityInterface{
 		}
 		return _isAutoIncremented;
 	}
-	protected List<Field> getPrimaryKeyFields() {
+	protected List<Field> getPrimaryFields() {
 		List<Field> keys = new ArrayList<>();
 		Field[] fields = this.getClass().getDeclaredFields();
 		for (Field field : fields) {
@@ -168,7 +168,7 @@ public abstract class Entity implements EntityInterface{
 	}
 	private PrimaryKey getPrimaryKey() {
 		PrimaryKey key = null;
-		List<Field> fields = getPrimaryKeyFields();
+		List<Field> fields = getPrimaryFields();
 		for (Field field : fields) {
 			if(field.isAnnotationPresent(PrimaryKey.class)) {
 				key = field.getAnnotation(PrimaryKey.class);
@@ -180,7 +180,7 @@ public abstract class Entity implements EntityInterface{
 	private Property getPrimaryProperty(QueryExecutor exe) {
 		Property result = null;
 		try {
-			List<Field> primaryFields = getPrimaryKeyFields();
+			List<Field> primaryFields = getPrimaryFields();
 			if (primaryFields.isEmpty()) return result;
 			//
 			String key = primaryFields.get(0).getName();
@@ -192,7 +192,7 @@ public abstract class Entity implements EntityInterface{
 	}
 	private List<PrimaryKey> getPrimaryKeys() {
 		List<PrimaryKey> keys = new ArrayList<>();
-		List<Field> fields = getPrimaryKeyFields();
+		List<Field> fields = getPrimaryFields();
 		for (Field field : fields) {
 			if(field.isAnnotationPresent(PrimaryKey.class)) {
 				keys.add(field.getAnnotation(PrimaryKey.class));
@@ -203,7 +203,7 @@ public abstract class Entity implements EntityInterface{
 	protected List<Property> getPrimaryProperties(QueryExecutor exe) {
 		List<Property> results = new ArrayList<>();
 		try {
-			List<Field> primaryFields = getPrimaryKeyFields();
+			List<Field> primaryFields = getPrimaryFields();
 			if (primaryFields.isEmpty()) return results;
 			//
 			for (Field pmKeyField : primaryFields){
@@ -296,7 +296,7 @@ public abstract class Entity implements EntityInterface{
 		return result >= 1; //0=failed to insert, 1=successful to insert, >1=the auto incremented id which means inserted.
 	}
 	private void updateAutoID(int insert) throws NoSuchFieldException, IllegalAccessException {
-		List<Field> primaryFields = getPrimaryKeyFields();
+		List<Field> primaryFields = getPrimaryFields();
 		if (primaryFields.isEmpty()) return;
 
 		try {
