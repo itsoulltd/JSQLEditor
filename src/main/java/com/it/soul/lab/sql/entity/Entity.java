@@ -1,5 +1,13 @@
 package com.it.soul.lab.sql.entity;
 
+import com.it.soul.lab.sql.QueryExecutor;
+import com.it.soul.lab.sql.query.SQLDeleteQuery;
+import com.it.soul.lab.sql.query.SQLInsertQuery;
+import com.it.soul.lab.sql.query.SQLQuery.QueryType;
+import com.it.soul.lab.sql.query.SQLSelectQuery;
+import com.it.soul.lab.sql.query.SQLUpdateQuery;
+import com.it.soul.lab.sql.query.models.*;
+
 import java.lang.reflect.Field;
 import java.sql.Date;
 import java.sql.SQLException;
@@ -9,20 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.it.soul.lab.sql.QueryExecutor;
-import com.it.soul.lab.sql.query.SQLDeleteQuery;
-import com.it.soul.lab.sql.query.SQLInsertQuery;
-import com.it.soul.lab.sql.query.SQLQuery;
-import com.it.soul.lab.sql.query.SQLQuery.QueryType;
-import com.it.soul.lab.sql.query.SQLSelectQuery;
-import com.it.soul.lab.sql.query.SQLUpdateQuery;
-import com.it.soul.lab.sql.query.models.AndExpression;
-import com.it.soul.lab.sql.query.models.DataType;
-import com.it.soul.lab.sql.query.models.Expression;
-import com.it.soul.lab.sql.query.models.ExpressionInterpreter;
-import com.it.soul.lab.sql.query.models.Operator;
-import com.it.soul.lab.sql.query.models.Property;
 
 public abstract class Entity implements EntityInterface{
 	public Entity() {
@@ -350,9 +344,6 @@ public abstract class Entity implements EntityInterface{
 					.columns()
 					.from(name).build();
 		}
-		//ResultSet set = exe.executeSelect(query);
-		//Table table = exe.collection(set);
-		//return table.inflate(type, Entity.mapColumnsToProperties(type));
 		return exe.executeSelect(query, type, Entity.mapColumnsToProperties(type));
 	}
 }

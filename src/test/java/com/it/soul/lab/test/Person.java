@@ -28,12 +28,7 @@ public class Person extends Entity {
 
 	@PrimaryKey(name = "uuid", autoIncrement = false)
 	private String uuid;
-	public String getUuid() {
-		return uuid;
-	}
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
-	}
+
 	@Column(name="name", defaultValue="towhid-islam")
 	private String name_test;
 	
@@ -61,6 +56,12 @@ public class Person extends Entity {
 	
 	public Person() {
 		super();
+	}
+	public String getUuid() {
+		return uuid;
+	}
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
 	}
 	public String getName_test() {
 		return name_test;
