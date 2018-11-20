@@ -14,5 +14,8 @@ public enum QueryType {
     INNER_JOIN,
     LEFT_JOIN,
     RIGHT_JOIN,
-    FULL_JOIN
+    FULL_JOIN,
+    CREATE,
+    ALTER,
+    DROP
 }
