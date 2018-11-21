@@ -662,22 +662,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
     }
 
     private String getDataType(Field field){
-
         String name = field.getType().getName();
-
-        if(field.isAnnotationPresent(PrimaryKey.class)) {
-            PrimaryKey pm = field.getAnnotation(PrimaryKey.class);
-            name = pm.type().name().trim();
-        }
-        if(field.isAnnotationPresent(ClusteringKey.class)) {
-            ClusteringKey cl = field.getAnnotation(ClusteringKey.class);
-            name = cl.type().name().trim();
-        }
-        if (field.isAnnotationPresent(Column.class)){
-            Column column = field.getAnnotation(Column.class);
-            name = column.type().name().trim();
-        }
-
         String compName = getCompatibleDataType(name, field);
         return compName != null ? compName : name.toLowerCase();
     }
