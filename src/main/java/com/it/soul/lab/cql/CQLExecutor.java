@@ -317,7 +317,14 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
             .newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     public <T extends Entity> void executeSelect(CQLSelectQuery cqlSelectQuery, Class<T> aClass, Consumer<List<T>> consumer)  {
-        Statement statement = createSelectStatementFrom(cqlSelectQuery);
+        Statement statement = null;
+        try{
+            statement = createSelectStatementFrom(cqlSelectQuery);
+        }catch (Exception e) {
+            System.out.println(e.getMessage());
+            consumer.accept(null);
+            return;
+        }
         ResultSetFuture future = getSession().executeAsync(statement);
         Futures.addCallback(future
                 , new FutureCallback<ResultSet>() {
@@ -480,8 +487,11 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         }
     }
 
-    public boolean createIndex(String onColumn, String onTable) throws SQLException {
-        String query = String.format("CREATE INDEX IF NOT EXISTS %s_idx ON %s (%s);", onColumn, onTable, onColumn);
+    public <T extends Entity> boolean createIndexOn(String onColumn, Class<T> tableType) throws SQLException {
+        String tableNameStr = getTableName(tableType);
+        if (tableNameStr == null) return false;
+
+        String query = String.format("CREATE INDEX IF NOT EXISTS %s_idx ON %s (%s);", onColumn, tableNameStr, onColumn);
         try{
             ResultSet set = getSession().execute(query);
             return set.wasApplied();
