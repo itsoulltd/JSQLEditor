@@ -21,10 +21,7 @@ public class Where implements WhereClause {
 			this.key = key;
 		}
 		
-		public Predicate createExpression(Object value, DataType type, Operator opt) {
-			if (type == null) {
-				type = DataType.getDataType(value);
-			}
+		public Predicate createExpression(Object value, Operator opt) {
 			ExpressionInterpreter exp = new Expression(new Property(key, value), opt);
 			if(expression == null) {
 				expression = exp;
@@ -93,52 +90,52 @@ public class Where implements WhereClause {
 	
 	@Override
 	public Predicate isEqualTo(Object value) {
-		return getProxy().createExpression(value, null, Operator.EQUAL);
+		return getProxy().createExpression(value, Operator.EQUAL);
 	}
 
 	@Override
 	public Predicate isGreaterThen(Object value) {
-		return getProxy().createExpression(value, null, Operator.GREATER_THAN);
+		return getProxy().createExpression(value, Operator.GREATER_THAN);
 	}
 
 	@Override
 	public Predicate notEqualTo(Object value) {
-		return getProxy().createExpression(value, null, Operator.NOTEQUAL);
+		return getProxy().createExpression(value, Operator.NOTEQUAL);
 	}
 
 	@Override
 	public Predicate isGreaterThenOrEqual(Object value) {
-		return getProxy().createExpression(value, null, Operator.GREATER_THAN_OR_EQUAL);
+		return getProxy().createExpression(value, Operator.GREATER_THAN_OR_EQUAL);
 	}
 
 	@Override
 	public Predicate isLessThen(Object value) {
-		return getProxy().createExpression(value, null, Operator.LESS_THAN);
+		return getProxy().createExpression(value, Operator.LESS_THAN);
 	}
 
 	@Override
 	public Predicate isLessThenOrEqual(Object value) {
-		return getProxy().createExpression(value, null, Operator.LESS_THAN_OR_EQUAL);
+		return getProxy().createExpression(value, Operator.LESS_THAN_OR_EQUAL);
 	}
 
 	@Override
 	public Predicate isIn(Object value) {
-		return getProxy().createExpression(value, null, Operator.IN);
+		return getProxy().createExpression(value, Operator.IN);
 	}
 
 	@Override
 	public Predicate notIn(Object value) {
-		return getProxy().createExpression(value, null, Operator.NOT_IN);
+		return getProxy().createExpression(value, Operator.NOT_IN);
 	}
 
 	@Override
 	public Predicate isLike(Object value) {
-		return getProxy().createExpression(value, null, Operator.LIKE);
+		return getProxy().createExpression(value, Operator.LIKE);
 	}
 
 	@Override
 	public Predicate notLike(Object value) {
-		return getProxy().createExpression(value, null, Operator.NOT_LIKE);
+		return getProxy().createExpression(value, Operator.NOT_LIKE);
 	}
 
 	
