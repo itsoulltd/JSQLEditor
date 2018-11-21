@@ -25,7 +25,7 @@ public class Where implements WhereClause {
 			if (type == null) {
 				type = DataType.getDataType(value);
 			}
-			ExpressionInterpreter exp = new Expression(new Property(key, value, type), opt);
+			ExpressionInterpreter exp = new Expression(new Property(key, value), opt);
 			if(expression == null) {
 				expression = exp;
 			}else {

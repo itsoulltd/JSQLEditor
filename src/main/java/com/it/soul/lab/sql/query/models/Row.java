@@ -28,11 +28,8 @@ public class Row {
 		return this;
 	}
 	public Row add(String name){return add(new Property(name));}
-	public Row add(String name, Object value, DataType type){
-		return add(new Property(name, value, type));
-	}
 	public Row add(String name, Object value){
-		return add(new Property(name, value, DataType.getDataType(value)));
+		return add(new Property(name, value));
 	}
 	public List<Property> getCloneProperties(){
 		//All standard collections have copy constructors.
@@ -78,8 +75,7 @@ public class Row {
         		if (dataMap.containsKey(columnName)) {
         			String newKey = mapEntry.getValue();
                 	Property m = dataMap.get(columnName);
-                	Property newProp = new Property(mapEntry.getValue(), m.getValue(),
-                            m.getType());
+                	Property newProp = new Property(mapEntry.getValue(), m.getValue());
                     nXRow.put(newKey, newProp);
                 }
 			}

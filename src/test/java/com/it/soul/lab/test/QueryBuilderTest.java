@@ -97,7 +97,7 @@ public class QueryBuilderTest {
 	
 	@Test
 	public void countTest(){
-		Property prop = new Property("name", "sohana", DataType.STRING);
+		Property prop = new Property("name", "sohana");
 		Expression comps = new Expression("name", Operator.EQUAL);
 		
 		SQLScalerQuery count = new SQLQuery.Builder(QueryType.COUNT)

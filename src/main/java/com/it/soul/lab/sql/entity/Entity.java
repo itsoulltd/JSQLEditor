@@ -40,9 +40,6 @@ public abstract class Entity implements EntityInterface{
 		}
 		return result;
 	}
-	private DataType getDataType(Object value) {
-		return DataType.getDataType(value);
-	}
 	private java.util.Date parseDate(String val, DataType type, String format){
 		try {
 			SimpleDateFormat formatter = new SimpleDateFormat((format != null && format.trim().isEmpty() == false) 
@@ -117,8 +114,7 @@ public abstract class Entity implements EntityInterface{
 			field.setAccessible(true);
 			String actualKey = getPropertyKey(field);
 			Object value = getFieldValue(field, exe);
-			DataType type = getDataType(value);
-			result = new Property(actualKey, value, type);
+			result = new Property(actualKey, value);
 			field.setAccessible(false);
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException | SQLException e) {
 			e.printStackTrace();

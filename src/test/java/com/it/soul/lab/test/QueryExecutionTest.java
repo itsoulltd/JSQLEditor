@@ -90,7 +90,7 @@ public class QueryExecutionTest {
 		//Insert into
 		SQLInsertQuery iQuery2 = (SQLInsertQuery) new SQLQuery.Builder(QueryType.INSERT)
 										.into("Passenger")
-										.values(new Property("name","tanvir"), new Property("age", 28, DataType.INT), new Property("sex"))
+										.values(new Property("name","tanvir"), new Property("age", 28), new Property("sex"))
 										.build();
 		try {
 			int autoId = exe.executeInsert(true, iQuery2);

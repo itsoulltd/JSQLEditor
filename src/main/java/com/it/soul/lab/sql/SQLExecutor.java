@@ -807,7 +807,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		String key = rsmd.getColumnName(x);
 		DataType type = convertDataType(rsmd.getColumnTypeName(x));
 		Object value = getValueFromResultSet(type, rst, x);
-		return new Property(key, value, type);
+		return new Property(key, value);
 	}
 
 	public List<Row> convertToLists(ResultSet rst, String...columns){
@@ -1151,7 +1151,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 			
 			while(rst.next()){ //For each Row
 				Object value = getValueFromResultSet(type, rst, x);
-				Property prop = new Property(key,value, type);
+				Property prop = new Property(key,value);
 				result.add(prop);
 			}
 		}catch(SQLException exp){
@@ -1184,7 +1184,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 			
 			while(rst.next()){ //For each Row
 				Object value = getValueFromResultSet(type, rst, x);
-				Property prop = new Property(key,value, type);
+				Property prop = new Property(key, value);
 				result.add(prop);
 			}
 		}catch(SQLException exp){
@@ -1308,12 +1308,11 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
     	return stmt;
     }
 	
-	private Object getValueFromResultSet(DataType type, ResultSet rst, int index)
+	protected Object getValueFromResultSet(DataType type, ResultSet rst, int index)
 	throws SQLException{
 		
 		Object value = null;
 		switch (type) {
-
 		case INT:
 			value = new Integer(rst.getInt(index));
 			break;
@@ -1343,7 +1342,6 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 			value = rst.getObject(index);
 			break;
 		}
-		
 		return value;
 	}
 
