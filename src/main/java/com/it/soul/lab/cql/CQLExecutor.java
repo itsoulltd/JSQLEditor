@@ -214,8 +214,6 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
     @Override
     public Integer executeInsert(boolean autoId, CQLInsertQuery cqlInsertQuery) throws SQLException, IllegalArgumentException {
         try{
-            //cqlInsertQuery.usingTimestamp(LocalDateTime.now());
-            cqlInsertQuery.usingTTL(60 * 60 * 24);
             Statement statement = createInsertStatement(cqlInsertQuery);
             getSession().execute(statement);
             return 1;

@@ -1,5 +1,6 @@
 package com.it.soul.lab.cql.entity;
 
+import com.it.soul.lab.cql.query.CQLInsertQuery;
 import com.it.soul.lab.sql.QueryExecutor;
 import com.it.soul.lab.sql.entity.Column;
 import com.it.soul.lab.sql.entity.Entity;
@@ -57,6 +58,40 @@ public abstract class CQLEntity extends Entity {
         }else {
             return super.getPropertyKey(field);
         }
+    }
+
+    private long getTTLValue(){
+        if (getClass().isAnnotationPresent(EnableTimeToLive.class)) {
+            return getClass().getAnnotation(EnableTimeToLive.class).value();
+        }
+        return 0;
+    }
+
+    @Override
+    public Boolean insert(QueryExecutor exe, String... keys) throws SQLException {
+        //
+        List<Property> properties = new ArrayList<>();
+        if(keys.length > 0) {
+            for (String key : keys) {
+                String skey = key.trim();
+                Property prop = getProperty(skey, exe, false);
+                if (prop == null) {continue;}
+                properties.add(prop);
+            }
+        }else {
+            properties = getProperties(exe, false);
+        }
+        CQLInsertQuery query = exe.createBuilder(QueryType.INSERT)
+                .into(Entity.tableName(getClass()))
+                .values(properties.toArray(new Property[0])).build();
+
+        long ttl = getTTLValue();
+        if (ttl > 0){
+            query.usingTTL(ttl);
+        }
+
+        int result = exe.executeInsert(false, query);
+        return result == 1;
     }
 
     public static <T extends Entity> Map<String, String> mapColumnsToProperties(Class<T> type) {
