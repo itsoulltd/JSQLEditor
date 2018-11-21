@@ -221,7 +221,7 @@ public abstract class Entity implements EntityInterface{
 	 * @throws Exception
 	 */
 	@Override
-	public Boolean update(QueryExecutor exe, String...keys) throws SQLException, Exception {
+	public Boolean update(QueryExecutor exe, String...keys) throws SQLException {
 		List<Property> properties = new ArrayList<>();
 		if(keys.length > 0) {
 			for (String key : keys) {
@@ -268,7 +268,7 @@ public abstract class Entity implements EntityInterface{
 	 * @throws Exception
 	 */
 	@Override
-	public Boolean insert(QueryExecutor exe, String... keys) throws SQLException, Exception {
+	public Boolean insert(QueryExecutor exe, String... keys) throws SQLException {
 		List<Property> properties = new ArrayList<>();
 		if(keys.length > 0) {
 			for (String key : keys) {
@@ -287,11 +287,15 @@ public abstract class Entity implements EntityInterface{
 		int result = exe.executeInsert(isAutoIncrement(), query);
 		if( result > 1 || isAutoIncrement()) {
 			//update primary key to insert
-			updateAutoID(result);
+			try {
+				updateAutoID(result);
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
 		}
 		return result >= 1; //0=failed to insert, 1=successful to insert, >1=the auto incremented id which means inserted.
 	}
-	private void updateAutoID(int insert) throws NoSuchFieldException, IllegalAccessException {
+	private void updateAutoID(int insert) throws IllegalAccessException {
 		List<Field> primaryFields = getPrimaryFields();
 		if (primaryFields.isEmpty()) return;
 
@@ -318,7 +322,7 @@ public abstract class Entity implements EntityInterface{
 	 * @throws Exception
 	 */
 	@Override
-	public Boolean delete(QueryExecutor exe) throws SQLException, Exception {
+	public Boolean delete(QueryExecutor exe) throws SQLException {
 		//Expression exp = new Expression(getPrimaryProperty(exe), Operator.EQUAL);
 		ExpressionInterpreter exp = primaryKeysInWhereExpression(exe);
 		SQLDeleteQuery query = exe.createBuilder(QueryType.DELETE)

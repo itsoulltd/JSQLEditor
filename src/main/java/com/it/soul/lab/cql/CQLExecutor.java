@@ -148,9 +148,8 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
     public Integer executeUpdate(CQLUpdateQuery cqlUpdateQuery) throws SQLException {
         try {
             Statement statement = createUpdateStatement(cqlUpdateQuery);
-            ResultSet set = getSession().execute(statement);
-            com.datastax.driver.core.Row row = set.one();
-            return row != null ? 1 : 0;
+            getSession().execute(statement);
+            return 1;
         }catch (Exception e){
             throw new SQLException(e.getMessage());
         }
@@ -184,9 +183,8 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
     public Integer executeDelete(CQLDeleteQuery cqlDeleteQuery) throws SQLException {
         try{
             Statement statement = createSelectStatementFrom(cqlDeleteQuery);
-            ResultSet set = getSession().execute(statement);
-            com.datastax.driver.core.Row row = set.one();
-            return row != null ? 1 : 0;
+            getSession().execute(statement);
+            return 1;
         }catch (Exception e) {
             throw new SQLException(e.getMessage());
         }
@@ -199,9 +197,8 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
 
     public Integer executeInsert(boolean autoId, String s) throws SQLException, IllegalArgumentException {
         try{
-            ResultSet set = getSession().execute(s);
-            com.datastax.driver.core.Row row = set.one();
-            return row != null ? 1 : 0;
+            getSession().execute(s);
+            return 1;
         }catch (Exception e){
             throw new SQLException(e.getMessage());
         }
@@ -213,9 +210,8 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
             //cqlInsertQuery.usingTimestamp(LocalDateTime.now());
             cqlInsertQuery.usingTTL(60 * 60 * 24);
             Statement statement = createInsertStatement(cqlInsertQuery);
-            ResultSet set = getSession().execute(statement);
-            com.datastax.driver.core.Row row = set.one();
-            return row != null ? 1 : 0;
+            getSession().execute(statement);
+            return 1;
         }catch (Exception e){
             throw new SQLException(e.getMessage());
         }
