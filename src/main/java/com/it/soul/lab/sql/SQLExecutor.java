@@ -504,8 +504,8 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		return rowCount;
 	}
 
-	public <T> List<T> executeSelect(String query, Class<T> type) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
-		return executeSelect(query, type, null);
+	public <T extends Entity> List<T> executeSelect(String query, Class<T> type) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
+		return executeSelect(query, type, Entity.mapColumnsToProperties(type));
 	}
 
 	@Override
