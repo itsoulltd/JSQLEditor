@@ -721,6 +721,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         if (name.contains("double")) return "double";
         if (name.contains("float")) return "float";
         if (name.contains("blob")) return "blob";
+        if (name.contains("uuid")) return "uuid";
         if (name.contains("date") || name.contains("time") || name.contains("timestamp")) return "timestamp";
         return null;
     }
