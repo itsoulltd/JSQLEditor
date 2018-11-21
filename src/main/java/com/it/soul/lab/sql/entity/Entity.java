@@ -339,7 +339,7 @@ public abstract class Entity implements EntityInterface{
 		TableName tableName = (TableName) type.getAnnotation(TableName.class);
 		return tableName.acceptAll();
 	}
-	protected static <T extends Entity> Map<String, String> mapColumnsToProperties(Class<T> type) {
+	public static <T extends Entity> Map<String, String> mapColumnsToProperties(Class<T> type) {
 		boolean acceptAll = Entity.shouldAcceptAllAsProperty(type);
 		if (acceptAll) {return null;}
 		

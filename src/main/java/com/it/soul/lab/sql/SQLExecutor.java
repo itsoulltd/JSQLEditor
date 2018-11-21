@@ -1,15 +1,17 @@
 package com.it.soul.lab.sql;
 
+import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.query.*;
-import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.models.DataType;
 import com.it.soul.lab.sql.query.models.Property;
 import com.it.soul.lab.sql.query.models.Row;
 import com.it.soul.lab.sql.query.models.Table;
 
 import java.sql.*;
-import java.sql.Date;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSelectQuery, SQLInsertQuery, SQLUpdateQuery, SQLDeleteQuery, SQLScalerQuery>, QueryTransaction{
 
@@ -116,11 +118,11 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 	}
 
 	@Override
-	public <T> List<T> executeCRUDQuery(String query, Class<T> type) throws SQLException, IllegalAccessException, InstantiationException {
+	public <T extends Entity> List<T> executeCRUDQuery(String query, Class<T> type) throws SQLException, IllegalAccessException, InstantiationException {
 		ResultSet set = executeCRUDQuery(query);
 		if (set != null){
 			Table table = collection(set);
-			List results = table.inflate(type);
+			List results = table.inflate(type, Entity.mapColumnsToProperties(type));
 			return results;
 		}
 		return null;

@@ -2,6 +2,8 @@ package com.it.soul.lab.cql;
 
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.policies.DCAwareRoundRobinPolicy;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import com.it.soul.lab.cql.entity.CQLEntity;
 import com.it.soul.lab.cql.entity.ClusteringKey;
 import com.it.soul.lab.cql.query.*;
@@ -33,6 +35,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSelectQuery, CQLInsertQuery, CQLUpdateQuery, CQLDeleteQuery, SQLScalerQuery>, QueryTransaction {
 
@@ -304,6 +311,52 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         }catch (Exception e){
             throw new SQLException(e.getMessage());
         }
+    }
+
+    private final ExecutorService executionPool = Executors
+            .newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+    public <T extends Entity> void executeSelect(CQLSelectQuery cqlSelectQuery, Class<T> aClass, Consumer<List<T>> consumer)  {
+        Statement statement = createSelectStatementFrom(cqlSelectQuery);
+        ResultSetFuture future = getSession().executeAsync(statement);
+        Futures.addCallback(future
+                , new FutureCallback<ResultSet>() {
+                    @Override
+                    public void onSuccess(ResultSet rows) {
+                        //
+                        List<Row> items = StreamSupport.stream(rows.spliterator(), false)
+                                .map(row -> {
+                                    ColumnDefinitions def = row.getColumnDefinitions();
+                                    Row nRow = new Row();
+                                    for (ColumnDefinitions.Definition definition : def.asList()){
+                                        nRow.add(definition.getName(), row.getObject(definition.getName()));
+                                    }
+                                    return nRow;
+                                }).collect(Collectors.toList());
+
+                        //items.forEach(row -> System.out.println(row.size()));
+                        Table table = new Table();
+                        table.setRows(items);
+                        try {
+                            List<T> results = table.inflate(aClass, CQLEntity.mapColumnsToProperties(aClass));
+                            consumer.accept(results);
+                        } catch (InstantiationException e) {
+                            System.out.println(e.getMessage());
+                            consumer.accept(null);
+                        } catch (IllegalAccessException e) {
+                            System.out.println(e.getMessage());
+                            consumer.accept(null);
+                        }
+                        //
+                    }
+
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        System.out.println(throwable.getMessage());
+                        consumer.accept(null);
+                    }
+                }, executionPool);
+        //
     }
 
     protected Statement createSelectStatementFrom(SQLSelectQuery cqlSelectQuery) {
