@@ -725,6 +725,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         if (name.contains("string") || name.contains("text")) return "text";
         if (name.contains("integer")) return "int";
         if (name.contains("int")) return "int";
+        if (name.contains("long")) return "bigint";
         if (name.contains("boolean")) return "boolean";
         if (name.contains("double")) return "double";
         if (name.contains("float")) return "float";
