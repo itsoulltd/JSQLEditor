@@ -1,4 +1,4 @@
-package com.it.soul.lab.test;
+package com.it.soul.lab.sql;
 
 import org.junit.Assert;
 import org.junit.Test;

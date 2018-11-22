@@ -1,4 +1,4 @@
-package com.it.soul.lab.test;
+package com.it.soul.lab.sql;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -8,7 +8,6 @@ import com.it.soul.lab.jpql.query.JPQLSelectQuery;
 import com.it.soul.lab.jpql.query.JPQLUpdateQuery;
 import com.it.soul.lab.sql.query.SQLJoinQuery;
 import com.it.soul.lab.sql.query.SQLQuery;
-import com.it.soul.lab.sql.query.models.DataType;
 import com.it.soul.lab.sql.query.models.Logic;
 import com.it.soul.lab.sql.query.models.Operator;
 import com.it.soul.lab.sql.query.QueryType;

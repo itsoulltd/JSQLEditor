@@ -1,9 +1,8 @@
-package com.it.soul.lab.test;
+package com.it.soul.lab.sql;
 
 import java.sql.Date;
 import java.sql.Timestamp;
 
-import com.it.soul.lab.sql.SQLExecutor;
 import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.entity.PrimaryKey;
 import com.it.soul.lab.sql.entity.Column;

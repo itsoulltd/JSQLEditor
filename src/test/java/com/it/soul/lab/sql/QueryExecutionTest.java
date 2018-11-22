@@ -1,4 +1,4 @@
-package com.it.soul.lab.test;
+package com.it.soul.lab.sql;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -13,7 +13,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.it.soul.lab.connect.JDBConnection;
-import com.it.soul.lab.sql.SQLExecutor;
 import com.it.soul.lab.sql.query.SQLDeleteQuery;
 import com.it.soul.lab.sql.query.SQLInsertQuery;
 import com.it.soul.lab.sql.query.SQLQuery;

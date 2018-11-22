@@ -1,4 +1,4 @@
-package com.it.soul.lab.test;
+package com.it.soul.lab.sql;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -17,7 +17,6 @@ import org.junit.Test;
 
 import com.it.soul.lab.connect.JDBConnection;
 import com.it.soul.lab.connect.JDBConnection.DriverClass;
-import com.it.soul.lab.sql.SQLExecutor;
 import com.it.soul.lab.sql.query.models.Expression;
 import com.it.soul.lab.sql.query.models.ExpressionInterpreter;
 import com.it.soul.lab.sql.query.models.Operator;

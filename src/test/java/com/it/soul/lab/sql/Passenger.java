@@ -1,6 +1,5 @@
-package com.it.soul.lab.test;
+package com.it.soul.lab.sql;
 
-import com.it.soul.lab.sql.SQLExecutor;
 import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.entity.PrimaryKey;
 import com.it.soul.lab.sql.query.models.Property;
