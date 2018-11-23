@@ -643,9 +643,14 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         }
         //
         primaryComposit.replace(primaryComposit.length()-1, primaryComposit.length(),")");
-        clusterComposit.replace(clusterComposit.length()-1, clusterComposit.length(), ")");
-        primaryBuf.append(primaryComposit.toString()).append( "," + clusterComposit.toString());
-        clusterBuf.replace(clusterBuf.length()-1, clusterBuf.length(), ")");
+        if (clusterComposit.toString().trim().length() > 0) {
+            clusterComposit.replace(clusterComposit.length() - 1, clusterComposit.length(), ")");
+            primaryBuf.append(primaryComposit.toString()).append( "," + clusterComposit.toString());
+            clusterBuf.replace(clusterBuf.length()-1, clusterBuf.length(), ")");
+        }else{
+            primaryBuf.append(primaryComposit.toString());
+            clusterBuf.replace(0, clusterBuf.length(), ")");
+        }
         //With the line by line meaning.
         String query = headBuffer.append(" (") // CREATE TABLE IF NOT EXISTS (
                 .append(columnBuf.toString())  // col-1 type, col-2 type, .... ,
