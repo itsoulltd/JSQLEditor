@@ -30,7 +30,12 @@ public class SQLExecutorTest {
     public void useTest(){
         try {
             //exe.useDatabase("testDB");
-            boolean isCreated = exe.executeDDLQuery("CREATE TABLE IF NOT EXISTS Passenger (id int auto_increment primary key, name varchar(1024) null, age  int default '18' null, sex varchar(12) null, constraint Passenger_id_uindex unique (id));");
+            boolean isCreated = exe.executeDDLQuery("CREATE TABLE IF NOT EXISTS Passenger (" +
+                    "id int auto_increment primary key" +
+                    ", name varchar(1024) null" +
+                    ", age  int default '18' null" +
+                    ", sex varchar(12) null" +
+                    ", constraint Passenger_id_uindex unique (id));");
             Assert.assertTrue("Created Successfully", isCreated);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
