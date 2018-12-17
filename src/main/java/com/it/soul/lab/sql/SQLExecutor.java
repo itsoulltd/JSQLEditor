@@ -1,5 +1,6 @@
 package com.it.soul.lab.sql;
 
+import com.it.soul.lab.connect.JDBConnection;
 import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.query.*;
 import com.it.soul.lab.sql.query.models.DataType;
@@ -14,6 +15,29 @@ import java.util.List;
 import java.util.Map;
 
 public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSelectQuery, SQLInsertQuery, SQLUpdateQuery, SQLDeleteQuery, SQLScalerQuery>, QueryTransaction{
+
+	public static class Builder {
+		private JDBConnection.Builder connectionBuilder;
+		public Builder(JDBConnection.DriverClass driver){
+			connectionBuilder = new JDBConnection.Builder(driver);
+		}
+		public Builder host(String name, String port) {
+			connectionBuilder.host(name, port);
+			return this;
+		}
+		public Builder database(String name) {
+			connectionBuilder.database(name);
+			return this;
+		}
+		public Builder credential(String name, String password){
+			connectionBuilder.credential(name, password);
+			return this;
+		}
+		public SQLExecutor build() throws Exception {
+			Connection conn = connectionBuilder.build();
+			return new SQLExecutor(conn);
+		}
+	}
 
 	private Connection conn = null;
 
@@ -532,19 +556,23 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 
 		if(query == null
 				|| query.length() <=0
-				|| !query.trim().toLowerCase().startsWith("create")
-				|| !query.trim().toLowerCase().startsWith("delete")
-				|| !query.trim().toLowerCase().startsWith("alter")){
+				/*|| !query.trim().toLowerCase().startsWith("create")
+				|| !query.trim().toLowerCase().startsWith("drop")
+				|| !query.trim().toLowerCase().startsWith("alter")*/){
 			throw new SQLException("Bad Formatted Query : " + query);
 		}
 
+		return executeDDLStatement(query);
+	}
+
+	protected Boolean executeDDLStatement(String query) throws SQLException {
 		boolean isCreated = false;
 		PreparedStatement stmt = null;
 		try{
 			if(conn != null){
 				stmt = conn.prepareStatement(query);
-				stmt.executeUpdate();
-				isCreated = true;
+				int result = stmt.executeUpdate();
+				isCreated = result == 0;
 			}
 		}catch(SQLException exp){
 			throw exp;
@@ -553,9 +581,30 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		}
 		return isCreated;
 	}
-	
+
 ////////////////////////////////////Block Of Queries///////////////////////
 
+	public boolean useDatabase(String database) throws SQLException {
+
+		if (database == null || database.trim().isEmpty()) return false;
+
+		String query = "USE " + database;
+		return executeDDLStatement(query);
+	}
+
+	public <T extends Entity> Boolean createTable(Class<T> tableType, JDBConnection.DriverClass driverClass) throws SQLException {
+		String tableNameStr = getTableName(tableType);
+		if (tableNameStr == null) return false;
+
+		StringBuffer headBuffer = new StringBuffer("CREATE TABLE IF NOT EXISTS " + tableNameStr);
+
+		if (driverClass == JDBConnection.DriverClass.MYSQL){
+			//TODO:
+		}else{
+			//TODO:
+		}
+		return false;
+	}
 
 	/**
 	 * Display rows in a Result Set

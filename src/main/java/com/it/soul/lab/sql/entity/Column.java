@@ -15,4 +15,5 @@ public @interface Column {
 	String defaultValue() default "";
 	DataType type() default DataType.STRING;
 	String parseFormat() default "";
+	ColumnConstraint constraint() default ColumnConstraint.NONE;
 }

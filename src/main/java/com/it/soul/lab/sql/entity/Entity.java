@@ -362,11 +362,11 @@ public abstract class Entity implements EntityInterface{
 		}
 		return result;
 	}
-	protected static <T extends Entity> String tableName(Class<T> type) {
+	public static <T extends Entity> String tableName(Class<T> type) {
 		if(type.isAnnotationPresent(TableName.class) == false) {
 			return type.getSimpleName();
 		}
-		TableName tableName = (TableName) type.getAnnotation(TableName.class);
+		TableName tableName = type.getAnnotation(TableName.class);
 		String name = (tableName.value().trim().length() == 0) ? type.getSimpleName() : tableName.value().trim();
 		return name;
 	}
