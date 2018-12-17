@@ -190,14 +190,14 @@ public class SQLExecutor implements Serializable{
 ////////////////////////////////////Block Of Queries///////////////////////
 	
 	 
-	public boolean executeTableManipulation(String query)
+	public boolean executeDDLQuery(String query)
     throws SQLException,Exception{
 		
 		if(query == null 
 				|| query.length() <=0 
-				|| !query.trim().toLowerCase().startsWith("create")
-				|| !query.trim().toLowerCase().startsWith("delete")
-				|| !query.trim().toLowerCase().startsWith("alter")){
+				/*|| !query.trim().toLowerCase().startsWith("create")
+				|| !query.trim().toLowerCase().startsWith("drop")
+				|| !query.trim().toLowerCase().startsWith("alter")*/){
 			throw new Exception("Bad Formated Query : " + query);
 		}
     	
@@ -221,7 +221,6 @@ public class SQLExecutor implements Serializable{
 	
     /**
      * Query for Update,Insert,Delete
-     * @param conn
      * @param query
      * @return Number Of affected rows
      */
@@ -522,7 +521,6 @@ public class SQLExecutor implements Serializable{
     
     /**
      * Query for Insert with Auto Generated Id
-     * @param conn
      * @param query
      * @return Last Inserted ID
      */
@@ -611,7 +609,6 @@ public class SQLExecutor implements Serializable{
      * 
      * @param isAutoGenaretedId
      * @param batchSize
-     * @param iQuery
      * @param params
      * @return
      * @throws SQLException
@@ -704,8 +701,7 @@ public class SQLExecutor implements Serializable{
     }
     
     /**
-     * 
-     * @param conn
+     *
      * @param query
      * @return
      * @throws SQLException
@@ -775,7 +771,6 @@ public class SQLExecutor implements Serializable{
     
     /**
      * Query for select
-     * @param conn
      * @param query
      * @return ResultSet
      */
@@ -1270,7 +1265,6 @@ public class SQLExecutor implements Serializable{
 	 * 
 	 * @param rst
 	 * @param rowIndex > 0
-	 * @param isObjectType
 	 * @return
 	 */
 	
