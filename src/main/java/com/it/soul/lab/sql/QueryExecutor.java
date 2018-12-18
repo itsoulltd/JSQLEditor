@@ -16,7 +16,7 @@ public interface QueryExecutor<S extends SQLQuery
         , D extends SQLQuery
         , C extends SQLQuery> extends AutoCloseable {
 
-    QueryBuilderImpl createBuilder(QueryType queryType);
+    QueryBuilderImpl createQueryBuilder(QueryType queryType);
     Object createBlob(String val) throws SQLException;
     Boolean executeDDLQuery(String query) throws SQLException;
 

@@ -234,7 +234,7 @@ public abstract class Entity implements EntityInterface{
 			properties = getProperties(exe, true);
 		}
 		String tableName = Entity.tableName(getClass());
-		SQLUpdateQuery query = exe.createBuilder(QueryType.UPDATE)
+		SQLUpdateQuery query = exe.createQueryBuilder(QueryType.UPDATE)
 														.set(properties.toArray(new Property[0]))
 														.from(tableName)
 														.where(primaryKeysInWhereExpression(exe)).build();
@@ -280,7 +280,7 @@ public abstract class Entity implements EntityInterface{
 		}else {
 			properties = getProperties(exe, false);
 		}
-		SQLInsertQuery query = exe.createBuilder(QueryType.INSERT)
+		SQLInsertQuery query = exe.createQueryBuilder(QueryType.INSERT)
 															.into(Entity.tableName(getClass()))
 															.values(properties.toArray(new Property[0])).build();
 		
@@ -325,7 +325,7 @@ public abstract class Entity implements EntityInterface{
 	public Boolean delete(QueryExecutor exe) throws SQLException {
 		//Expression exp = new Expression(getPrimaryProperty(exe), Operator.EQUAL);
 		ExpressionInterpreter exp = primaryKeysInWhereExpression(exe);
-		SQLDeleteQuery query = exe.createBuilder(QueryType.DELETE)
+		SQLDeleteQuery query = exe.createQueryBuilder(QueryType.DELETE)
 														.rowsFrom(Entity.tableName(getClass()))
 														.where(exp).build();
 		int deletedId = exe.executeDelete(query);
@@ -389,12 +389,12 @@ public abstract class Entity implements EntityInterface{
 		String name = Entity.tableName(type);
 		SQLSelectQuery query = null;
 		if(expression != null) {
-			query = exe.createBuilder(QueryType.SELECT)
+			query = exe.createQueryBuilder(QueryType.SELECT)
 					.columns()
 					.from(name)
 					.where(expression).build();
 		}else {
-			query = exe.createBuilder(QueryType.SELECT)
+			query = exe.createQueryBuilder(QueryType.SELECT)
 					.columns()
 					.from(name).build();
 		}

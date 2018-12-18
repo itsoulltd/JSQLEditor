@@ -137,7 +137,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 
 
 	@Override
-	public SQLQuery.Builder createBuilder(QueryType queryType) {
+	public SQLQuery.Builder createQueryBuilder(QueryType queryType) {
 		return new SQLQuery.Builder(queryType);
 	}
 

@@ -6,11 +6,9 @@ import com.it.soul.lab.sql.entity.Column;
 import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.entity.PrimaryKey;
 import com.it.soul.lab.sql.query.QueryType;
-import com.it.soul.lab.sql.query.SQLQuery;
 import com.it.soul.lab.sql.query.SQLSelectQuery;
 import com.it.soul.lab.sql.query.models.*;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.util.*;
@@ -81,7 +79,7 @@ public abstract class CQLEntity extends Entity {
         }else {
             properties = getProperties(exe, false);
         }
-        CQLInsertQuery query = exe.createBuilder(QueryType.INSERT)
+        CQLInsertQuery query = exe.createQueryBuilder(QueryType.INSERT)
                 .into(Entity.tableName(getClass()))
                 .values(properties.toArray(new Property[0])).build();
 
@@ -137,12 +135,12 @@ public abstract class CQLEntity extends Entity {
     private static SQLSelectQuery getSqlSelectQuery(QueryExecutor exe, ExpressionInterpreter expression, String name) {
         SQLSelectQuery query = null;
         if(expression != null) {
-            query = exe.createBuilder(QueryType.SELECT)
+            query = exe.createQueryBuilder(QueryType.SELECT)
                     .columns()
                     .from(name)
                     .where(expression).build();
         }else {
-            query = exe.createBuilder(QueryType.SELECT)
+            query = exe.createQueryBuilder(QueryType.SELECT)
                     .columns()
                     .from(name).build();
         }

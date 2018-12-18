@@ -147,7 +147,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
     }
 
     @Override
-    public CQLQuery.Builder createBuilder(QueryType queryType) {
+    public CQLQuery.Builder createQueryBuilder(QueryType queryType) {
         return new CQLQuery.Builder(queryType);
     }
 
