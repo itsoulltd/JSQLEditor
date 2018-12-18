@@ -68,17 +68,7 @@ public abstract class CQLEntity extends Entity {
     @Override
     public Boolean insert(QueryExecutor exe, String... keys) throws SQLException {
         //
-        List<Property> properties = new ArrayList<>();
-        if(keys.length > 0) {
-            for (String key : keys) {
-                String skey = key.trim();
-                Property prop = getProperty(skey, exe, false);
-                if (prop == null) {continue;}
-                properties.add(prop);
-            }
-        }else {
-            properties = getProperties(exe, false);
-        }
+        List<Property> properties = getPropertiesFromKeys(exe, keys, false);
         CQLInsertQuery query = exe.createQueryBuilder(QueryType.INSERT)
                 .into(Entity.tableName(getClass()))
                 .values(properties.toArray(new Property[0])).build();

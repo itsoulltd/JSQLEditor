@@ -222,17 +222,7 @@ public abstract class Entity implements EntityInterface{
 	 */
 	@Override
 	public Boolean update(QueryExecutor exe, String...keys) throws SQLException {
-		List<Property> properties = new ArrayList<>();
-		if(keys.length > 0) {
-			for (String key : keys) {
-				String skey = key.trim();
-				Property prop = getProperty(skey, exe, true);
-				if (prop == null) {continue;}
-				properties.add(prop);
-			}
-		}else {
-			properties = getProperties(exe, true);
-		}
+		List<Property> properties = getPropertiesFromKeys(exe, keys, true);
 		String tableName = Entity.tableName(getClass());
 		SQLUpdateQuery query = exe.createQueryBuilder(QueryType.UPDATE)
 														.set(properties.toArray(new Property[0]))
@@ -269,17 +259,7 @@ public abstract class Entity implements EntityInterface{
 	 */
 	@Override
 	public Boolean insert(QueryExecutor exe, String... keys) throws SQLException {
-		List<Property> properties = new ArrayList<>();
-		if(keys.length > 0) {
-			for (String key : keys) {
-				String skey = key.trim();
-				Property prop = getProperty(skey, exe, false);
-				if (prop == null) {continue;}
-				properties.add(prop);
-			}
-		}else {
-			properties = getProperties(exe, false);
-		}
+		List<Property> properties = getPropertiesFromKeys(exe, keys, false);
 		SQLInsertQuery query = exe.createQueryBuilder(QueryType.INSERT)
 															.into(Entity.tableName(getClass()))
 															.values(properties.toArray(new Property[0])).build();
@@ -295,6 +275,24 @@ public abstract class Entity implements EntityInterface{
 		}
 		return result >= 1; //0=failed to insert, 1=successful to insert, >1=the auto incremented id which means inserted.
 	}
+
+	protected List<Property> getPropertiesFromKeys(QueryExecutor exe, String[] keys, boolean skipPrimary) {
+		List<Property> properties = new ArrayList<>();
+		if (keys.length > 0) {
+			for (String key : keys) {
+				String skey = key.trim();
+				Property prop = getProperty(skey, exe, skipPrimary);
+				if (prop == null) {
+					continue;
+				}
+				properties.add(prop);
+			}
+		} else {
+			properties = getProperties(exe, skipPrimary);
+		}
+		return properties;
+	}
+
 	private void updateAutoID(int insert) throws IllegalAccessException {
 		List<Field> primaryFields = getPrimaryFields();
 		if (primaryFields.isEmpty()) return;
