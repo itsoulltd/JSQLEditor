@@ -25,6 +25,10 @@ public class JDBConnectionPool implements Serializable{
 	private static InitialContext initCtx=null;
     private static SortedMap<String, DataSource> dataSourcePool = null;
     private static String _DEFAULT_KEY = null;
+
+    private JDBConnectionPool() throws NamingException {
+		initCtx = new InitialContext();
+	}
     
     /**
      * Example JNDILookUp String
@@ -35,38 +39,40 @@ public class JDBConnectionPool implements Serializable{
      * @throws IllegalArgumentException
      */
 	private JDBConnectionPool(String JNDILookUp) throws NamingException,IllegalArgumentException{
+		this();
+		createNewSource(JNDILookUp);
+	}
+	
+	private static void createNewSource(String JNDILookUp) throws IllegalArgumentException{
 		if(JNDILookUp != null && !JNDILookUp.trim().equals("")){
-			try{
-	            initCtx = new InitialContext();
-	            createNewSource(JNDILookUp);
-	        }catch(NamingException ne){
-	            throw ne;
-	        }
+			try {
+				DataSource source = (DataSource) initCtx.lookup(JNDILookUp);
+				addDataSource(JNDILookUp, source);
+			} catch (NamingException e) {
+				e.printStackTrace();
+			}
 		}else{
 			throw new IllegalArgumentException("Jndi Look Up string must not null!!!");
 		}
 	}
-	
-	private static void createNewSource(String JNDILookUp){
+
+	private static void addDataSource(String JNDILookUp, DataSource source){
+		String lookUpName = JNDILookUp;
+		//
 		String[] arr = JNDILookUp.split("/");
-		String lookUpName = arr[arr.length-1];
+		if (arr.length > 0) {
+			lookUpName = arr[arr.length-1];
+		}
+		//
 		if(_DEFAULT_KEY == null){
 			_DEFAULT_KEY = lookUpName;
 		}
-		if(initCtx != null){
-			try {
-				if(!getDataSourcePool().containsKey(lookUpName)){
-					DataSource source = (DataSource) initCtx.lookup(JNDILookUp);
-					getDataSourcePool().put(lookUpName, source);
-				}
-			} catch (NamingException e) {
-				e.printStackTrace();
-			}
+		if(!getDataSourcePool().containsKey(lookUpName)){
+			getDataSourcePool().put(lookUpName, source);
 		}
 	}
 	
-	private static JDBConnectionPool poolInstance() 
-	{
+	private static JDBConnectionPool poolInstance() {
 		synchronized (_lock) {
 			if(_sharedInstance != null){
 				return _sharedInstance;
@@ -124,8 +130,7 @@ public class JDBConnectionPool implements Serializable{
 	 * @return
 	 * @throws Exception
 	 */
-	public static void configure(String JNDILookUp) 
-	{
+	public static void configure(String JNDILookUp) {
 		synchronized (_lock) {
 			if(_sharedInstance == null){
 				try{
@@ -137,6 +142,21 @@ public class JDBConnectionPool implements Serializable{
 				if(JNDILookUp != null && !JNDILookUp.trim().equals("")){
 					createNewSource(JNDILookUp);
 				}
+			}
+		}
+	}
+
+	public static void configure(String key, DataSource source) {
+		synchronized (_lock){
+			if(_sharedInstance == null){
+				try{
+					_sharedInstance = new JDBConnectionPool();
+				}catch(Exception e){
+					e.printStackTrace();
+				}
+			}
+			if (key != null && !key.isEmpty()){
+				addDataSource(key, source);
 			}
 		}
 	}
@@ -176,7 +196,6 @@ public class JDBConnectionPool implements Serializable{
 	/**
 	 * 
 	 * @param userName
-	 * @param pass
 	 * @return
 	 * @throws SQLException
 	 */
@@ -198,8 +217,7 @@ public class JDBConnectionPool implements Serializable{
      * @param conn
      * @throws SQLException
      */
-    public static synchronized void close(Connection conn)
-    {
+    public static synchronized void close(Connection conn) {
         try{
             if(conn != null && ! conn.getAutoCommit()){
             	conn.commit();
