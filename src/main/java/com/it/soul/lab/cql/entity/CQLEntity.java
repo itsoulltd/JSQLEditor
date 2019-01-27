@@ -58,7 +58,7 @@ public abstract class CQLEntity extends Entity {
         }
     }
 
-    private long getTTLValue(){
+    protected long getTTLValue(){
         if (getClass().isAnnotationPresent(EnableTimeToLive.class)) {
             return getClass().getAnnotation(EnableTimeToLive.class).value();
         }
