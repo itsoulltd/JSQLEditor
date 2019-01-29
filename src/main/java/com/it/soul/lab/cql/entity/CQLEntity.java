@@ -74,7 +74,7 @@ public abstract class CQLEntity extends Entity {
                 .values(properties.toArray(new Property[0])).build();
 
         long ttl = getTTLValue();
-        if (ttl > 0){
+        if (ttl > 0L){
             query.usingTTL(ttl);
         }
 
