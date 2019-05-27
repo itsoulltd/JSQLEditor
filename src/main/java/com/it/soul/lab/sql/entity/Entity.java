@@ -30,15 +30,7 @@ public abstract class Entity implements EntityInterface{
 	protected Property getProperty(String fieldName, QueryExecutor exe, boolean skipPrimary) {
 		Property result = null;
 		try {
-		    //Search for the field, until get found any of the super class.
-			Field field = null;
-			Class mySClass = getClass();
-			do{
-			    try{
-                    field = mySClass.getDeclaredField(fieldName);
-                }catch (NoSuchFieldException e) { mySClass = mySClass.getSuperclass(); }
-            }while(field == null);
-			//
+			Field field = getDeclaredField(fieldName, true);
 			if(field.isAnnotationPresent(PrimaryKey.class)) {
 				if (skipPrimary) {return null;}
 				if (((PrimaryKey)field.getAnnotation(PrimaryKey.class)).autoIncrement() == true
@@ -49,11 +41,31 @@ public abstract class Entity implements EntityInterface{
 			Object value = getFieldValue(field, exe);
 			result = new Property(actualKey, value);
 			field.setAccessible(false);
-		} catch (SecurityException | IllegalArgumentException | IllegalAccessException | SQLException e) {
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException | SQLException e) {
 			e.printStackTrace();
 		}
 		return result;
 	}
+
+	public final Field getDeclaredField(String fieldName, boolean inherit) throws NoSuchFieldException{
+        //Search for the field, until get found any of the super class.
+        //But not infinite round: MAX=8
+        int maxLoopCount = 8;
+        int loopCount = 0;
+        Field field = null;
+        Class mySClass = getClass();
+        do{
+            try{
+                field = mySClass.getDeclaredField(fieldName);
+            }catch (NoSuchFieldException | SecurityException e) {
+                if (inherit == false) throw e;
+                else mySClass = mySClass.getSuperclass();
+            }
+            if (loopCount++ > maxLoopCount) throw new NoSuchFieldException( fieldName + " does't exist!");
+        }while(field == null);
+        //
+        return field;
+    }
 
     private Object getFieldValue(Field field, QueryExecutor exe) throws IllegalArgumentException, IllegalAccessException, SQLException {
         Object value = field.get(this);
@@ -132,13 +144,18 @@ public abstract class Entity implements EntityInterface{
         return isAnnotated;
     }
 
-    protected Field[] getDeclaredFields(boolean inherit){
+    public final Field[] getDeclaredFields(boolean inherit){
         List<Field> fields = new ArrayList<>();
         fields.addAll(Arrays.asList(getClass().getDeclaredFields()));
         if (inherit){
             //Inherit properties from one immediate parent which is not Entity.class.
-            if (!getClass().getSuperclass().getSimpleName().equalsIgnoreCase(Entity.class.getSimpleName())){
+            /*if (!getClass().getSuperclass().getSimpleName().equalsIgnoreCase(Entity.class.getSimpleName())){
                 fields.addAll(Arrays.asList(getClass().getSuperclass().getDeclaredFields()));
+            }*/
+            Class mySuperClass = getClass().getSuperclass();
+            while(!mySuperClass.getSimpleName().equalsIgnoreCase(Entity.class.getSimpleName())){
+                fields.addAll(Arrays.asList(mySuperClass.getDeclaredFields()));
+                mySuperClass = mySuperClass.getSuperclass();
             }
         }
         return fields.toArray(new Field[0]);
