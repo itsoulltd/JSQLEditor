@@ -19,90 +19,6 @@ public abstract class Entity implements EntityInterface{
 	public Entity() {
 		super();
 	}
-	protected boolean isFieldAnnotatedWith(Field field) {
-		boolean isAnnotated = field.isAnnotationPresent(Column.class)
-				|| field.isAnnotationPresent(PrimaryKey.class);
-		return isAnnotated;
-	}
-	protected Field[] getDeclaredFields(boolean inherit){
-        List<Field> fields = new ArrayList<>();
-        fields.addAll(Arrays.asList(getClass().getDeclaredFields()));
-        if (inherit){
-            //Inherit properties from one immediate parent which is not Entity.class.
-            if (!getClass().getSuperclass().getSimpleName().equalsIgnoreCase(Entity.class.getSimpleName())){
-                fields.addAll(Arrays.asList(getClass().getSuperclass().getDeclaredFields()));
-            }
-        }
-        return fields.toArray(new Field[0]);
-    }
-	protected List<Property> getProperties(QueryExecutor exe, boolean skipPrimary) {
-		List<Property> result = new ArrayList<>();
-		boolean acceptAll = shouldAcceptAllAsProperty();
-		Field[] fields = getDeclaredFields(true);
-		for (Field field : fields) {
-			if(acceptAll == false && isFieldAnnotatedWith(field) == false) {
-				continue;
-			}
-			Property prop = getProperty(field.getName(), exe, skipPrimary);
-			if(prop == null) {continue;}
-			result.add(prop);
-		}
-		return result;
-	}
-	private java.util.Date parseDate(String val, DataType type, String format){
-		try {
-			SimpleDateFormat formatter = new SimpleDateFormat((format != null && format.trim().isEmpty() == false) 
-																		? format 
-																		: Property.SQL_DATETIME_FORMAT);
-			java.util.Date date = formatter.parse(val);
-			if(type == DataType.SQLTIMESTAMP) {
-				return new Timestamp(date.getTime());
-			}else {
-				return new Date(date.getTime());
-			}
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	private Object getFieldValue(Field field, QueryExecutor exe) throws IllegalArgumentException, IllegalAccessException, SQLException {
-		Object value = field.get(this);
-		//
-		if(value == null && field.isAnnotationPresent(Column.class) == true) {
-			Column annotation = field.getAnnotation(Column.class);
-			String defaultVal = annotation.defaultValue();
-			DataType type = annotation.type();
-			switch (type) {
-			case INT:
-				value = Integer.valueOf(defaultVal);
-				break;
-			case FLOAT:
-				value = Float.valueOf(defaultVal);
-				break;
-			case DOUBLE:
-				value = Double.valueOf(defaultVal);
-				break;
-			case BOOL:
-				value = Boolean.valueOf(defaultVal);
-				break;
-			case SQLDATE:
-			case SQLTIMESTAMP:
-				value = parseDate(defaultVal, type, annotation.parseFormat());
-				break;
-			case BLOB:
-				value = (exe != null) ? exe.createBlob(defaultVal) : defaultVal;
-				break;
-			case BYTEARRAY:
-				value = defaultVal.getBytes();
-				break;
-			default:
-				value = defaultVal;
-				break;
-			}
-		}
-		//always.
-		return value;
-	}
 
 	/**
 	 *
@@ -138,6 +54,96 @@ public abstract class Entity implements EntityInterface{
 		}
 		return result;
 	}
+
+    private Object getFieldValue(Field field, QueryExecutor exe) throws IllegalArgumentException, IllegalAccessException, SQLException {
+        Object value = field.get(this);
+        //
+        if(value == null && field.isAnnotationPresent(Column.class) == true) {
+            Column annotation = field.getAnnotation(Column.class);
+            String defaultVal = annotation.defaultValue();
+            DataType type = annotation.type();
+            switch (type) {
+                case INT:
+                    value = Integer.valueOf(defaultVal);
+                    break;
+                case FLOAT:
+                    value = Float.valueOf(defaultVal);
+                    break;
+                case DOUBLE:
+                    value = Double.valueOf(defaultVal);
+                    break;
+                case BOOL:
+                    value = Boolean.valueOf(defaultVal);
+                    break;
+                case SQLDATE:
+                case SQLTIMESTAMP:
+                    value = parseDate(defaultVal, type, annotation.parseFormat());
+                    break;
+                case BLOB:
+                    value = (exe != null) ? exe.createBlob(defaultVal) : defaultVal;
+                    break;
+                case BYTEARRAY:
+                    value = defaultVal.getBytes();
+                    break;
+                default:
+                    value = defaultVal;
+                    break;
+            }
+        }
+        //always.
+        return value;
+    }
+
+    private java.util.Date parseDate(String val, DataType type, String format){
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat((format != null && format.trim().isEmpty() == false)
+                    ? format
+                    : Property.SQL_DATETIME_FORMAT);
+            java.util.Date date = formatter.parse(val);
+            if(type == DataType.SQLTIMESTAMP) {
+                return new Timestamp(date.getTime());
+            }else {
+                return new Date(date.getTime());
+            }
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    protected List<Property> getProperties(QueryExecutor exe, boolean skipPrimary) {
+        List<Property> result = new ArrayList<>();
+        boolean acceptAll = shouldAcceptAllAsProperty();
+        Field[] fields = getDeclaredFields(true);
+        for (Field field : fields) {
+            if(acceptAll == false && isFieldAnnotatedWith(field) == false) {
+                continue;
+            }
+            Property prop = getProperty(field.getName(), exe, skipPrimary);
+            if(prop == null) {continue;}
+            result.add(prop);
+        }
+        return result;
+    }
+
+    protected boolean isFieldAnnotatedWith(Field field) {
+        boolean isAnnotated = field.isAnnotationPresent(Column.class)
+                || field.isAnnotationPresent(PrimaryKey.class);
+        return isAnnotated;
+    }
+
+    protected Field[] getDeclaredFields(boolean inherit){
+        List<Field> fields = new ArrayList<>();
+        fields.addAll(Arrays.asList(getClass().getDeclaredFields()));
+        if (inherit){
+            //Inherit properties from one immediate parent which is not Entity.class.
+            if (!getClass().getSuperclass().getSimpleName().equalsIgnoreCase(Entity.class.getSimpleName())){
+                fields.addAll(Arrays.asList(getClass().getSuperclass().getDeclaredFields()));
+            }
+        }
+        return fields.toArray(new Field[0]);
+    }
+
 	protected String getPropertyKey(Field field) {
 		//Introduce Column:name() -> So that, if we want to mapping different column naming in Database Schema.
 		//Logic: if column annotation not present OR Column:Name() is empty, then return field.getName() 
@@ -155,9 +161,11 @@ public abstract class Entity implements EntityInterface{
 			return field.getName();
 		}
 	}
+
 	protected boolean shouldAcceptAllAsProperty() {
 		return Entity.shouldAcceptAllAsProperty(this.getClass());
 	}
+
 	private Boolean _isAutoIncremented = null;
 	private boolean isAutoIncrement() {
 		if(_isAutoIncremented == null) {
@@ -169,16 +177,18 @@ public abstract class Entity implements EntityInterface{
 		}
 		return _isAutoIncremented;
 	}
-	protected List<Field> getPrimaryFields() {
-		List<Field> keys = new ArrayList<>();
-        Field[] fields = getDeclaredFields(true);
-		for (Field field : fields) {
-			if(field.isAnnotationPresent(PrimaryKey.class)) {
-				keys.add(field);
-			}
-		}
-		return keys;
-	}
+
+    private List<PrimaryKey> getPrimaryKeys() {
+        List<PrimaryKey> keys = new ArrayList<>();
+        List<Field> fields = getPrimaryFields();
+        for (Field field : fields) {
+            if(field.isAnnotationPresent(PrimaryKey.class)) {
+                keys.add(field.getAnnotation(PrimaryKey.class));
+            }
+        }
+        return keys;
+    }
+
 	private PrimaryKey getPrimaryKey() {
 		PrimaryKey key = null;
 		List<Field> fields = getPrimaryFields();
@@ -190,29 +200,18 @@ public abstract class Entity implements EntityInterface{
 		}
 		return key;
 	}
-	private Property getPrimaryProperty(QueryExecutor exe) {
-		Property result = null;
-		try {
-			List<Field> primaryFields = getPrimaryFields();
-			if (primaryFields.isEmpty()) return result;
-			//
-			String key = primaryFields.get(0).getName();
-			result = getProperty(key, exe, false);
-		} catch (SecurityException | IllegalArgumentException e) {
-			e.printStackTrace();
-		}
-		return result;
-	}
-	private List<PrimaryKey> getPrimaryKeys() {
-		List<PrimaryKey> keys = new ArrayList<>();
-		List<Field> fields = getPrimaryFields();
-		for (Field field : fields) {
-			if(field.isAnnotationPresent(PrimaryKey.class)) {
-				keys.add(field.getAnnotation(PrimaryKey.class));
-			}
-		}
-		return keys;
-	}
+
+    protected List<Field> getPrimaryFields() {
+        List<Field> keys = new ArrayList<>();
+        Field[] fields = getDeclaredFields(true);
+        for (Field field : fields) {
+            if(field.isAnnotationPresent(PrimaryKey.class)) {
+                keys.add(field);
+            }
+        }
+        return keys;
+    }
+
 	protected List<Property> getPrimaryProperties(QueryExecutor exe) {
 		List<Property> results = new ArrayList<>();
 		try {
@@ -228,6 +227,12 @@ public abstract class Entity implements EntityInterface{
 		}
 		return results;
 	}
+
+    private Property getPrimaryProperty(QueryExecutor exe) {
+	    List<Property> all = getPrimaryProperties(exe);
+        Property result = (all.size() > 0) ? all.get(0 ) : null;
+        return result;
+    }
 
 	/**
 	 *
