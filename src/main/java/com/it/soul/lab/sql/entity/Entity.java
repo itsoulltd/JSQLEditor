@@ -13,10 +13,7 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class Entity implements EntityInterface{
 	public Entity() {
@@ -27,10 +24,22 @@ public abstract class Entity implements EntityInterface{
 				|| field.isAnnotationPresent(PrimaryKey.class);
 		return isAnnotated;
 	}
+	protected Field[] getDeclaredFields(boolean inherit){
+        List<Field> fields = new ArrayList<>();
+        fields.addAll(Arrays.asList(getClass().getDeclaredFields()));
+        if (inherit){
+            //Inherit properties from one immediate parent which is not Entity.class.
+            if (!getClass().getSuperclass().getSimpleName().equalsIgnoreCase(Entity.class.getSimpleName())){
+                fields.addAll(Arrays.asList(getClass().getSuperclass().getDeclaredFields()));
+            }
+        }
+        return fields.toArray(new Field[0]);
+    }
 	protected List<Property> getProperties(QueryExecutor exe, boolean skipPrimary) {
 		List<Property> result = new ArrayList<>();
 		boolean acceptAll = shouldAcceptAllAsProperty();
-		for (Field field : this.getClass().getDeclaredFields()) {
+		Field[] fields = getDeclaredFields(true);
+		for (Field field : fields) {
 			if(acceptAll == false && isFieldAnnotatedWith(field) == false) {
 				continue;
 			}
@@ -105,7 +114,15 @@ public abstract class Entity implements EntityInterface{
 	protected Property getProperty(String fieldName, QueryExecutor exe, boolean skipPrimary) {
 		Property result = null;
 		try {
-			Field field = this.getClass().getDeclaredField(fieldName);
+		    //Search for the field, until get found any of the super class.
+			Field field = null;
+			Class mySClass = getClass();
+			do{
+			    try{
+                    field = mySClass.getDeclaredField(fieldName);
+                }catch (NoSuchFieldException e) { mySClass = mySClass.getSuperclass(); }
+            }while(field == null);
+			//
 			if(field.isAnnotationPresent(PrimaryKey.class)) {
 				if (skipPrimary) {return null;}
 				if (((PrimaryKey)field.getAnnotation(PrimaryKey.class)).autoIncrement() == true
@@ -116,7 +133,7 @@ public abstract class Entity implements EntityInterface{
 			Object value = getFieldValue(field, exe);
 			result = new Property(actualKey, value);
 			field.setAccessible(false);
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException | SQLException e) {
+		} catch (SecurityException | IllegalArgumentException | IllegalAccessException | SQLException e) {
 			e.printStackTrace();
 		}
 		return result;
@@ -154,7 +171,7 @@ public abstract class Entity implements EntityInterface{
 	}
 	protected List<Field> getPrimaryFields() {
 		List<Field> keys = new ArrayList<>();
-		Field[] fields = this.getClass().getDeclaredFields();
+        Field[] fields = getDeclaredFields(true);
 		for (Field field : fields) {
 			if(field.isAnnotationPresent(PrimaryKey.class)) {
 				keys.add(field);
