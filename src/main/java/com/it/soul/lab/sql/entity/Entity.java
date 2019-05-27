@@ -251,6 +251,30 @@ public abstract class Entity implements EntityInterface{
         return result;
     }
 
+    public Map<String, Object> marshallingToMap(boolean inherit) {
+        Map<String, Object> result = new HashMap<>();
+        for (Field field : getDeclaredFields(inherit)) {
+            try {
+                field.setAccessible(true);
+                if (field.isAnnotationPresent(Column.class)){
+                    Column column = field.getAnnotation(Column.class);
+                    String columnName = (column.name().trim().isEmpty() == false) ? column.name().trim() : field.getName();
+                    result.put(columnName, field.get(this));
+                }else if(field.isAnnotationPresent(PrimaryKey.class)){
+                    PrimaryKey primaryKey = field.getAnnotation(PrimaryKey.class);
+                    String columnName = (primaryKey.name().trim().isEmpty() == false) ? primaryKey.name().trim() : field.getName();
+                    result.put(columnName, field.get(this));
+                }else{
+                    result.put(field.getName(), field.get(this));
+                }
+                field.setAccessible(false);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
 	/**
 	 *
 	 * @param exe
@@ -376,12 +400,25 @@ public abstract class Entity implements EntityInterface{
 		TableName tableName = (TableName) type.getAnnotation(TableName.class);
 		return tableName.acceptAll();
 	}
+    protected final static <T extends Entity> Field[] getDeclaredFields(Class<T> type, boolean inherit){
+        Field[] fields = new Field[0];
+        try {
+            T newInstance = type.newInstance();
+            fields = newInstance.getDeclaredFields(inherit);
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return fields;
+    }
 	public static <T extends Entity> Map<String, String> mapColumnsToProperties(Class<T> type) {
+
 		boolean acceptAll = Entity.shouldAcceptAllAsProperty(type);
 		if (acceptAll) {return null;}
 		
 		Map<String, String> result = new HashMap<>();
-		for (Field field : type.getDeclaredFields()) {
+		for (Field field : Entity.getDeclaredFields(type, true)) {
 			if(acceptAll == false
 					&& field.isAnnotationPresent(Column.class) == false
 					&& field.isAnnotationPresent(PrimaryKey.class) == false) {
