@@ -1,7 +1,7 @@
 ## JDBConnector
 
 
-### JDBConnector can connect with a DataSource in 3 different ways:
+### JDBConnector has 3 ways of connecting with DataSource:
 ----
 	
     - JDBC Connection URL
@@ -18,14 +18,15 @@
                       		.database("testDB")
                       		.credential("root","********")
                       		.build();
-    JDBConnection.close(conn);
-	
     
+##### Closing Connections :
+	
+    JDBConnection.close(conn);
     
     
 #### JDBC Connection Pool (J2EE/Servlet Container using JNDI Naming)
 
-##### First Define a context.xml in /src/main/resources/META-INF/context.xml OR /WebContent/META-INF/context.xml
+##### First Define a context.xml in /src/main/webapp/META-INF/context.xml (:Maven-Project Structure) OR /WebContent/META-INF/context.xml (:J2EE Webapp Structure in Eclipse)
 	
     <?xml version="1.0" encoding="UTF-8"?>
 	<Context>
@@ -42,9 +43,8 @@
  	
     JDBConnectionPool.configure("java:comp/env/jdbc/testDB");
     Connection conn = JDBConnectionPool.connection();
-    JDBConnection.close(conn);
     
- ##### We may have multiple resource in context.xml, in that case,
+ ##### We can have multiple resource in context.xml, in that case,
  	
     JDBConnectionPool.configure("java:comp/env/jdbc/testDB-1");
     Connection conn = JDBConnectionPool.connection(); //First one get configured as default.
@@ -55,7 +55,7 @@
     .
     .
     
-    JDBConnection.close(conn);
+    
  
  #### Using JPA persistence.xml
  
@@ -77,10 +77,10 @@
             </properties>
        </persistence-unit>
     </persistence>
-    
  
  ##### Sample Code:
  
+ 	
     ORMController controller = new ORMController("persistence-unit-name");
     EntityManager em = controller.getEntityManager();
     .
@@ -122,12 +122,12 @@
 
 #### Select Query Example:
 	
-    	SQLSelectQuery query = new SQLQuery.Builder(QueryType.SELECT)
+    SQLSelectQuery query = new SQLQuery.Builder(QueryType.SELECT)
 					   .columns()
 					   .from("Passenger")
 					   .build();
 	
-    	SQLSelectQuery query = new SQLQuery.Builder(QueryType.SELECT)
+    SQLSelectQuery query = new SQLQuery.Builder(QueryType.SELECT)
 					   .columns("name", "id")
 					   .from("Passenger")
 					   .build();
@@ -159,11 +159,13 @@
     ResultSet set = exe.executeSelect(query); //take a SQLSelectQuery
     Table table = exe.collection(set);
     List<Passenger> passengers = table.inflate(Passenger.class);
+                                    
+    
  
  #### Count & Distinct
  	
-    	Expression comps = new Expression("name", Operator.EQUAL);
-    	SQLQuery count = new SQLQuery.Builder(QueryType.COUNT)
+    Expression comps = new Expression("name", Operator.EQUAL);
+    SQLQuery count = new SQLQuery.Builder(QueryType.COUNT)
 				     .columns().on("Passenger")
 				     .where(comps)
 				     .build();
@@ -177,26 +179,29 @@
  #### Insert, Update & Delete
  	
     //Insert
-    	Row nP = new Row().add("name").add("age").add("sex");
-	Property[] values =  (Property[]) nP.getCloneProperties().toArray(new Property[0]);
+    Row nP = new Row()
+    	.add("name","Peter Thiel")
+    	.add("age", 51);
+    	
+    Property[] values =  nP.getCloneProperties().toArray(new Property[0]);
 		
 	SQLInsertQuery insert = new SQLQuery.Builder(QueryType.INSERT)
 					.into("Passenger")
 					.values(values)
 					.build();
                                     
-    //Update
-    	ExpressionInterpreter clause = new AndExpression(new Expression("name", Operator.EQUAL)
-    				, new Expression("age", Operator.GREATER_THAN));
+	//Update
+	
+    Predicate compareWith = new Where("id").isEqualTo(autoId);
 		
 	SQLUpdateQuery update = new SQLQuery.Builder(QueryType.UPDATE)
-					.columns("name","age")
-					.from("Passenger")
-					.where(clause)
-					.build();
+                            	.set(values)
+                            	.from("Passenger")
+                            	.where(compareWith)
+                            	.build();
                                 
-    //Delete
-    	SQLQuery delete = new SQLQuery.Builder(QueryType.DELETE)
+	//Delete
+    SQLQuery delete = new SQLQuery.Builder(QueryType.DELETE)
 				.rowsFrom("Passenger")
 				.where(clause)
 				.build();
@@ -204,10 +209,10 @@
     
 #### OrderBY, GroupBy, Limit, Offset
 	
-    	ExpressionInterpreter clause = new AndExpression(new Expression("name", Operator.EQUAL)
-    					, new Expression("age", Operator.GREATER_THAN));
+    ExpressionInterpreter clause = new AndExpression(new Expression("name", Operator.EQUAL)
+    											, new Expression("age", Operator.GREATER_THAN));
                     
-    //ORderBy
+	//ORderBy
 	SQLQuery query = new SQLQuery.Builder(QueryType.SELECT)
 							.columns()
 							.from("Passenger")
@@ -218,7 +223,7 @@
                             
     
     //GroupBy
-    	String groupByColumn = ScalerType.COUNT.toAlias("age");
+    String groupByColumn = ScalerType.COUNT.toAlias("age");
 	SQLQuery query = new SQLQuery.Builder(QueryType.SELECT)
 							.columns("name",groupByColumn)
 							.from("Passenger")
@@ -230,7 +235,7 @@
     
 #### Joins
 	
-    	SQLJoinQuery join = new SQLQuery.Builder(QueryType.INNER_JOIN)
+    SQLJoinQuery join = new SQLQuery.Builder(QueryType.INNER_JOIN)
 							.join("Customers", "CustomerName")
 							.on(new JoinExpression("CustomerID", "CustomerID"))
 							.join("Orders", "OrderID")
@@ -238,7 +243,7 @@
 							.join("Shippers", "ShipperName").build();
                             
 	
-    	SQLJoinQuery leftJoin = new SQLQuery.Builder(QueryType.LEFT_JOIN)
+    SQLJoinQuery leftJoin = new SQLQuery.Builder(QueryType.LEFT_JOIN)
 							.join("Customers", "CustomerName")
 							.on(new JoinExpression("CustomerID", "CustomerID"))
 							.join("Orders", "OrderID")
@@ -261,51 +266,51 @@
 	    @PrimaryKey(name = "uuid", autoIncrement = false)
 	    private String uuid;
         
-            @Column(defaultValue="Mr/Mrs")
-            private String name;
+        @Column(defaultValue="Mr/Mrs")
+        private String name;
 
-            @Column(defaultValue="34", type = DataType.INT)
-            private Integer age;
+        @Column(defaultValue="34", type = DataType.INT)
+        private Integer age;
 
-            @Column(defaultValue="true", type = DataType.BOOL)
-            private Boolean active;
+        @Column(defaultValue="true", type = DataType.BOOL)
+        private Boolean active;
 
-            @Column(defaultValue="0.00", type = DataType.DOUBLE)
-            private Double salary;
+        @Column(defaultValue="0.00", type = DataType.DOUBLE)
+        private Double salary;
 
-            private Date dob;
+        private Date dob;
 
-            @Column(defaultValue="2010-06-21 21:01:01", type=DataType.SQLTIMESTAMP, parseFormat="yyyy-MM-dd HH:mm:ss")
-            private Timestamp createDate;
+        @Column(defaultValue="2010-06-21 21:01:01", type=DataType.SQLTIMESTAMP, parseFormat="yyyy-MM-dd HH:mm:ss")
+        private Timestamp createDate;
 
-            private Float height;
+        private Float height;
 
-            @Column(defaultValue="2010-06-21" , type=DataType.SQLDATE, parseFormat="yyyy-MM-dd")
-            private Date dobDate;
+        @Column(defaultValue="2010-06-21" , type=DataType.SQLDATE, parseFormat="yyyy-MM-dd")
+        private Date dobDate;
 
-            @Column(defaultValue="21:01:01" , type=DataType.SQLTIMESTAMP, parseFormat="HH:mm:ss")
-            private Timestamp createTime;
+        @Column(defaultValue="21:01:01" , type=DataType.SQLTIMESTAMP, parseFormat="HH:mm:ss")
+        private Timestamp createTime;
 
-            public Person() {
-               super();
-            }
+        public Person() {
+            super();
+        }
         
-            /////////// Setter & Getters //////////
+        /////////// Setter & Getters //////////
         
-            public String getUuid() {
-               return uuid;
-            }
-            public void setUuid(String uuid) {
-               this.uuid = uuid;
-             }
+        public String getUuid() {
+            return uuid;
+        }
+        public void setUuid(String uuid) {
+            this.uuid = uuid;
+        }
         .....
         
-      }
+    }
     
 
 ##### How to work with Person.java entiry.
 	
-       Connection conn = new JDBConnection.Builder("jdbc:mysql://localhost:3306/testDB")
+    Connection conn = new JDBConnection.Builder("jdbc:mysql://localhost:3306/testDB")
 					.driver(DriverClass.MYSQL)
 					.credential("root","****")
 					.build();
@@ -313,24 +318,24 @@
 	SQLExecutor exe = new SQLExecutor(conn);
     
     //Insert
-    	Person person = new Person();
+    Person person = new Person();
 	person.setUuid(UUID.randomUUID().toString());
 	person.setName(getRandomName());
-    	Boolean isInserted = person.insert(exe);
+    Boolean isInserted = person.insert(exe);
     
     //Update
-    	person.setAge(getRandomAge());
+    person.setAge(getRandomAge());
 	person.setIsActive(false);
 	person.setSalary(200.00);
 	person.setDob(new Date(Calendar.getInstance().getTimeInMillis()));
-    	Boolean isUpdated = person.update(exe, "age","active","salary","dob");
+    Boolean isUpdated = person.update(exe, "age","active","salary","dob");
     
     //Delete
-    	Boolean isDeleted = person.delete(exe);
+    Boolean isDeleted = person.delete(exe);
     
     //Read All
-    	//ExpressionInterpreter clause = new Expression(new Property("name", "Jake"), Operator.EQUAL);
-    	Predicate clause = new Where("name").isEqualTo("Jake");
+    //ExpressionInterpreter clause = new Expression(new Property("name", "Jake"), Operator.EQUAL);
+    Predicate clause = new Where("name").isEqualTo("Jake");
 	List<Person> sons = Person.read(Person.class, exe, clause); //if clause is null the return all.
     
     
