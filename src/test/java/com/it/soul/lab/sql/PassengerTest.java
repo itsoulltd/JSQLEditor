@@ -1,4 +1,4 @@
-package com.it.soul.lab.test;
+package com.it.soul.lab.sql;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import com.it.soul.lab.connect.JDBConnection;
 import com.it.soul.lab.connect.JDBConnection.DriverClass;
-import com.it.soul.lab.sql.SQLExecutor;
 import com.it.soul.lab.sql.query.models.Property;
 
 public class PassengerTest {
@@ -26,7 +25,7 @@ public class PassengerTest {
 		try {
 			Connection conn = new JDBConnection.Builder(DriverClass.MYSQL)
 					.database("testDB")
-					.credential("root","towhid@123")
+					.credential("root","****")
 					.build();
 			exe = new SQLExecutor(conn);
 		} catch (SQLException e) {
@@ -75,7 +74,7 @@ public class PassengerTest {
 		}
 	}
 	
-	//@Test
+	@Test
 	public void testDelete() {
 		Passenger passenger = new Passenger();
 		passenger.setName(getRandomName());

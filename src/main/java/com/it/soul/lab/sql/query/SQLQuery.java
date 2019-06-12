@@ -122,25 +122,5 @@ public class SQLQuery {
 	private Logic logic = Logic.AND;
 	private List<Expression> whereParamExpressions;
 	private ExpressionInterpreter whereExpression;
-	
-	//////////////////////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////SQLQuery-Enums//////////////////////////////////////////////
-	
-	public enum QueryType{
-		SELECT,
-		COUNT,
-		DISTINCT,
-		INSERT,
-		UPDATE,
-		DELETE,
-		MAX,
-		MIN,
-		AVG,
-		SUM,
-		INNER_JOIN,
-		LEFT_JOIN,
-		RIGHT_JOIN,
-		FULL_JOIN
-	}
 
 }

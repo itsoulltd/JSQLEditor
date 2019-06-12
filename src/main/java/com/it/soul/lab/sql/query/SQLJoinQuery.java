@@ -15,7 +15,7 @@ public class SQLJoinQuery extends SQLQuery {
 	protected Operator orderOpt = Operator.ASC;
 
 	public SQLJoinQuery() {
-		this(SQLQuery.QueryType.INNER_JOIN);
+		this(QueryType.INNER_JOIN);
 	}
 
 	public SQLJoinQuery(QueryType type) {

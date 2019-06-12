@@ -1,13 +1,4 @@
-create table Passenger
-(
-  id   int auto_increment
-    primary key,
-  name varchar(1024)    null,
-  age  int default '18' null,
-  sex  varchar(12)      null,
-  constraint Passenger_id_uindex
-  unique (id)
-);
+create table Passenger (id int auto_increment primary key, name varchar(1024) null, age  int default '18' null, sex varchar(12) null, constraint Passenger_id_uindex unique (id));
 
 create table Person
 (

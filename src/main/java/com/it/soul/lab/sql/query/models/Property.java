@@ -23,20 +23,12 @@ public class Property {
 		this.key = key;
 	}
 	
-	public Property(String key, Object value, DataType type){
-		this(key, value);
-	}
-	
 	public Property(String key){
-		this(key, null, DataType.OBJECT);
-	}
-	
-	public Property(String key, String value){
-		this(key, value, DataType.STRING);
+		this(key, null);
 	}
 	
 	public Property(Property prop) {
-		this(prop.getKey(), prop.getValue(), prop.getType());
+		this(prop.getKey(), prop.getValue());
 	}
 	
 	@Override

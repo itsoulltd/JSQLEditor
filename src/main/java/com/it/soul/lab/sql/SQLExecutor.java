@@ -1,37 +1,44 @@
 package com.it.soul.lab.sql;
 
-import java.io.Serializable;
-import java.sql.Blob;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.it.soul.lab.sql.query.SQLDeleteQuery;
-import com.it.soul.lab.sql.query.SQLInsertQuery;
-import com.it.soul.lab.sql.query.SQLQuery;
-import com.it.soul.lab.sql.query.SQLQuery.QueryType;
-import com.it.soul.lab.sql.query.SQLScalerQuery;
-import com.it.soul.lab.sql.query.SQLSelectQuery;
-import com.it.soul.lab.sql.query.SQLUpdateQuery;
+import com.it.soul.lab.connect.JDBConnection;
+import com.it.soul.lab.sql.entity.Entity;
+import com.it.soul.lab.sql.query.*;
 import com.it.soul.lab.sql.query.models.DataType;
 import com.it.soul.lab.sql.query.models.Property;
 import com.it.soul.lab.sql.query.models.Row;
 import com.it.soul.lab.sql.query.models.Table;
 
-public class SQLExecutor implements Serializable{
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-	private static final long serialVersionUID = 6052074650432885583L;
+public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSelectQuery, SQLInsertQuery, SQLUpdateQuery, SQLDeleteQuery, SQLScalerQuery>, QueryTransaction{
+
+	public static class Builder {
+		private JDBConnection.Builder connectionBuilder;
+		public Builder(JDBConnection.DriverClass driver){
+			connectionBuilder = new JDBConnection.Builder(driver);
+		}
+		public Builder host(String name, String port) {
+			connectionBuilder.host(name, port);
+			return this;
+		}
+		public Builder database(String name) {
+			connectionBuilder.database(name);
+			return this;
+		}
+		public Builder credential(String name, String password){
+			connectionBuilder.credential(name, password);
+			return this;
+		}
+		public SQLExecutor build() throws Exception {
+			Connection conn = connectionBuilder.build();
+			return new SQLExecutor(conn);
+		}
+	}
+
 	private Connection conn = null;
 
 	public SQLExecutor(Connection conn){ this.conn = conn; }
@@ -119,6 +126,487 @@ public class SQLExecutor implements Serializable{
 	}
 	
 	/**
+	 * 
+	 * @param o
+	 */
+	public void displayCollection(Object o){
+		System.out.println(toString(o));
+	}
+
+/////////////////////////////////////QueryExecutor-Interface///////////////
+
+
+	@Override
+	public SQLQuery.Builder createQueryBuilder(QueryType queryType) {
+		return new SQLQuery.Builder(queryType);
+	}
+
+	@Override
+	public <T extends Entity> List<T> executeCRUDQuery(String query, Class<T> type) throws SQLException, IllegalAccessException, InstantiationException {
+		ResultSet set = executeCRUDQuery(query);
+		if (set != null){
+			Table table = collection(set);
+			List results = table.inflate(type, Entity.mapColumnsToProperties(type));
+			return results;
+		}
+		return null;
+	}
+
+	public Integer executeUpdate(SQLUpdateQuery query) throws SQLException{
+
+		Row setProperties = query.getRow();
+		if(setProperties == null
+				|| setProperties.size() <= 0){
+			throw new SQLException("Set Parameter Should not be bull or empty!!!");
+		}
+
+		int rowUpdated = 0;
+		PreparedStatement stmt=null;
+		String queryStr = query.toString();
+		String [] whereKeySet = query.getWhereProperties().getKeys();
+
+		try{
+			if(conn != null){
+				stmt = conn.prepareStatement(queryStr);
+				int length = setProperties.size();
+				stmt = bindValueToStatement(stmt, 1, setProperties.getKeys(), setProperties.keyValueMap());
+				if(whereKeySet != null)
+					stmt = bindValueToStatement(stmt, length+1, whereKeySet, query.getWhereProperties().keyValueMap());
+				rowUpdated = stmt.executeUpdate();
+			}
+		}
+		catch(SQLException exp) { throw exp;}
+		catch (IllegalArgumentException e) { throw e;}
+		finally{
+			if(stmt != null) stmt.close();
+		}
+		return rowUpdated;
+	}
+
+	public Integer[] executeBatchUpdate(int batchSize, SQLUpdateQuery updateQuery, List<Row> updateProperties, List<Row> whereClause) throws SQLException, IllegalArgumentException{
+
+		if(updateProperties == null
+				|| updateProperties.size() <= 0){
+			throw new SQLException("Set Parameter Should not be bull or empty!!!");
+		}
+
+		List<Integer> affectedRows = new ArrayList<Integer>();
+		PreparedStatement stmt = null;
+		String query = updateQuery.toString();
+
+		try{
+			batchSize = (batchSize < 100) ? 100 : batchSize;//Least should be 100
+			if(conn != null){
+				//
+				List<int[]> batchUpdatedRowsCount = new ArrayList<int[]>();
+
+				stmt = conn.prepareStatement(query);
+				int batchCount = 1;
+				for (int index = 0; index < updateProperties.size(); index++) {
+
+					String[] keySet = updateProperties.get(index).getKeys();
+					Map<String, Property> row = updateProperties.get(index).keyValueMap();
+					stmt = bindValueToStatement(stmt, 1, keySet, row);
+
+					int length = keySet.length;
+					Row whereClouseProperties = getLeastAppropriateProperties(whereClause, index);
+					String[] whereKeySet = whereClouseProperties.getKeys();
+					Map<String, Property> rowWhere = whereClouseProperties.keyValueMap();
+					stmt = bindValueToStatement(stmt, length + 1, whereKeySet, rowWhere);
+
+					stmt.addBatch();
+					if ((++batchCount % batchSize) == 0) {
+						batchUpdatedRowsCount.add(stmt.executeBatch());
+					}
+				}
+				if(updateProperties.size() % batchSize != 0)
+					batchUpdatedRowsCount.add(stmt.executeBatch());
+
+				for (int[] rr  : batchUpdatedRowsCount) {
+					for(int i = 0; i < rr.length ; i++){
+						affectedRows.add(rr[i]);
+					}
+				}
+
+			}
+		}catch(SQLException exp){
+			throw exp;
+		}catch(IllegalArgumentException iel){
+			throw iel;
+		}finally{
+			if(stmt != null){
+				try {
+					stmt.clearBatch();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				stmt.close();
+			}
+		}
+		return affectedRows.toArray(new Integer[]{});
+	}
+
+	public Integer executeDelete(SQLDeleteQuery deleteQuery)
+			throws SQLException{
+
+		if(deleteQuery.getWhereParamExpressions() == null || deleteQuery.getWhereParamExpressions().size() <= 0){
+			throw new SQLException("Where parameter should not be null or empty!!!");
+		}
+
+		int rowUpdated = 0;
+		PreparedStatement stmt=null;
+		String query = deleteQuery.toString();
+		try{
+			if(conn != null){
+				stmt = conn.prepareStatement(query);
+				stmt = bindValueToStatement(stmt, 1, deleteQuery.getWhereParams(), deleteQuery.getWhereProperties().keyValueMap());
+				rowUpdated = stmt.executeUpdate();
+			}
+		}catch(SQLException exp){
+			throw exp;
+		}catch (IllegalArgumentException e) {
+			throw e;
+		}finally{
+			if(stmt != null) stmt.close();
+		}
+		return rowUpdated;
+	}
+
+	public Integer executeBatchDelete(int batchSize, SQLDeleteQuery deleteQuery, List<Row> whereClause) throws SQLException{
+
+		if(deleteQuery.getWhereParams() == null || deleteQuery.getWhereParams().length <= 0){
+			throw new SQLException("Where parameter should not be null or empty!!!");
+		}
+
+		int rowUpdated = 0;
+		PreparedStatement stmt=null;
+		String query = deleteQuery.toString();
+		String[] whereKeySet = whereClause.get(0).getKeys();
+		try{
+			batchSize = (batchSize < 100) ? 100 : batchSize;//Least should be 100
+			if(conn != null){
+				//
+				int batchCount = 1;
+				stmt = conn.prepareStatement(query);
+				for (Row paramValue: whereClause) {
+					stmt = bindValueToStatement(stmt, 1, whereKeySet, paramValue.keyValueMap());
+					stmt.addBatch();
+					if ((++batchCount % batchSize) == 0) {
+						stmt.executeBatch();
+					}
+				}
+				if(whereClause.size() % batchSize != 0)
+					stmt.executeBatch();
+
+			}
+		}catch(SQLException exp){
+			throw exp;
+		}catch (IllegalArgumentException e) {
+			throw e;
+		}finally{
+			if(stmt != null){
+				try {
+					stmt.clearBatch();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				stmt.close();
+			}
+		}
+		return rowUpdated;
+	}
+
+	public Integer executeInsert(boolean isAutoGenaretedId
+			, String query)
+			throws SQLException,IllegalArgumentException{
+
+		int lastIncrementedID = 0;
+		PreparedStatement stmt=null;
+		try{
+			if(query != null
+					&& query.length() > 0
+					&& !query.toUpperCase().startsWith("INSERT")){
+				throw new IllegalArgumentException("Query string must be a Insert query!");
+			}
+			if(conn != null){
+				if (isAutoGenaretedId) {
+					stmt = conn.prepareStatement(query,Statement.RETURN_GENERATED_KEYS);
+					stmt.executeUpdate();
+					ResultSet rs = stmt.getGeneratedKeys();
+					if (rs != null && rs.next())
+						lastIncrementedID = rs.getInt(1);
+				}else{
+					stmt = conn.prepareStatement(query);
+					lastIncrementedID = stmt.executeUpdate();
+				}
+			}
+		}catch(SQLException exp){
+			throw exp;
+		}catch(IllegalArgumentException iel){
+			throw iel;
+		}finally{
+			if(stmt != null) stmt.close();
+		}
+		return lastIncrementedID;
+	}
+
+	public Integer executeInsert(boolean autoId, SQLInsertQuery insertQuery)
+			throws SQLException, IllegalArgumentException{
+
+		if(insertQuery.getColumns() == null || insertQuery.getColumns().length <= 0){
+			throw new SQLException("Parameter should not be null or empty!!!");
+		}
+
+		int affectedRows = 0;
+		PreparedStatement stmt=null;
+		String query = insertQuery.toString();
+
+		try{
+			if(conn != null){
+				if(autoId){
+					stmt = conn.prepareStatement(query,	Statement.RETURN_GENERATED_KEYS);
+					stmt = bindValueToStatement(stmt, 1,insertQuery.getRow().getKeys(), insertQuery.getRow().keyValueMap());
+					stmt.executeUpdate();
+					ResultSet set = stmt.getGeneratedKeys();
+					if(set != null && set.next()){
+						affectedRows = set.getInt(1);
+					}
+				}else{
+					stmt = conn.prepareStatement(query);
+					stmt = bindValueToStatement(stmt, 1, insertQuery.getRow().getKeys(), insertQuery.getRow().keyValueMap());
+					affectedRows = stmt.executeUpdate();
+				}
+			}
+		}catch(SQLException exp){
+			throw exp;
+		}catch(IllegalArgumentException iel){
+			throw iel;
+		}finally{
+			if(stmt != null) stmt.close();
+		}
+		return affectedRows;
+	}
+
+	public Integer[] executeBatchInsert(boolean autoId
+			, int batchSize
+			, String tableName
+			, List<Row> params)
+			throws SQLException,IllegalArgumentException{
+
+		if(params == null || params.size() <= 0){
+			throw new SQLException("Parameter should not be null or empty!!!");
+		}
+
+		List<Integer> affectedRows = new ArrayList<Integer>();
+		PreparedStatement stmt=null;
+		/**
+		 * Object[] keySet = iQuery.getProperties().getKeys();
+		 * String query = iQuery.toString();
+		 */
+		Object[] keySet = params.get(0).getKeys();
+		List<Property> nValues = new ArrayList<Property>();
+		for (Property property : params.get(0).getCloneProperties()) {
+			nValues.add(new Property(property.getKey()));
+		}
+		Property[] values = (Property[]) nValues.toArray(new Property[0]);
+		SQLInsertQuery iQuery = (SQLInsertQuery) new SQLQuery.Builder(QueryType.INSERT).into(tableName).values(values).build();
+		String query = iQuery.toString();
+
+		try{
+			batchSize = (batchSize < 100) ? 100 : batchSize;//Least should be 100
+			if(conn != null){
+				//
+				if(autoId){
+					stmt = conn.prepareStatement(query,Statement.RETURN_GENERATED_KEYS);
+					int batchCount = 1;
+					for (Row row : params) {
+						stmt = bindValueToStatement(stmt, 1, keySet, row.keyValueMap());
+						stmt.addBatch();
+						if((++batchCount % batchSize) == 0){
+							stmt.executeBatch();
+						}
+					}
+					if(params.size() % batchSize != 0)
+						stmt.executeBatch();
+
+					ResultSet set = stmt.getGeneratedKeys();
+
+					while(set.next()){
+						affectedRows.add(set.getInt(1));
+					}
+				}else{
+					stmt = conn.prepareStatement(query);
+					int batchCount = 1;
+					List<int[]> batchUpdatedRowsCount = new ArrayList<int[]>();
+					for (Row row : params) {
+						stmt = bindValueToStatement(stmt, 1, keySet, row.keyValueMap());
+						stmt.addBatch();
+						if((++batchCount % batchSize) == 0){
+							batchUpdatedRowsCount.add(stmt.executeBatch());
+						}
+					}
+					if(params.size() % batchSize != 0)
+						batchUpdatedRowsCount.add(stmt.executeBatch());
+
+					for (int[] rr  : batchUpdatedRowsCount) {
+						for(int i = 0; i < rr.length ; i++){
+							affectedRows.add(rr[i]);
+						}
+					}
+				}
+			}
+		}catch(SQLException exp){
+			throw exp;
+		}catch(IllegalArgumentException iel){
+			throw iel;
+		}finally{
+			if(stmt != null){
+				try {
+					stmt.clearBatch();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				stmt.close();
+			}
+		}
+		return affectedRows.toArray(new Integer[]{});
+	}
+
+	public Integer getScalerValue(String query)
+			throws SQLException{
+
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		int rowCount = 0;
+		try{
+			if(conn != null){
+				pstmt = conn.prepareStatement(query);
+				rs = pstmt.executeQuery();
+				if (rs.next()) {
+					rowCount = rs.getInt(1);
+				} else {
+					rowCount=0;
+				}
+			}
+		}catch(SQLException e){
+			throw e;
+		}finally{
+			if(pstmt != null)
+				pstmt.close();
+		}
+		return rowCount;
+	}
+
+	public Integer getScalerValue(SQLScalerQuery scalerQuery)
+			throws SQLException{
+
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		int rowCount = 0;
+		String query = scalerQuery.toString();
+		Row whereClause = scalerQuery.getWhereProperties();
+		try{
+			if(conn != null){
+				pstmt = conn.prepareStatement(query);
+				pstmt = bindValueToStatement(pstmt
+						, 1
+						, whereClause.getKeys()
+						, whereClause.keyValueMap());
+				rs = pstmt.executeQuery();
+				if (rs.next()) {
+					rowCount = rs.getInt(1);
+				} else {
+					rowCount=0;
+				}
+			}
+		}catch(SQLException e){
+			throw e;
+		}finally{
+			if(pstmt != null)
+				pstmt.close();
+		}
+		return rowCount;
+	}
+
+	public <T extends Entity> List<T> executeSelect(String query, Class<T> type) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
+		return executeSelect(query, type, Entity.mapColumnsToProperties(type));
+	}
+
+	@Override
+	public <T> List<T> executeSelect(String query, Class<T> type, Map<String, String> mappingKeys) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
+		ResultSet set = executeSelect(query);
+		Table table = collection(set);
+		List result = table.inflate(type, mappingKeys);
+		return result;
+	}
+
+	public <T> List<T> executeSelect(SQLSelectQuery query, Class<T> type) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
+		return executeSelect(query, type, null);
+	}
+
+	@Override
+	public <T> List<T> executeSelect(SQLSelectQuery query, Class<T> type, Map<String, String> mappingKeys) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
+		ResultSet set = executeSelect(query);
+		Table table = collection(set);
+		List result = table.inflate(type, mappingKeys);
+		return result;
+	}
+
+	public Boolean executeDDLQuery(String query) throws SQLException{
+
+		if(query == null
+				|| query.length() <=0
+				/*|| !query.trim().toLowerCase().startsWith("create")
+				|| !query.trim().toLowerCase().startsWith("drop")
+				|| !query.trim().toLowerCase().startsWith("alter")*/){
+			throw new SQLException("Bad Formatted Query : " + query);
+		}
+
+		return executeDDLStatement(query);
+	}
+
+	protected Boolean executeDDLStatement(String query) throws SQLException {
+		boolean isCreated = false;
+		PreparedStatement stmt = null;
+		try{
+			if(conn != null){
+				stmt = conn.prepareStatement(query);
+				int result = stmt.executeUpdate();
+				isCreated = result == 0;
+			}
+		}catch(SQLException exp){
+			throw exp;
+		}finally{
+			if(stmt != null) stmt.close();
+		}
+		return isCreated;
+	}
+
+////////////////////////////////////Block Of Queries///////////////////////
+
+	public boolean useDatabase(String database) throws SQLException {
+
+		if (database == null || database.trim().isEmpty()) return false;
+
+		String query = "USE " + database;
+		return executeDDLStatement(query);
+	}
+
+	public <T extends Entity> Boolean createTable(Class<T> tableType, JDBConnection.DriverClass driverClass) throws SQLException {
+		String tableNameStr = getTableName(tableType);
+		if (tableNameStr == null) return false;
+
+		StringBuffer headBuffer = new StringBuffer("CREATE TABLE IF NOT EXISTS " + tableNameStr);
+
+		if (driverClass == JDBConnection.DriverClass.MYSQL){
+			//TODO:
+		}else{
+			//TODO:
+		}
+		return false;
+	}
+
+	/**
 	 * Display rows in a Result Set
 	 * @param rst
 	 */
@@ -126,8 +614,8 @@ public class SQLExecutor implements Serializable{
 		StringBuffer buffer = new StringBuffer();
 		try{
 			if(rst.getType() == ResultSet.TYPE_SCROLL_SENSITIVE && rst.isAfterLast()){
-                rst.beforeFirst();
-            }
+				rst.beforeFirst();
+			}
 			ResultSetMetaData rsmd = rst.getMetaData();
 			int numCol = rsmd.getColumnCount();
 			int totalHeaderLenght = 0;
@@ -136,13 +624,13 @@ public class SQLExecutor implements Serializable{
 				totalHeaderLenght += columnName.length();
 				buffer.append(columnName);
 			}
-			
+
 			buffer.append('\n');
 			for(int x = 0; x <= totalHeaderLenght; x++){
 				buffer.append("-");
 			}
 			buffer.append('\n');
-			
+
 			boolean more = rst.next();
 			while(more){
 				for(int x = 1; x <= numCol; x++){
@@ -154,69 +642,9 @@ public class SQLExecutor implements Serializable{
 		}catch(SQLException exp){
 			exp.getStackTrace();
 		}
-		
+
 		System.out.println(buffer.toString());
 	}
-	
-	/**
-	 * 
-	 * @param o
-	 */
-	public void displayCollection(Object o){
-		System.out.println(toString(o));
-	}
-	
-	public String toString(Object o){
-		StringBuffer buffer = new StringBuffer();
-		if(o instanceof List){
-			List<?> ox = (List<?>)o;
-			for(Object x : ox){
-				buffer.append(x.toString() + ";");
-				buffer.append('\n');
-			}
-			
-		}else if(o instanceof Map){
-			Map<?,?> ox = (Map<?,?>)o;
-			buffer.append(ox.toString());
-		}else if(o instanceof Set){
-			Set<?> ox = (Set<?>)o;
-			buffer.append(ox.toString());
-		}else if(o instanceof Table) {
-			return toString(((Table)o).getRows());
-		}
-		return buffer.toString();
-	}
-	
-////////////////////////////////////Block Of Queries///////////////////////
-	
-	 
-	public boolean executeDDLQuery(String query)
-    throws SQLException,Exception{
-		
-		if(query == null 
-				|| query.length() <=0 
-				/*|| !query.trim().toLowerCase().startsWith("create")
-				|| !query.trim().toLowerCase().startsWith("drop")
-				|| !query.trim().toLowerCase().startsWith("alter")*/){
-			throw new Exception("Bad Formated Query : " + query);
-		}
-    	
-        boolean isCreated = false;
-        PreparedStatement stmt = null;
-        try{ 
-            if(conn != null){
-            	//
-                stmt = conn.prepareStatement(query);
-                stmt.executeUpdate();
-                isCreated = true;
-            }            
-        }catch(SQLException exp){
-        	throw exp;
-        }finally{
-        	if(stmt != null) stmt.close();
-        }
-        return isCreated;		
-    }
 	
 	
     /**
@@ -224,12 +652,11 @@ public class SQLExecutor implements Serializable{
      * @param query
      * @return Number Of affected rows
      */
-    public ResultSet executeCRUDQuery(String query)
-    throws SQLException,Exception{
+    protected ResultSet executeCRUDQuery(String query) throws SQLException{
     	
     	if(query == null 
 				|| query.length() <=0){
-			throw new Exception("Bad Formated Query : " + query);
+			throw new SQLException("Bad Formated Query : " + query);
 		}
     	
     	if(query.trim().toLowerCase().startsWith("insert")
@@ -253,93 +680,7 @@ public class SQLExecutor implements Serializable{
     		return executeSelect(query);
     	}	
     }
-    
-    /**
-     * 
-     * @param query
-     * @param setParameter
-     * @return
-     * @throws SQLException
-     * @throws Exception
-     */
-    @Deprecated
-    public int executeUpdate(SQLUpdateQuery query
-    		, Row setParameter)
-    throws SQLException,Exception{
-    	
-    	if(setParameter == null 
-    			|| setParameter.size() <= 0){
-    		throw new Exception("Set Parameter Should not be bull or empty!!!");
-		}
-    	
-        int rowUpdated = 0;
-        PreparedStatement stmt=null;
-        String queryStr = query.toString();
-        String [] whereKeySet = query.getWhereProperties().getKeys();
-        
-        try{ 
-            if(conn != null){
-                stmt = conn.prepareStatement(queryStr);
-                
-                int length = setParameter.size();
-                stmt = bindValueToStatement(stmt, 1, setParameter.getKeys(), setParameter.keyValueMap());
-                if(whereKeySet != null)
-                	stmt = bindValueToStatement(stmt, length+1, whereKeySet, query.getWhereProperties().keyValueMap());
-                
-                rowUpdated = stmt.executeUpdate();
-                 
-            }            
-        }catch(SQLException exp){
-            throw exp;
-        }catch (IllegalArgumentException e) {
-            throw e;
-		}finally{
-        	if(stmt != null)
-        		stmt.close();
-        }
-        return rowUpdated;		
-    }
-    
-    /**
-     * 
-     * @param query
-     * @return
-     * @throws SQLException
-     * @throws Exception
-     */
-    public int executeUpdate(SQLUpdateQuery query) throws SQLException,Exception{
-    	
-    	Row setProperties = query.getRow();
-    	if(setProperties == null 
-    			|| setProperties.size() <= 0){
-    		throw new Exception("Set Parameter Should not be bull or empty!!!");
-		}
-    	
-        int rowUpdated = 0;
-        PreparedStatement stmt=null;
-        String queryStr = query.toString();
-        String [] whereKeySet = query.getWhereProperties().getKeys();
-        
-        try{ 
-            if(conn != null){
-                stmt = conn.prepareStatement(queryStr);
-                
-                int length = setProperties.size();
-                stmt = bindValueToStatement(stmt, 1, setProperties.getKeys(), setProperties.keyValueMap());
-                if(whereKeySet != null)
-                	stmt = bindValueToStatement(stmt, length+1, whereKeySet, query.getWhereProperties().keyValueMap());
-                
-                rowUpdated = stmt.executeUpdate();
-            }            
-        }
-        catch(SQLException exp) { throw exp;}
-        catch (IllegalArgumentException e) { throw e;}
-        finally{
-        	if(stmt != null) stmt.close();
-        }
-        return rowUpdated;		
-    }
-    
+
     private Row getLeastAppropriateProperties(List<Row> items, int index){
     	if(items == null || items.isEmpty()){
     		return new Row();
@@ -350,424 +691,6 @@ public class SQLExecutor implements Serializable{
     		return items.get(0);
     	}
     }
-    
-    /**
-     * 
-     * @param batchSize
-     * @param queryC
-     * @param updateProperties
-     * @param whereClause
-     * @return
-     * @throws SQLException
-     * @throws IllegalArgumentException
-     * @throws Exception
-     */
-    public Integer[] executeBatchUpdate(int batchSize
-    		, SQLUpdateQuery queryC
-    		, List<Row> updateProperties
-    		, List<Row> whereClause)
-    throws SQLException,IllegalArgumentException,Exception{
-    	
-    	if(updateProperties == null 
-    			|| updateProperties.size() <= 0){
-    		throw new Exception("Set Parameter Should not be bull or empty!!!");
-		}
-    	
-    	List<Integer> affectedRows = new ArrayList<Integer>();
-        PreparedStatement stmt = null;
-        String query = queryC.toString();
-        
-        try{ 
-        	batchSize = (batchSize < 100) ? 100 : batchSize;//Least should be 100
-            if(conn != null){
-                //
-                List<int[]> batchUpdatedRowsCount = new ArrayList<int[]>();
-                
-                stmt = conn.prepareStatement(query);
-        		int batchCount = 1;
-        		for (int index = 0; index < updateProperties.size(); index++) {
-        			
-        			String[] keySet = updateProperties.get(index).getKeys();
-					Map<String, Property> row = updateProperties.get(index).keyValueMap();
-					stmt = bindValueToStatement(stmt, 1, keySet, row);
-					
-					int length = keySet.length;
-					Row whereClouseProperties = getLeastAppropriateProperties(whereClause, index);
-					String[] whereKeySet = whereClouseProperties.getKeys();
-					Map<String, Property> rowWhere = whereClouseProperties.keyValueMap();
-					stmt = bindValueToStatement(stmt, length + 1, whereKeySet, rowWhere);
-					
-					stmt.addBatch();
-					if ((++batchCount % batchSize) == 0) {
-						batchUpdatedRowsCount.add(stmt.executeBatch());
-					}
-				}
-				if(updateProperties.size() % batchSize != 0)
-        			batchUpdatedRowsCount.add(stmt.executeBatch());
-        		
-        		for (int[] rr  : batchUpdatedRowsCount) {
-            		for(int i = 0; i < rr.length ; i++){
-                		affectedRows.add(rr[i]);
-                	}
-				}
-        		
-            }            
-        }catch(SQLException exp){
-            throw exp;
-        }catch(IllegalArgumentException iel){
-        	throw iel;
-        }finally{
-        	if(stmt != null){
-        		try {
-					stmt.clearBatch();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-        		stmt.close();
-        	}
-        }
-        return affectedRows.toArray(new Integer[]{});		
-    }
-    
-    /**
-     * 
-     * @param dQuery
-     * @return
-     * @throws SQLException
-     * @throws Exception
-     */
-    public int executeDelete(SQLDeleteQuery dQuery)
-    throws SQLException,Exception{
-    	
-    	if(dQuery.getWhereParamExpressions() == null || dQuery.getWhereParamExpressions().size() <= 0){
-    		throw new Exception("Where parameter should not be null or empty!!!");
-    	}
-    	
-        int rowUpdated = 0;
-        PreparedStatement stmt=null;
-        String query = dQuery.toString();
-        try{ 
-            if(conn != null){
-                stmt = conn.prepareStatement(query);
-                stmt = bindValueToStatement(stmt, 1, dQuery.getWhereParams(), dQuery.getWhereProperties().keyValueMap());
-                rowUpdated = stmt.executeUpdate();
-            }            
-        }catch(SQLException exp){
-            throw exp;
-        }catch (IllegalArgumentException e) {
-            throw e;
-		}finally{
-        	if(stmt != null) stmt.close();
-        }
-        return rowUpdated;		
-    }
-    
-    /**
-     * 
-     * @param batchSize
-     * @param dQuery
-     * @param whereClause
-     * @return
-     * @throws SQLException
-     * @throws Exception
-     */
-    public int executeBatchDelete(int batchSize
-    		, SQLDeleteQuery dQuery
-    		, List<Row> whereClause)
-    throws SQLException,Exception{
-    	
-    	if(dQuery.getWhereParams() == null || dQuery.getWhereParams().length <= 0){
-    		throw new Exception("Where parameter should not be null or empty!!!");
-    	}
-    	
-        int rowUpdated = 0;
-        PreparedStatement stmt=null;
-        String query = dQuery.toString();
-        String[] whereKeySet = whereClause.get(0).getKeys();
-        try{
-        	batchSize = (batchSize < 100) ? 100 : batchSize;//Least should be 100
-            if(conn != null){
-            	//
-                int batchCount = 1;
-                stmt = conn.prepareStatement(query);
-            	for (Row paramValue: whereClause) {
-            		
-                    stmt = bindValueToStatement(stmt, 1, whereKeySet, paramValue.keyValueMap());
-                    stmt.addBatch();
-					if ((++batchCount % batchSize) == 0) {
-						stmt.executeBatch();
-					}
-				}
-            	if(whereClause.size() % batchSize != 0)
-            		stmt.executeBatch();
-            	 
-            }            
-        }catch(SQLException exp){
-            throw exp;
-        }catch (IllegalArgumentException e) {
-            throw e;
-		}finally{
-			if(stmt != null){
-        		try {
-					stmt.clearBatch();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-        		stmt.close();
-        	}
-        }
-        return rowUpdated;		
-    }
-    
-    /**
-     * Query for Insert with Auto Generated Id
-     * @param query
-     * @return Last Inserted ID
-     */
-    public int executeInsert(boolean isAutoGenaretedId
-    		, String query)
-    throws SQLException,IllegalArgumentException{
-    	
-    	int lastIncrementedID = 0;
-    	PreparedStatement stmt=null;
-        try{
-        	if(query != null 
-	    			&& query.length() > 0 
-	    			&& !query.toUpperCase().startsWith("INSERT")){
-	    		throw new IllegalArgumentException("Query string must be a Insert query!");
-	    	}
-            if(conn != null){
-                if (isAutoGenaretedId) {
-					stmt = conn.prepareStatement(query,Statement.RETURN_GENERATED_KEYS);
-					stmt.executeUpdate();
-					ResultSet rs = stmt.getGeneratedKeys();
-					if (rs != null && rs.next())
-						lastIncrementedID = rs.getInt(1);
-				}else{
-					stmt = conn.prepareStatement(query);                	
-					lastIncrementedID = stmt.executeUpdate();
-				}
-            }            
-        }catch(SQLException exp){
-            throw exp;
-        }catch(IllegalArgumentException iel){
-        	throw iel;
-        }finally{
-        	if(stmt != null) stmt.close();
-        }
-        return lastIncrementedID;		
-    }
-    
-    /**
-     * 
-     * @param isAutoGenaretedId
-     * @param iQuery
-     * @return
-     * @throws SQLException
-     * @throws IllegalArgumentException
-     * @throws Exception
-     */
-    
-    public int executeInsert(boolean isAutoGenaretedId, SQLInsertQuery iQuery)
-    throws SQLException,IllegalArgumentException,Exception{
-    	
-    	if(iQuery.getColumns() == null || iQuery.getColumns().length <= 0){
-    		throw new Exception("Parameter should not be null or empty!!!");
-    	}
-    	
-    	int affectedRows = 0;
-        PreparedStatement stmt=null;
-        String query = iQuery.toString();
-        
-        try{ 
-            if(conn != null){
-            	if(isAutoGenaretedId){
-            		stmt = conn.prepareStatement(query,	Statement.RETURN_GENERATED_KEYS);
-                	stmt = bindValueToStatement(stmt, 1,iQuery.getRow().getKeys(), iQuery.getRow().keyValueMap());
-                	stmt.executeUpdate();
-                	ResultSet set = stmt.getGeneratedKeys();
-                	if(set != null && set.next()){
-                		affectedRows = set.getInt(1);
-                	}                	
-            	}else{
-            		stmt = conn.prepareStatement(query);
-                	stmt = bindValueToStatement(stmt, 1, iQuery.getRow().getKeys(), iQuery.getRow().keyValueMap());
-                	affectedRows = stmt.executeUpdate();
-            	}
-            }            
-        }catch(SQLException exp){
-            throw exp;
-        }catch(IllegalArgumentException iel){
-        	throw iel;
-        }finally{
-        	if(stmt != null) stmt.close();
-        }
-        return affectedRows;		
-    }
-    
-    /**
-     * 
-     * @param isAutoGenaretedId
-     * @param batchSize
-     * @param params
-     * @return
-     * @throws SQLException
-     * @throws IllegalArgumentException
-     * @throws Exception
-     */
-    public Integer[] executeBatchInsert(boolean isAutoGenaretedId
-    		, int batchSize
-    		, String tableName
-    		, List<Row> params)
-    throws SQLException,IllegalArgumentException,Exception{
-    	
-    	if(params == null || params.size() <= 0){
-    		throw new Exception("Parameter should not be null or empty!!!");
-    	}
-    	
-    	List<Integer> affectedRows = new ArrayList<Integer>();
-        PreparedStatement stmt=null;
-        /**
-         * Object[] keySet = iQuery.getProperties().getKeys();
-         * String query = iQuery.toString();
-         */
-        Object[] keySet = params.get(0).getKeys();
-        List<Property> nValues = new ArrayList<Property>();
-        for (Property property : params.get(0).getCloneProperties()) {
-			nValues.add(new Property(property.getKey()));
-		}
-        Property[] values = (Property[]) nValues.toArray(new Property[0]);
-        SQLInsertQuery iQuery = (SQLInsertQuery) new SQLQuery.Builder(QueryType.INSERT).into(tableName).values(values).build();
-        String query = iQuery.toString();
-        
-        try{ 
-        	batchSize = (batchSize < 100) ? 100 : batchSize;//Least should be 100
-            if(conn != null){
-                //
-            	if(isAutoGenaretedId){
-            		stmt = conn.prepareStatement(query,Statement.RETURN_GENERATED_KEYS);
-                	int batchCount = 1;
-            		for (Row row : params) {
-                		stmt = bindValueToStatement(stmt, 1, keySet, row.keyValueMap());
-                		stmt.addBatch();
-                		if((++batchCount % batchSize) == 0){
-                			stmt.executeBatch();
-                		}
-					}
-            		if(params.size() % batchSize != 0)
-            			stmt.executeBatch();
-        			
-                	ResultSet set = stmt.getGeneratedKeys();
-                	
-                	while(set.next()){
-                		affectedRows.add(set.getInt(1));
-                	}                	
-            	}else{
-            		stmt = conn.prepareStatement(query);
-            		int batchCount = 1;
-            		List<int[]> batchUpdatedRowsCount = new ArrayList<int[]>();
-            		for (Row row : params) {
-                		stmt = bindValueToStatement(stmt, 1, keySet, row.keyValueMap());
-                		stmt.addBatch();
-                		if((++batchCount % batchSize) == 0){
-                			batchUpdatedRowsCount.add(stmt.executeBatch());
-                		}
-					}
-            		if(params.size() % batchSize != 0)
-            			batchUpdatedRowsCount.add(stmt.executeBatch());
-        			
-            		for (int[] rr  : batchUpdatedRowsCount) {
-                		for(int i = 0; i < rr.length ; i++){
-                    		affectedRows.add(rr[i]);
-                    	}
-    				}
-            	}
-            }            
-        }catch(SQLException exp){
-            throw exp;
-        }catch(IllegalArgumentException iel){
-        	throw iel;
-        }finally{
-        	if(stmt != null){
-        		try {
-					stmt.clearBatch();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-        		stmt.close();
-        	}
-        }
-        return affectedRows.toArray(new Integer[]{});		
-    }
-    
-    /**
-     *
-     * @param query
-     * @return
-     * @throws SQLException
-     */
-    public int getScalerValue(String query)
-    throws SQLException{
-    	
-        ResultSet rs = null;
-        PreparedStatement pstmt = null;
-        int rowCount = 0;
-        try{
-            if(conn != null){
-                pstmt = conn.prepareStatement(query);
-                rs = pstmt.executeQuery();
-                if (rs.next()) {
-                    rowCount = rs.getInt(1);                   
-                } else {
-                     rowCount=0;
-                }
-            }            
-        }catch(SQLException e){
-            throw e;
-        }finally{
-        	if(pstmt != null)
-        		pstmt.close();
-        }
-        return rowCount;
-     }
-    
-    /**
-     * 
-     * @param cQuery
-     * @return
-     * @throws SQLException
-     */
-    public int getScalerValue(SQLScalerQuery cQuery)
-    throws SQLException{
-    	
-        ResultSet rs = null;
-        PreparedStatement pstmt = null;
-        int rowCount = 0;
-        String query = cQuery.toString();
-        Row whereClause = cQuery.getWhereProperties();
-        try{
-            if(conn != null){
-                pstmt = conn.prepareStatement(query);
-                
-                pstmt = bindValueToStatement(pstmt
-                		, 1
-                		, whereClause.getKeys()
-                		, whereClause.keyValueMap());
-                rs = pstmt.executeQuery();
-                if (rs.next()) {
-                    rowCount = rs.getInt(1);                   
-                } else {
-                     rowCount=0;
-                }
-            }            
-        }catch(SQLException e){
-            throw e;
-        }finally{
-        	if(pstmt != null)
-        		pstmt.close();
-        }
-        return rowCount;
-     }
     
     /**
      * Query for select
@@ -799,8 +722,8 @@ public class SQLExecutor implements Serializable{
         }
         return rst;           
     }
-    
-    /**
+
+	/**
      * 
      * @param query
      * @return
@@ -830,137 +753,86 @@ public class SQLExecutor implements Serializable{
         }
         return rst;           
     }
-    
-    public Table collection(ResultSet rst, String...columns){
+
+	public Table collection(ResultSet rst, String...columns){
     	if(columns.length == 0) {
     		return collection(rst);
     	}
-    	Table result = new Table();
-    	try{
-    		//IF cursor is moved till last row. Then set to the above first row. 
-    		if(rst.getType() == ResultSet.TYPE_SCROLL_SENSITIVE && rst.isAfterLast()){
-    			rst.beforeFirst();
-    		}
-    		ResultSetMetaData rsmd = rst.getMetaData();
-    		//Optimization
-    		List<Integer> columnIndecies = new ArrayList<Integer>();
-    		for(String columnName : columns){
-    			columnIndecies.add(rst.findColumn(columnName));
-    		}
-
-    		while(rst.next()){ //For each Row
-    			Row row = new Row();
-    			for(int x : columnIndecies){ //For each column in the columns
-    				String key = rsmd.getColumnName(x);
-    				DataType type = convertDataType(rsmd
-    						.getColumnTypeName(x));
-    				Object value = getValueFromResultSet(type, rst, x);
-    				Property property = new Property(key, value, type);
-    				row.add(property);
-    			}
-    			if(row.size() > 0)
-    				result.add(row);
-    		}
-    	}catch(SQLException exp){
-    		result = null;
-    		exp.getStackTrace();
-    	}
+		Table result = createTableFrom(rst, columns);
     	return result;
     }
-	
+
+	protected Table createTableFrom(ResultSet rst, String[] columns) {
+		Table result = new Table();
+		result.setRows(createRowsFrom(rst, columns));
+		return result;
+	}
+
 	/**
 	 * 
 	 * @param rst
 	 * @return
 	 */
     public Table collection(ResultSet rst){
-    	Table result = new Table();
-		try{
-			//IF cursor is moved till last row. Then set to the above first row. 
-			if(rst.getType() == ResultSet.TYPE_SCROLL_SENSITIVE && rst.isAfterLast()){
-                rst.beforeFirst();
-            }
-			ResultSetMetaData rsmd = rst.getMetaData();
-			int numCol = rsmd.getColumnCount();
-			
-			while(rst.next()){ //For each Row
-				Row row = new Row();
-				for(int x = 1; x <= numCol; x++){ //For each column in a Row
-					String key = rsmd.getColumnName(x);
-					DataType type = convertDataType(rsmd.getColumnTypeName(x));
-					Object value = getValueFromResultSet(type, rst, x);
-					
-					Property property = new Property(key, value, type);
-					row.add(property);
-				}
-				result.add(row);
-			}
-		}catch(SQLException exp){
-			result = null;
-			exp.getStackTrace();
-		}
+		Table result = createTableFrom(rst);
 		return result;
 	}
-	
+
+	protected Table createTableFrom(ResultSet rst) {
+		Table result = new Table();
+		result.setRows(createRowsFrom(rst));
+		return result;
+	}
+
 	public List<Row> convertToLists(ResultSet rst){
+		List<Row> result = createRowsFrom(rst);
+		return result;
+	}
+
+	protected List<Row> createRowsFrom(ResultSet rst) {
 		List<Row> result = new ArrayList<Row>();
 		try{
-			
-			//IF cursor is moved till last row. Then set to the above first row. 
+			//IF cursor is moved till last row. Then set to the above first row.
 			if(rst.getType() == ResultSet.TYPE_SCROLL_SENSITIVE && rst.isAfterLast()){
                 rst.beforeFirst();
             }
-			
 			ResultSetMetaData rsmd = rst.getMetaData();
 			int numCol = rsmd.getColumnCount();
-			
+
 			while(rst.next()){ //For each Row
-				Row row = new Row();
-				for(int x = 1; x <= numCol; x++){ //For each column in a Row
-					
-					String key = rsmd.getColumnName(x);
-					DataType type = convertDataType(rsmd.getColumnTypeName(x));
-					Object value = getValueFromResultSet(type, rst, x);
-					
-					Property property = new Property(key, value, type);
-					row.add(property);
-				}
-				result.add(row);
+				Row row = createRowFrom(rst, rsmd, numCol);
+				if(row.size() > 0)
+					result.add(row);
 			}
 		}catch(SQLException exp){
 			result = null;
 			exp.getStackTrace();
 		}
-		
 		return result;
 	}
-	
-	public List<Row> convertToLists(ResultSet rst, String...columns){
-		if(columns.length == 0){
-            return convertToLists(rst);
-        }
+
+	protected List<Row> createRowsFrom(ResultSet rst, String...columns) {
+
+    	if (columns == null || columns.length == 0) return createRowsFrom(rst);
+
 		List<Row> result = new ArrayList<Row>();
 		try{
-			//IF cursor is moved till last row. Then set to the above first row. 
+			//IF cursor is moved till last row. Then set to the above first row.
 			if(rst.getType() == ResultSet.TYPE_SCROLL_SENSITIVE && rst.isAfterLast()){
-                rst.beforeFirst();
-            }
-			
+				rst.beforeFirst();
+			}
 			ResultSetMetaData rsmd = rst.getMetaData();
+
 			//Optimization
-            List<Integer> columnIndecies = new ArrayList<Integer>();
-            for(String columnName : columns){
-                columnIndecies.add(rst.findColumn(columnName));
-            }
-			
+			List<Integer> columnIndecies = new ArrayList<Integer>();
+			for(String columnName : columns){
+				columnIndecies.add(rst.findColumn(columnName));
+			}
+
 			while(rst.next()){ //For each Row
 				Row row = new Row();
-				for(int x : columnIndecies){ //For each column in the paramProperties
-					String key = rsmd.getColumnName(x);
-					DataType type = convertDataType(rsmd
-							.getColumnTypeName(x));
-					Object value = getValueFromResultSet(type, rst, x);
-					Property property = new Property(key, value, type);
+				for(int x : columnIndecies){ //For each column in the columns
+					Property property = createPropertyFrom(rst, rsmd, x);
 					row.add(property);
 				}
 				if(row.size() > 0)
@@ -972,13 +844,35 @@ public class SQLExecutor implements Serializable{
 		}
 		return result;
 	}
+
+	protected Row createRowFrom(ResultSet rst, ResultSetMetaData rsmd, int numCol) throws SQLException {
+		Row row = new Row();
+		for(int x = 1; x <= numCol; x++){ //For each column in a Row
+			Property property = createPropertyFrom(rst, rsmd, x);
+			row.add(property);
+		}
+		return row;
+	}
+
+	protected Property createPropertyFrom(ResultSet rst, ResultSetMetaData rsmd, int x) throws SQLException {
+		String key = rsmd.getColumnName(x);
+		DataType type = convertDataType(rsmd.getColumnTypeName(x));
+		Object value = getValueFromResultSet(type, rst, x);
+		return new Property(key, value);
+	}
+
+	public List<Row> convertToLists(ResultSet rst, String...columns){
+		if(columns.length == 0){
+            return convertToLists(rst);
+        }
+		List<Row> result = createRowsFrom(rst, columns);
+		return result;
+	}
 	
 	public List<Map<String, Object>> convertToKeyValuePaire(ResultSet rst){
 		
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
-		
 		try{
-			
 			//IF cursor is moved till last row. Then set to the above first row. 
 			if(rst.getType() == ResultSet.TYPE_SCROLL_SENSITIVE && rst.isAfterLast()){
                 rst.beforeFirst();
@@ -988,10 +882,8 @@ public class SQLExecutor implements Serializable{
 			int numCol = rsmd.getColumnCount();
 			
 			while(rst.next()){ //For each Row
-				
 				Map<String, Object> row = new HashMap<String, Object>(numCol);
 				for(int x = 1; x <= numCol; x++){ //For each column in a Row
-					
 					String key = rsmd.getColumnName(x);
 					DataType type = convertDataType(rsmd.getColumnTypeName(x));
 					Object value = getValueFromResultSet(type, rst, x);
@@ -1016,15 +908,14 @@ public class SQLExecutor implements Serializable{
         }
 		
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
-		
 		try{
-			
 			//IF cursor is moved till last row. Then set to the above first row. 
 			if(rst.getType() == ResultSet.TYPE_SCROLL_SENSITIVE && rst.isAfterLast()){
                 rst.beforeFirst();
             }
 			
 			ResultSetMetaData rsmd = rst.getMetaData();
+
 			//Optimization
             List<Integer> columnIndecies = new ArrayList<Integer>();
             for(String columnName : paramProperties){
@@ -1032,15 +923,12 @@ public class SQLExecutor implements Serializable{
             }
 			
 			while(rst.next()){ //For each Row
-				
 				Map<String, Object> row = new HashMap<String, Object>(columnIndecies.size());
 				for(int x : columnIndecies){ //For each column in paramProperties
-
 					String key = rsmd.getColumnName(x);
-
-					DataType type = convertDataType(rsmd
-							.getColumnTypeName(x));
+					DataType type = convertDataType(rsmd.getColumnTypeName(x));
 					Object value = getValueFromResultSet(type, rst, x);
+
 					row.put(key, value);
 				}
 				if(row.size() > 0)
@@ -1068,7 +956,6 @@ public class SQLExecutor implements Serializable{
 		}
 		
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
-		
 		try{
 			
 			if(rst.getType() == ResultSet.TYPE_SCROLL_SENSITIVE && rst.isAfterLast()){
@@ -1082,11 +969,9 @@ public class SQLExecutor implements Serializable{
 			}
 			
 			while(rst.next()){ //For each Row
-				
 				HashMap<String, Object> row = new HashMap<String, Object>(columnIndices.size());
 				int newNameCount = 0;
 				for(int x : columnIndices){ //For each column in paramProperties
-					
 					String key = paramPropertyNames.get(newNameCount++);
 					DataType type = convertDataType(rsmd.getColumnTypeName(x));
 					Object value = getValueFromResultSet(type, rst, x);
@@ -1096,7 +981,6 @@ public class SQLExecutor implements Serializable{
 				result.add(row);
 			}
 		}catch(SQLException exp){
-			
 			result = null;
 			exp.getStackTrace();
 		}
@@ -1107,9 +991,7 @@ public class SQLExecutor implements Serializable{
 	public Map<Object, Map<String, Object>> convertToIndexedKeyValuePaire(ResultSet rst, String indexColumn){
 		
 		Map<Object,Map<String, Object>> result = new HashMap<Object, Map<String,Object>>();
-		
 		try{
-			
 			//IF cursor is moved till last row. Then set to the above first row. 
 			if(rst.getType() == ResultSet.TYPE_SCROLL_SENSITIVE && rst.isAfterLast()){
                 rst.beforeFirst();
@@ -1121,7 +1003,6 @@ public class SQLExecutor implements Serializable{
 			while(rst.next()){ //For each Row
 				
 				Object indexColValue = null;
-				
 				Map<String, Object> row = new HashMap<String, Object>(numCol);
 				for(int x = 1; x <= numCol; x++){ //For each column in a Row
 					
@@ -1131,7 +1012,6 @@ public class SQLExecutor implements Serializable{
 					
 					if(key.equals(indexColumn))
 						indexColValue = value;
-					
 					row.put(key, value);
 				}
 				if(indexColValue != null
@@ -1155,7 +1035,6 @@ public class SQLExecutor implements Serializable{
         }
 		
 		Map<Object,Map<String, Object>> result = new HashMap<Object, Map<String,Object>>();
-		
 		try{
 			
 			//IF cursor is moved till last row. Then set to the above first row. 
@@ -1174,15 +1053,14 @@ public class SQLExecutor implements Serializable{
 			while(rst.next()){ //For each Row
 				
 				Object indexColValue = null;
-				
 				Map<String, Object> row = new HashMap<String, Object>(columnIndecies.size());
 				for(int x : columnIndecies){ //For each column in the paramProperties
 					
 					String key = rsmd.getColumnName(x);
-
 					DataType type = convertDataType(rsmd
 							.getColumnTypeName(x));
 					Object value = getValueFromResultSet(type, rst, x);
+
 					if (key.equals(indexColumn))
 						indexColValue = value;
 					row.put(key, value);
@@ -1244,8 +1122,8 @@ public class SQLExecutor implements Serializable{
 					
 					if(key.equals(indexColumn))
 						indexColValue = value;
-					
 					row.put(keyConverted, value);
+
 				}
 				if(indexColValue != null
 						&& !result.containsKey(indexColValue))
@@ -1253,7 +1131,6 @@ public class SQLExecutor implements Serializable{
 				
 			}
 		}catch(SQLException exp){
-			
 			result = null;
 			exp.getStackTrace();
 		}
@@ -1280,10 +1157,7 @@ public class SQLExecutor implements Serializable{
                 Row row = new Row();
                 
                 for(int x = 1; x <= numCol; x++){ //For each column in a Row
-                    String key = rsmd.getColumnName(x);
-                    DataType type = convertDataType(rsmd.getColumnTypeName(x));
-                    Object value = getValueFromResultSet(type, rst, x);
-                    Property property = new Property(key, value, type);
+                    Property property = createPropertyFrom(rst, rsmd, x);
                     row.add(property);
                 }
                 result = row;
@@ -1293,10 +1167,7 @@ public class SQLExecutor implements Serializable{
                         if(rowIndex == rst.getRow()){
                             Row row = new Row();
                             for(int x = 1; x <= numCol; x++){ //For each column in a Row
-                                String key = rsmd.getColumnName(x);
-                                DataType type = convertDataType(rsmd.getColumnTypeName(x));
-                                Object value = getValueFromResultSet(type, rst, x);
-                                Property property = new Property(key, value, type);
+								Property property = createPropertyFrom(rst, rsmd, x);
                                 row.add(property);
                             }
                             result = row;
@@ -1331,7 +1202,7 @@ public class SQLExecutor implements Serializable{
 			
 			while(rst.next()){ //For each Row
 				Object value = getValueFromResultSet(type, rst, x);
-				Property prop = new Property(key,value, type);
+				Property prop = new Property(key,value);
 				result.add(prop);
 			}
 		}catch(SQLException exp){
@@ -1364,7 +1235,7 @@ public class SQLExecutor implements Serializable{
 			
 			while(rst.next()){ //For each Row
 				Object value = getValueFromResultSet(type, rst, x);
-				Property prop = new Property(key,value, type);
+				Property prop = new Property(key, value);
 				result.add(prop);
 			}
 		}catch(SQLException exp){
@@ -1374,7 +1245,7 @@ public class SQLExecutor implements Serializable{
 		return result;
 	}
 	
-	public Blob createBlob(String val) throws SQLException {
+	public Object createBlob(String val) throws SQLException {
 		byte[] bytes = val.getBytes();
 		Blob blob = conn.createBlob();
 		blob.setBytes(1, bytes);
@@ -1488,12 +1359,11 @@ public class SQLExecutor implements Serializable{
     	return stmt;
     }
 	
-	private Object getValueFromResultSet(DataType type, ResultSet rst, int index)
+	protected Object getValueFromResultSet(DataType type, ResultSet rst, int index)
 	throws SQLException{
 		
 		Object value = null;
 		switch (type) {
-
 		case INT:
 			value = new Integer(rst.getInt(index));
 			break;
@@ -1523,53 +1393,8 @@ public class SQLExecutor implements Serializable{
 			value = rst.getObject(index);
 			break;
 		}
-		
 		return value;
 	}
-	
-	private DataType convertDataType(String type){
-		
-		String trimedType = type.trim().toUpperCase();
-		
-		if(trimedType.equals("CHAR") 
-				|| trimedType.equals("VARCHAR")
-				|| trimedType.equals("LONGVARCHAR")){
-			
-			return DataType.STRING;
-			
-		}
-		else if(trimedType.equals("INTEGER") 
-				|| trimedType.equals("BIGINT")
-				|| trimedType.equals("SMALLINT")){
-			return DataType.INT;
-			
-		}
-		else if(trimedType.equals("DATE")
-				|| trimedType.equals("DATETIME")){
-			return DataType.SQLDATE;
-			
-		}else if(trimedType.equals("TIME")
-				|| trimedType.equals("TIMESTAMP")){
-			return DataType.SQLTIMESTAMP;
-			
-		}else if(trimedType.equals("FLOAT")){
-			return DataType.FLOAT;
-		}
-		else if(trimedType.equals("DOUBLE")){
-			return DataType.DOUBLE;
-		}
-		else if(trimedType.equals("BIT") 
-				|| trimedType.equals("TINYINT")){
-			return DataType.BOOL;
-		}
-		else if(trimedType.equals("BINARY") || trimedType.equals("VARBINARY") || trimedType.equals("LONGVARBINARY")){
-			return DataType.BYTEARRAY;
-		}
-		else{
-			return DataType.OBJECT;
-		}
-		
-	}
-	
+
 	//////////////////////////////////////END//////////////////////////////////////
 }

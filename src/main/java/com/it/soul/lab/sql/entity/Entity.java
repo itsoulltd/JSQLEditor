@@ -1,114 +1,36 @@
 package com.it.soul.lab.sql.entity;
 
+import com.it.soul.lab.sql.QueryExecutor;
+import com.it.soul.lab.sql.query.SQLDeleteQuery;
+import com.it.soul.lab.sql.query.SQLInsertQuery;
+import com.it.soul.lab.sql.query.QueryType;
+import com.it.soul.lab.sql.query.SQLSelectQuery;
+import com.it.soul.lab.sql.query.SQLUpdateQuery;
+import com.it.soul.lab.sql.query.models.*;
+
 import java.lang.reflect.Field;
 import java.sql.Date;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.it.soul.lab.sql.SQLExecutor;
-import com.it.soul.lab.sql.query.SQLDeleteQuery;
-import com.it.soul.lab.sql.query.SQLInsertQuery;
-import com.it.soul.lab.sql.query.SQLQuery;
-import com.it.soul.lab.sql.query.SQLQuery.QueryType;
-import com.it.soul.lab.sql.query.SQLSelectQuery;
-import com.it.soul.lab.sql.query.SQLUpdateQuery;
-import com.it.soul.lab.sql.query.models.AndExpression;
-import com.it.soul.lab.sql.query.models.DataType;
-import com.it.soul.lab.sql.query.models.Expression;
-import com.it.soul.lab.sql.query.models.ExpressionInterpreter;
-import com.it.soul.lab.sql.query.models.Operator;
-import com.it.soul.lab.sql.query.models.Property;
-import com.it.soul.lab.sql.query.models.Table;
+import java.util.*;
 
 public abstract class Entity implements EntityInterface{
 	public Entity() {
 		super();
 	}
-	private boolean hasColumnAnnotation(Field field) {
-		boolean isAnnotated = field.isAnnotationPresent(Column.class)
-				|| field.isAnnotationPresent(PrimaryKey.class);
-		return isAnnotated;
-	}
-	protected List<Property> getProperties(SQLExecutor exe, boolean skipPrimary) {
-		List<Property> result = new ArrayList<>();
-		boolean acceptAll = shouldAcceptAllProperty();
-		for (Field field : this.getClass().getDeclaredFields()) {
-			if(acceptAll == false && hasColumnAnnotation(field) == false) {
-				continue;
-			}
-			Property prop = getProperty(field.getName(), exe, skipPrimary);
-			if(prop == null) {continue;}
-			result.add(prop);
-		}
-		return result;
-	}
-	private DataType getDataType(Object value) {
-		return DataType.getDataType(value);
-	}
-	private java.util.Date parseDate(String val, DataType type, String format){
-		try {
-			SimpleDateFormat formatter = new SimpleDateFormat((format != null && format.trim().isEmpty() == false) 
-																		? format 
-																		: Property.SQL_DATETIME_FORMAT);
-			java.util.Date date = formatter.parse(val);
-			if(type == DataType.SQLTIMESTAMP) {
-				return new Timestamp(date.getTime());
-			}else {
-				return new Date(date.getTime());
-			}
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	private Object getFieldValue(Field field, SQLExecutor exe) throws IllegalArgumentException, IllegalAccessException, SQLException {
-		Object value = field.get(this);
-		//
-		if(value == null && field.isAnnotationPresent(Column.class) == true) {
-			Column annotation = field.getAnnotation(Column.class);
-			String defaultVal = annotation.defaultValue();
-			DataType type = annotation.type();
-			switch (type) {
-			case INT:
-				value = Integer.valueOf(defaultVal);
-				break;
-			case FLOAT:
-				value = Float.valueOf(defaultVal);
-				break;
-			case DOUBLE:
-				value = Double.valueOf(defaultVal);
-				break;
-			case BOOL:
-				value = Boolean.valueOf(defaultVal);
-				break;
-			case SQLDATE:
-			case SQLTIMESTAMP:
-				value = parseDate(defaultVal, type, annotation.parseFormat());
-				break;
-			case BLOB:
-				value = (exe != null) ? exe.createBlob(defaultVal) : defaultVal;
-				break;
-			case BYTEARRAY:
-				value = defaultVal.getBytes();
-				break;
-			default:
-				value = defaultVal;
-				break;
-			}
-		}
-		//always.
-		return value;
-	}
-	protected Property getProperty(String key, SQLExecutor exe, boolean skipPrimary) {
+
+	/**
+	 *
+	 * @param fieldName : must have to be the associated field name:
+	 * @param exe
+	 * @param skipPrimary
+	 * @return
+	 */
+	protected Property getProperty(String fieldName, QueryExecutor exe, boolean skipPrimary) {
 		Property result = null;
 		try {
-			Field field = this.getClass().getDeclaredField(key);
+			Field field = getDeclaredField(fieldName, true);
 			if(field.isAnnotationPresent(PrimaryKey.class)) {
 				if (skipPrimary) {return null;}
 				if (((PrimaryKey)field.getAnnotation(PrimaryKey.class)).autoIncrement() == true
@@ -117,36 +39,154 @@ public abstract class Entity implements EntityInterface{
 			field.setAccessible(true);
 			String actualKey = getPropertyKey(field);
 			Object value = getFieldValue(field, exe);
-			DataType type = getDataType(value);
-			result = new Property(actualKey, value, type);
+			result = new Property(actualKey, value);
 			field.setAccessible(false);
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException | SQLException e) {
 			e.printStackTrace();
 		}
 		return result;
 	}
-	private String getPropertyKey(Field field) {
+
+	public final Field getDeclaredField(String fieldName, boolean inherit) throws NoSuchFieldException{
+        //Search for the field, until get found any of the super class.
+        //But not infinite round: MAX=8
+        int maxLoopCount = 8;
+        int loopCount = 0;
+        Field field = null;
+        Class mySClass = getClass();
+        do{
+            try{
+                field = mySClass.getDeclaredField(fieldName);
+            }catch (NoSuchFieldException | SecurityException e) {
+                if (inherit == false) throw e;
+                else mySClass = mySClass.getSuperclass();
+            }
+            if (loopCount++ > maxLoopCount) throw new NoSuchFieldException( fieldName + " does't exist!");
+        }while(field == null);
+        //
+        return field;
+    }
+
+    private Object getFieldValue(Field field, QueryExecutor exe) throws IllegalArgumentException, IllegalAccessException, SQLException {
+        Object value = field.get(this);
+        //
+        if(value == null && field.isAnnotationPresent(Column.class) == true) {
+            Column annotation = field.getAnnotation(Column.class);
+            String defaultVal = annotation.defaultValue();
+            DataType type = annotation.type();
+            switch (type) {
+                case INT:
+                    value = Integer.valueOf(defaultVal);
+                    break;
+                case FLOAT:
+                    value = Float.valueOf(defaultVal);
+                    break;
+                case DOUBLE:
+                    value = Double.valueOf(defaultVal);
+                    break;
+                case BOOL:
+                    value = Boolean.valueOf(defaultVal);
+                    break;
+                case SQLDATE:
+                case SQLTIMESTAMP:
+                    value = parseDate(defaultVal, type, annotation.parseFormat());
+                    break;
+                case BLOB:
+                    value = (exe != null) ? exe.createBlob(defaultVal) : defaultVal;
+                    break;
+                case BYTEARRAY:
+                    value = defaultVal.getBytes();
+                    break;
+                default:
+                    value = defaultVal;
+                    break;
+            }
+        }
+        //always.
+        return value;
+    }
+
+    private java.util.Date parseDate(String val, DataType type, String format){
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat((format != null && format.trim().isEmpty() == false)
+                    ? format
+                    : Property.SQL_DATETIME_FORMAT);
+            java.util.Date date = formatter.parse(val);
+            if(type == DataType.SQLTIMESTAMP) {
+                return new Timestamp(date.getTime());
+            }else {
+                return new Date(date.getTime());
+            }
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    protected List<Property> getProperties(QueryExecutor exe, boolean skipPrimary) {
+        List<Property> result = new ArrayList<>();
+        boolean acceptAll = shouldAcceptAllAsProperty();
+        Field[] fields = getDeclaredFields(true);
+        for (Field field : fields) {
+            if(acceptAll == false && isFieldAnnotatedWith(field) == false) {
+                continue;
+            }
+            Property prop = getProperty(field.getName(), exe, skipPrimary);
+            if(prop == null) {continue;}
+            result.add(prop);
+        }
+        return result;
+    }
+
+    protected boolean isFieldAnnotatedWith(Field field) {
+        boolean isAnnotated = field.isAnnotationPresent(Column.class)
+                || field.isAnnotationPresent(PrimaryKey.class);
+        return isAnnotated;
+    }
+
+    public final Field[] getDeclaredFields(boolean inherit){
+        List<Field> fields = new ArrayList<>();
+        fields.addAll(Arrays.asList(getClass().getDeclaredFields()));
+        if (inherit){
+            //Inherit properties from one immediate parent which is not Entity.class.
+            /*if (!getClass().getSuperclass().getSimpleName().equalsIgnoreCase(Entity.class.getSimpleName())){
+                fields.addAll(Arrays.asList(getClass().getSuperclass().getDeclaredFields()));
+            }*/
+            Class mySuperClass = getClass().getSuperclass();
+            while(!mySuperClass.getSimpleName().equalsIgnoreCase(Entity.class.getSimpleName())){
+                fields.addAll(Arrays.asList(mySuperClass.getDeclaredFields()));
+                mySuperClass = mySuperClass.getSuperclass();
+            }
+        }
+        return fields.toArray(new Field[0]);
+    }
+
+	protected String getPropertyKey(Field field) {
 		//Introduce Column:name() -> So that, if we want to mapping different column naming in Database Schema.
 		//Logic: if column annotation not present OR Column:Name() is empty, then return field.getName() 
 		//       else return Column:name()
-		if(field.isAnnotationPresent(Column.class) == false) {
+		//Also consider @PrimaryKey:name() is also present.
+		if(field.isAnnotationPresent(Column.class)) {
+			Column column = field.getAnnotation(Column.class);
+			String clName = column.name().trim();
+			return (!clName.isEmpty()) ? clName : field.getName();
+		}else if(field.isAnnotationPresent(PrimaryKey.class)) {
+			PrimaryKey pm = field.getAnnotation(PrimaryKey.class);
+			String pmName = pm.name().trim();
+			return (!pmName.isEmpty()) ? pmName : field.getName();
+		}else {
 			return field.getName();
 		}
-		Column column = field.getAnnotation(Column.class);
-		boolean hasValue = column.name().trim().isEmpty() == false;
-		return (hasValue) ? column.name().trim() : field.getName();
 	}
-	private boolean shouldAcceptAllProperty() {
-		if(this.getClass().isAnnotationPresent(TableName.class) == false) {
-			return true;
-		}
-		TableName tableName = (TableName) this.getClass().getAnnotation(TableName.class);
-		return tableName.acceptAll();
+
+	protected boolean shouldAcceptAllAsProperty() {
+		return Entity.shouldAcceptAllAsProperty(this.getClass());
 	}
+
 	private Boolean _isAutoIncremented = null;
 	private boolean isAutoIncrement() {
 		if(_isAutoIncremented == null) {
-			PrimaryKey primAnno = getPrimaryKey(); 
+			PrimaryKey primAnno = getPrimaryKey();
 			if(primAnno == null) {
 				_isAutoIncremented = false;
 			}
@@ -154,9 +194,21 @@ public abstract class Entity implements EntityInterface{
 		}
 		return _isAutoIncremented;
 	}
+
+    private List<PrimaryKey> getPrimaryKeys() {
+        List<PrimaryKey> keys = new ArrayList<>();
+        List<Field> fields = getPrimaryFields();
+        for (Field field : fields) {
+            if(field.isAnnotationPresent(PrimaryKey.class)) {
+                keys.add(field.getAnnotation(PrimaryKey.class));
+            }
+        }
+        return keys;
+    }
+
 	private PrimaryKey getPrimaryKey() {
 		PrimaryKey key = null;
-		Field[] fields = this.getClass().getDeclaredFields();
+		List<Field> fields = getPrimaryFields();
 		for (Field field : fields) {
 			if(field.isAnnotationPresent(PrimaryKey.class)) {
 				key = field.getAnnotation(PrimaryKey.class);
@@ -165,119 +217,234 @@ public abstract class Entity implements EntityInterface{
 		}
 		return key;
 	}
-	private Property getPrimaryProperty(SQLExecutor exe) {
-		Property result = null;
+
+    protected List<Field> getPrimaryFields() {
+        List<Field> keys = new ArrayList<>();
+        Field[] fields = getDeclaredFields(true);
+        for (Field field : fields) {
+            if(field.isAnnotationPresent(PrimaryKey.class)) {
+                keys.add(field);
+            }
+        }
+        return keys;
+    }
+
+	protected List<Property> getPrimaryProperties(QueryExecutor exe) {
+		List<Property> results = new ArrayList<>();
 		try {
-			String key = getPrimaryKey().name().trim();
-			result = getProperty(key, exe, false);
+			List<Field> primaryFields = getPrimaryFields();
+			if (primaryFields.isEmpty()) return results;
+			//
+			for (Field pmKeyField : primaryFields){
+				String key = pmKeyField.getName();
+				results.add(getProperty(key, exe, false));
+			}
 		} catch (SecurityException | IllegalArgumentException e) {
 			e.printStackTrace();
 		}
-		return result;
+		return results;
 	}
-	public Boolean update(SQLExecutor exe, String...keys) throws SQLException, Exception {
-		List<Property> properties = new ArrayList<>();
-		if(keys.length > 0) {
-			for (String key : keys) {
-				String skey = key.trim();
-				Property prop = getProperty(skey, exe, true);
-				if (prop == null) {continue;}
-				properties.add(prop);
-			}
-		}else {
-			properties = getProperties(exe, true);
-		}
+
+    private Property getPrimaryProperty(QueryExecutor exe) {
+	    List<Property> all = getPrimaryProperties(exe);
+        Property result = (all.size() > 0) ? all.get(0 ) : null;
+        return result;
+    }
+
+    public Map<String, Object> marshallingToMap(boolean inherit) {
+        Map<String, Object> result = new HashMap<>();
+        for (Field field : getDeclaredFields(inherit)) {
+            try {
+                field.setAccessible(true);
+                if (field.isAnnotationPresent(Column.class)){
+                    Column column = field.getAnnotation(Column.class);
+                    String columnName = (column.name().trim().isEmpty() == false) ? column.name().trim() : field.getName();
+                    result.put(columnName, field.get(this));
+                }else if(field.isAnnotationPresent(PrimaryKey.class)){
+                    PrimaryKey primaryKey = field.getAnnotation(PrimaryKey.class);
+                    String columnName = (primaryKey.name().trim().isEmpty() == false) ? primaryKey.name().trim() : field.getName();
+                    result.put(columnName, field.get(this));
+                }else{
+                    result.put(field.getName(), field.get(this));
+                }
+                field.setAccessible(false);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+	/**
+	 *
+	 * @param exe
+	 * @param keys
+	 * @return
+	 * @throws SQLException
+	 * @throws Exception
+	 */
+	@Override
+	public Boolean update(QueryExecutor exe, String...keys) throws SQLException {
+		List<Property> properties = getPropertiesFromKeys(exe, keys, true);
 		String tableName = Entity.tableName(getClass());
-		SQLUpdateQuery query = (SQLUpdateQuery) new SQLQuery.Builder(QueryType.UPDATE)
+		SQLUpdateQuery query = exe.createQueryBuilder(QueryType.UPDATE)
 														.set(properties.toArray(new Property[0]))
 														.from(tableName)
-														.where(updateWhereExpression()).build();
+														.where(primaryKeysInWhereExpression(exe)).build();
 		int isUpdate = exe.executeUpdate(query);
 		return isUpdate == 1;
 	}
-	protected ExpressionInterpreter updateWhereExpression() {
-		return new Expression(getPrimaryProperty(null), Operator.EQUAL);
-	}
-	@Override
-	public Boolean insert(SQLExecutor exe, String... keys) throws SQLException, Exception {
-		List<Property> properties = new ArrayList<>();
-		if(keys.length > 0) {
-			for (String key : keys) {
-				String skey = key.trim();
-				Property prop = getProperty(skey, exe, false);
-				if (prop == null) {continue;}
-				properties.add(prop);
+	protected ExpressionInterpreter primaryKeysInWhereExpression(QueryExecutor exe) {
+		//return new Expression(getPrimaryProperty(null), Operator.EQUAL);
+		List<Property> keys = getPrimaryProperties(exe);
+		ExpressionInterpreter and = null;
+		ExpressionInterpreter lhr = null;
+		for (Property prop : keys) {
+			if(lhr == null) {
+				lhr = new Expression(prop, Operator.EQUAL);
+				and = lhr;
+			}else {
+				ExpressionInterpreter rhr = new Expression(prop, Operator.EQUAL);
+				and = new AndExpression(lhr, rhr);
+				lhr = and;
 			}
-		}else {
-			properties = getProperties(exe, false);
 		}
-		SQLInsertQuery query = (SQLInsertQuery) new SQLQuery.Builder(QueryType.INSERT)
+		return and;
+	}
+
+	/**
+	 *
+	 * @param exe
+	 * @param keys : must be field names associated with this class.
+	 * @return
+	 * @throws SQLException
+	 * @throws Exception
+	 */
+	@Override
+	public Boolean insert(QueryExecutor exe, String... keys) throws SQLException {
+		List<Property> properties = getPropertiesFromKeys(exe, keys, false);
+		SQLInsertQuery query = exe.createQueryBuilder(QueryType.INSERT)
 															.into(Entity.tableName(getClass()))
 															.values(properties.toArray(new Property[0])).build();
 		
-		int insert = exe.executeInsert(isAutoIncrement(), query);
-		if(isAutoIncrement()) {
+		int result = exe.executeInsert(isAutoIncrement(), query);
+		if( result > 1 || isAutoIncrement()) {
 			//update primary key to insert
-			updateAutoID(insert);
-		}
-		return insert >= 1; //0=failed to insert, 1=successful to insert, >1=the auto incremented id which means inserted.
-	}
-	private void updateAutoID(int insert) throws NoSuchFieldException, IllegalAccessException {
-		PrimaryKey pmKey = getPrimaryKey();
-		if(pmKey != null && pmKey.name().trim().isEmpty() == false) {
 			try {
-				Field primaryField = getClass().getDeclaredField(pmKey.name().trim());
+				updateAutoID(result);
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+		return result >= 1; //0=failed to insert, 1=successful to insert, >1=the auto incremented id which means inserted.
+	}
+
+	protected List<Property> getPropertiesFromKeys(QueryExecutor exe, String[] keys, boolean skipPrimary) {
+		List<Property> properties = new ArrayList<>();
+		if (keys.length > 0) {
+			for (String key : keys) {
+				String skey = key.trim();
+				Property prop = getProperty(skey, exe, skipPrimary);
+				if (prop == null) {
+					continue;
+				}
+				properties.add(prop);
+			}
+		} else {
+			properties = getProperties(exe, skipPrimary);
+		}
+		return properties;
+	}
+
+	private void updateAutoID(int insert) throws IllegalAccessException {
+		List<Field> primaryFields = getPrimaryFields();
+		if (primaryFields.isEmpty()) return;
+
+		try {
+			//Update any primary field that has autoIncrement = yes
+			for (Field primaryField : primaryFields) {
+				if (primaryField.isAnnotationPresent(PrimaryKey.class) == false) continue;
+				if (primaryField.getAnnotation(PrimaryKey.class).autoIncrement() == false) continue;
 				primaryField.setAccessible(true);
 				primaryField.set(this, insert);
 				primaryField.setAccessible(false);
-			} catch (SecurityException | IllegalArgumentException e) {
-				e.printStackTrace();
-			} 
+				break;
+			}
+		} catch (SecurityException | IllegalArgumentException e) {
+			e.printStackTrace();
 		}
 	}
+
+	/**
+	 *
+	 * @param exe
+	 * @return
+	 * @throws SQLException
+	 * @throws Exception
+	 */
 	@Override
-	public Boolean delete(SQLExecutor exe) throws SQLException, Exception {
-		Expression exp = new Expression(getPrimaryProperty(exe), Operator.EQUAL);
-		SQLDeleteQuery query = (SQLDeleteQuery) new SQLQuery.Builder(QueryType.DELETE)
+	public Boolean delete(QueryExecutor exe) throws SQLException {
+		//Expression exp = new Expression(getPrimaryProperty(exe), Operator.EQUAL);
+		ExpressionInterpreter exp = primaryKeysInWhereExpression(exe);
+		SQLDeleteQuery query = exe.createQueryBuilder(QueryType.DELETE)
 														.rowsFrom(Entity.tableName(getClass()))
 														.where(exp).build();
 		int deletedId = exe.executeDelete(query);
 		return deletedId == 1;
 	}
 	///////////////////////////////////////Class API///////////////////////////////////////
-	private static <T extends Entity> boolean shouldAcceptAllProperty(Class<T> type) {
+	protected static <T extends Entity> boolean shouldAcceptAllAsProperty(Class<T> type) {
 		if(type.isAnnotationPresent(TableName.class) == false) {
 			return true;
 		}
 		TableName tableName = (TableName) type.getAnnotation(TableName.class);
 		return tableName.acceptAll();
 	}
-	private static <T extends Entity> Map<String, String> mapColumnsToProperties(Class<T> type) {
-		boolean acceptAll = Entity.shouldAcceptAllProperty(type);
+    protected final static <T extends Entity> Field[] getDeclaredFields(Class<T> type, boolean inherit){
+        Field[] fields = new Field[0];
+        try {
+            T newInstance = type.newInstance();
+            fields = newInstance.getDeclaredFields(inherit);
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return fields;
+    }
+	public static <T extends Entity> Map<String, String> mapColumnsToProperties(Class<T> type) {
+
+		boolean acceptAll = Entity.shouldAcceptAllAsProperty(type);
 		if (acceptAll) {return null;}
 		
 		Map<String, String> result = new HashMap<>();
-		for (Field field : type.getDeclaredFields()) {
-			if(acceptAll == false && field.isAnnotationPresent(Column.class) == false) {
+		for (Field field : Entity.getDeclaredFields(type, true)) {
+			if(acceptAll == false
+					&& field.isAnnotationPresent(Column.class) == false
+					&& field.isAnnotationPresent(PrimaryKey.class) == false) {
 				continue;
 			}
-			Column column = field.getAnnotation(Column.class);
-			String columnName = (column.name().trim().isEmpty() == false) ? column.name().trim() : field.getName();
-			field.setAccessible(true);
-			result.put(columnName, field.getName());
-			field.setAccessible(false);
+			if (field.isAnnotationPresent(Column.class)){
+				Column column = field.getAnnotation(Column.class);
+				String columnName = (column.name().trim().isEmpty() == false) ? column.name().trim() : field.getName();
+				result.put(columnName, field.getName());
+			}else if(field.isAnnotationPresent(PrimaryKey.class)){
+				PrimaryKey primaryKey = field.getAnnotation(PrimaryKey.class);
+				String columnName = (primaryKey.name().trim().isEmpty() == false) ? primaryKey.name().trim() : field.getName();
+				result.put(columnName, field.getName());
+			}
 		}
 		return result;
 	}
-	private static <T extends Entity> String tableName(Class<T> type) {
+	public static <T extends Entity> String tableName(Class<T> type) {
 		if(type.isAnnotationPresent(TableName.class) == false) {
 			return type.getSimpleName();
 		}
-		TableName tableName = (TableName) type.getAnnotation(TableName.class);
+		TableName tableName = type.getAnnotation(TableName.class);
 		String name = (tableName.value().trim().length() == 0) ? type.getSimpleName() : tableName.value().trim();
 		return name;
 	}
-	public static <T extends Entity> List<T> read(Class<T>  type, SQLExecutor exe, Property...match) throws SQLException, Exception{
+	public static <T extends Entity> List<T> read(Class<T>  type, QueryExecutor exe, Property...match) throws SQLException, Exception{
 		ExpressionInterpreter and = null;
 		ExpressionInterpreter lhr = null;
 		for (int i = 0; i < match.length; i++) {
@@ -292,21 +459,19 @@ public abstract class Entity implements EntityInterface{
 		}
 		return T.read(type, exe, and);
 	}
-	public static <T extends Entity> List<T> read(Class<T>  type, SQLExecutor exe, ExpressionInterpreter expression) throws SQLException, Exception{
+	public static <T extends Entity> List<T> read(Class<T>  type, QueryExecutor exe, ExpressionInterpreter expression) throws SQLException, Exception{
 		String name = Entity.tableName(type);
 		SQLSelectQuery query = null;
 		if(expression != null) {
-			query = (SQLSelectQuery) new SQLQuery.Builder(QueryType.SELECT)
+			query = exe.createQueryBuilder(QueryType.SELECT)
 					.columns()
 					.from(name)
 					.where(expression).build();
 		}else {
-			query = (SQLSelectQuery) new SQLQuery.Builder(QueryType.SELECT)
+			query = exe.createQueryBuilder(QueryType.SELECT)
 					.columns()
 					.from(name).build();
 		}
-		ResultSet set = exe.executeSelect(query);
-		Table table = exe.collection(set);
-		return table.inflate(type, Entity.mapColumnsToProperties(type));
+		return exe.executeSelect(query, type, Entity.mapColumnsToProperties(type));
 	}
 }

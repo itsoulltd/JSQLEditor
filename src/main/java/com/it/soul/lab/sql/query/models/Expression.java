@@ -59,7 +59,7 @@ public class Expression implements ExpressionInterpreter{
 	}
 	
 	public static Row convertToRow(List<Expression> coms){
-		Row props = new Row();
+		Row props = new WhereProperties();
 		if(coms == null){
 			return props;
 		}

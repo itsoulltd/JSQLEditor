@@ -1,11 +1,14 @@
 package com.it.soul.lab.sql.entity;
 
+import java.lang.reflect.Field;
 import java.sql.SQLException;
 
-import com.it.soul.lab.sql.SQLExecutor;
+import com.it.soul.lab.sql.QueryExecutor;
 
 public interface EntityInterface {
-	public Boolean update(SQLExecutor exe, String...keys) throws SQLException, Exception;
-	public Boolean insert(SQLExecutor exe, String...keys) throws SQLException, Exception;
-	public Boolean delete(SQLExecutor exe) throws SQLException, Exception;
+	Boolean update(QueryExecutor exe, String...keys) throws SQLException, Exception;
+	Boolean insert(QueryExecutor exe, String...keys) throws SQLException, Exception;
+	Boolean delete(QueryExecutor exe) throws SQLException, Exception;
+	Field getDeclaredField(String fieldName, boolean inherit) throws NoSuchFieldException;
+    Field[] getDeclaredFields(boolean inherit);
 }

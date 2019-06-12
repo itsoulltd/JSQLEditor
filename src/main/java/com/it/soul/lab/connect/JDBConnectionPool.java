@@ -23,21 +23,21 @@ public class JDBConnectionPool implements Serializable{
 	private static int activeConnectionCount = 0;
 
 	private static InitialContext initCtx=null;
-	private static SortedMap<String, DataSource> dataSourcePool = null;
-	private static String _DEFAULT_KEY = null;
+    private static SortedMap<String, DataSource> dataSourcePool = null;
+    private static String _DEFAULT_KEY = null;
 
-	private JDBConnectionPool() throws NamingException {
+    private JDBConnectionPool() throws NamingException {
 		initCtx = new InitialContext();
 	}
-
-	/**
-	 * Example JNDILookUp String
-	 * "java:comp/env/jdbc/MySQLDB"
-	 *
-	 * @param JNDILookUp
-	 * @throws NamingException
-	 * @throws IllegalArgumentException
-	 */
+    
+    /**
+     * Example JNDILookUp String
+     * "java:comp/env/jdbc/MySQLDB"
+     * 
+     * @param JNDILookUp
+     * @throws NamingException
+     * @throws IllegalArgumentException
+     */
 	private JDBConnectionPool(String JNDILookUp) throws NamingException,IllegalArgumentException{
 		this();
 		createNewSource(JNDILookUp);
@@ -199,31 +199,31 @@ public class JDBConnectionPool implements Serializable{
 	 * @return
 	 * @throws SQLException
 	 */
-	public static synchronized Connection connection(String key, String userName , String password)
-			throws SQLException{
-		Connection con = null;
-		try{
-			con = JDBConnectionPool.poolInstance().findSourceByName(key).getConnection(userName,password);
-			JDBConnectionPool.increasePoolCount();
-		}catch(SQLException sqe){
-			throw sqe;
-		}
-		return con;
-
-	}
-
-	/**
-	 *
-	 * @param conn
-	 * @throws SQLException
-	 */
-	public static synchronized void close(Connection conn) {
-		try{
-			if(conn != null && ! conn.getAutoCommit()){
-				conn.commit();
-			}
-		}catch(SQLException sqe){
-			try {
+    public static synchronized Connection connection(String key, String userName , String password) 
+    throws SQLException{
+    	Connection con = null;
+    	try{
+            con = JDBConnectionPool.poolInstance().findSourceByName(key).getConnection(userName,password);
+            JDBConnectionPool.increasePoolCount();
+        }catch(SQLException sqe){
+        	throw sqe;
+        }
+        return con;       
+        
+    }   
+    
+    /**
+     * 
+     * @param conn
+     * @throws SQLException
+     */
+    public static synchronized void close(Connection conn) {
+        try{
+            if(conn != null && ! conn.getAutoCommit()){
+            	conn.commit();
+            }
+        }catch(SQLException sqe){
+        	try {
 				if(!conn.getAutoCommit())
 					conn.rollback();
 			} catch (SQLException e) {
