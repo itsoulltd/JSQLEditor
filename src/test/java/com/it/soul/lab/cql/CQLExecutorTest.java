@@ -29,9 +29,9 @@ public class CQLExecutorTest {
                 .connectTo(9042, "127.0.0.1")
                 .build();
 
-        Boolean newKeyspace = cqlExecutor.createKeyspace("GeoTracker locations", ReplicationStrategy.SimpleStrategy, 1);
+        Boolean newKeyspace = cqlExecutor.createKeyspace("OrderTracker", ReplicationStrategy.SimpleStrategy, 1);
         if (newKeyspace){
-            cqlExecutor.switchKeyspace("GeoTracker locations");
+            cqlExecutor.switchKeyspace("OrderTracker");
         }
     }
 
@@ -39,7 +39,7 @@ public class CQLExecutorTest {
     public void after(){
         //
         try {
-            cqlExecutor.close();
+            //cqlExecutor.close();
         } catch (Exception e) {}
     }
 
@@ -114,7 +114,7 @@ public class CQLExecutorTest {
                                         .and("user_id")
                                         .isEqualTo("776aa40b-8f9c-4e6f-80e9-ae6c5e555be0");
 
-            List<OrderEvent> otherItems = OrderEvent.read(OrderEvent.class, cqlExecutor, predicate);
+            List<OrderEvent> otherItems = OrderEvent.read(OrderEvent.class, cqlExecutor);
             otherItems.stream().forEach(event -> System.out.println("track_id "+ event.getTrackID()));
 
         }catch (Exception e){

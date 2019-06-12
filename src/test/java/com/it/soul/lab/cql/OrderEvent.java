@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
-@TableName(value = "tracking_event")
+@TableName(value = "order_event")
 public class OrderEvent extends CQLEntity {
 
     @PrimaryKey(name = "track_id")
