@@ -13,11 +13,12 @@ import static org.junit.Assert.*;
 public class SQLExecutorTest {
 
     private SQLExecutor exe;
+    String password = "****";
 
     @Before
     public void setUp() throws Exception {
         exe = new SQLExecutor.Builder(JDBConnection.DriverClass.MYSQL)
-                .database("testDB").credential("root", "****").build();
+                .database("testDB").credential("root", password).build();
     }
 
     @After

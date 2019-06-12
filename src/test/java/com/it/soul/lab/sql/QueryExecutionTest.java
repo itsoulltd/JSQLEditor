@@ -24,12 +24,13 @@ import com.it.soul.lab.sql.query.SQLUpdateQuery;
 public class QueryExecutionTest {
 	
 	SQLExecutor exe;
+	String password = "****";
 	
 	@Before
 	public void before(){
 		try {
 			Connection conn = new JDBConnection.Builder("jdbc:mysql://localhost:3306/testDB")
-										.credential("root","****")
+										.credential("root",password)
 										.build();
 			exe = new SQLExecutor(conn);
 		} catch (SQLException e) {

@@ -18,14 +18,15 @@ public class PassengerTest {
 	SQLExecutor exe;
 	String[] names = new String[]{"Sohana","Towhid","Tanvir","Sumaiya","Tusin"};
 	Integer[] ages = new Integer[] {15, 18, 28, 26, 32, 34, 25, 67};
+	String password = "****";
 
-	@Before
+	@Before @SuppressWarnings("Duplicates")
 	public void before(){
 		
 		try {
 			Connection conn = new JDBConnection.Builder(DriverClass.MYSQL)
 					.database("testDB")
-					.credential("root","****")
+					.credential("root",password)
 					.build();
 			exe = new SQLExecutor(conn);
 		} catch (SQLException e) {

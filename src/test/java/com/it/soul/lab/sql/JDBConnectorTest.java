@@ -10,12 +10,14 @@ import com.it.soul.lab.connect.JDBConnection.DriverClass;
 
 public class JDBConnectorTest {
 
+	String password = "****";
+
 	@Test
 	public void testConnUrl() {
 		Connection conn = null;
 		try {
 			conn = new JDBConnection.Builder("jdbc:mysql://localhost:3306/testDB")
-					.credential("root","****")
+					.credential("root",password)
 					.build();
 			
 		} catch (Exception e) {
@@ -31,7 +33,7 @@ public class JDBConnectorTest {
 		try {
 			conn = new JDBConnection.Builder(DriverClass.MYSQL)
 					.database("testDB")
-					.credential("root","****")
+					.credential("root",password)
 					.build();
 			
 		} catch (Exception e) {
@@ -48,7 +50,7 @@ public class JDBConnectorTest {
 			conn = new JDBConnection.Builder("jdbc:mysql://localhost:3306/testDB")
 					.host("dasda", "asdasd") //Has no impact
 					.database("asdasd") //Has no impact
-					.credential("root","****")
+					.credential("root",password)
 					.build();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -64,7 +66,7 @@ public class JDBConnectorTest {
 			conn = new JDBConnection.Builder(DriverClass.MYSQL)
 					.host("fghjk", "asdasd") //Have to be provided in correct form
 					.database("qwewe") //Have to be provided in correct form
-					.credential("root","****")
+					.credential("root",password)
 					.build();
 			
 		} catch (Exception e) {
@@ -73,7 +75,7 @@ public class JDBConnectorTest {
 		
 		try {
 			conn = new JDBConnection.Builder(DriverClass.MYSQL)
-					.credential("root", "****")
+					.credential("root", password)
 					.database("asdasd").build();
 		}catch(Exception e) {
 			System.out.println("SQLException:"+e.getMessage());
@@ -88,7 +90,7 @@ public class JDBConnectorTest {
 
 		try {
 			conn = new JDBConnection.Builder(DriverClass.MYSQL)
-					.credential("root", "****").build();
+					.credential("root", password).build();
 		} catch (Exception e) {
 			System.out.println("SQLException:"+e.getMessage());
 		}
@@ -103,7 +105,7 @@ public class JDBConnectorTest {
 
 		try {
 			conn = new JDBConnection.Builder(DriverClass.MYSQL)
-					.credential(null, "****")
+					.credential(null, password)
 					.database("testDB").build();
 		} catch (Exception e) {
 			System.out.println("SQLException:"+e.getMessage());
@@ -124,7 +126,7 @@ public class JDBConnectorTest {
 			conn = new JDBConnection.Builder(DriverClass.MYSQL)
 					.host("localhost", "3306")
 					.database("testDB")
-					.credential("root","****")
+					.credential("root",password)
 					.build();
 		} catch (Exception e) {
 			e.printStackTrace();
