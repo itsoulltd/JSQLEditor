@@ -4,6 +4,7 @@ import java.sql.Blob;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.UUID;
 
 public enum DataType {
 	INT,
@@ -11,13 +12,16 @@ public enum DataType {
 	DOUBLE,
 	BOOL,
 	STRING,
+	TEXT,
 	SQLDATE,
 	SQLTIMESTAMP,
 	BLOB,
 	BYTEARRAY,
-	OBJECT;
+	OBJECT,
+	UUID;
 	
 	public static DataType getDataType(Object value) {
+		if (value == null) return DataType.OBJECT;
 		if(value instanceof Integer) {
 			return DataType.INT;
 		}else if(value instanceof Double) {
@@ -36,6 +40,8 @@ public enum DataType {
 			return DataType.BLOB;
 		}else if(value instanceof Byte[]) {
 			return DataType.BYTEARRAY;
+		}else if(value instanceof java.util.UUID) {
+			return DataType.UUID;
 		}else {
 			return DataType.OBJECT;
 		}

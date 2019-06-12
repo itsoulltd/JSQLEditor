@@ -1,4 +1,4 @@
-package com.it.soul.lab.test;
+package com.it.soul.lab.sql;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -17,7 +17,6 @@ import org.junit.Test;
 
 import com.it.soul.lab.connect.JDBConnection;
 import com.it.soul.lab.connect.JDBConnection.DriverClass;
-import com.it.soul.lab.sql.SQLExecutor;
 import com.it.soul.lab.sql.query.models.Expression;
 import com.it.soul.lab.sql.query.models.ExpressionInterpreter;
 import com.it.soul.lab.sql.query.models.Operator;
@@ -35,7 +34,7 @@ public class PersonTest {
 		try {
 			Connection conn = new JDBConnection.Builder(DriverClass.MYSQL)
 										.database("testDB")
-										.credential("root","towhid@123")
+										.credential("root","****")
 										.build();
 			exe = new SQLExecutor(conn);
 		} catch (SQLException e) {
@@ -66,7 +65,7 @@ public class PersonTest {
 	@Test
 	public void testUpdate() {
 		Person person = new Person();
-		person.setUuid(UUID.randomUUID().toString());
+		person.setUuid_idx(UUID.randomUUID().toString());
 		person.setName_test(getRandomName());
 		try {
 			Boolean res = person.insert(exe);
@@ -87,10 +86,10 @@ public class PersonTest {
 		}
 	}
 
-	//@Test
+	@Test
 	public void testInsert() {
 		Person person = new Person();
-		person.setUuid(UUID.randomUUID().toString());
+		person.setUuid_idx(UUID.randomUUID().toString());
 		//person.setName(getRandomName());
 		person.setAge(getRandomAge());
 		//person.setActive(true);
@@ -114,10 +113,10 @@ public class PersonTest {
 		}
 	}
 
-	//@Test
+	@Test
 	public void testDelete() {
 		Person person = new Person();
-		person.setUuid(UUID.randomUUID().toString());
+		person.setUuid_idx(UUID.randomUUID().toString());
 		person.setName_test(getRandomName());
 		try {
 			Boolean res = person.insert(exe);
@@ -129,7 +128,7 @@ public class PersonTest {
 		}
 	}
 
-	//@Test
+	@Test
 	public void testReadClassOfTSQLExecutorPropertyArray() {
 		try {
 			List<Person> sons = Person.read(Person.class, exe, new Property("name", "Sohana"));
@@ -139,7 +138,7 @@ public class PersonTest {
 		}
 	}
 
-	//@Test
+	@Test
 	public void testReadClassOfTSQLExecutorExpressionInterpreter() {
 		try {
 			ExpressionInterpreter exp = new Expression(new Property("name", "Sohana"), Operator.EQUAL);
@@ -161,15 +160,15 @@ public class PersonTest {
 		}
 	}
 	
-	//@Test 
+	@Test
 	public void getPropertyTest() {
 		Person person = new Person();
 		
 		//UseCase when uuid is @PrimaryKey and autoIncrement is false.
-		Property prop = person.getPropertyTest("uuid", exe, true);
+		Property prop = person.getPropertyTest("uuid_idx", exe, true);
 		Assert.assertTrue(prop == null);
 		
-		prop = person.getPropertyTest("uuid", exe, false);
+		prop = person.getPropertyTest("uuid_idx", exe, false);
 		Assert.assertTrue(prop != null);
 		
 		//prop = person.getPropertyTest("", exe, true);

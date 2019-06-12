@@ -1,4 +1,4 @@
-package com.it.soul.lab.test;
+package com.it.soul.lab.sql;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -8,10 +8,9 @@ import com.it.soul.lab.jpql.query.JPQLSelectQuery;
 import com.it.soul.lab.jpql.query.JPQLUpdateQuery;
 import com.it.soul.lab.sql.query.SQLJoinQuery;
 import com.it.soul.lab.sql.query.SQLQuery;
-import com.it.soul.lab.sql.query.models.DataType;
 import com.it.soul.lab.sql.query.models.Logic;
 import com.it.soul.lab.sql.query.models.Operator;
-import com.it.soul.lab.sql.query.SQLQuery.QueryType;
+import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.SQLScalerQuery;
 import com.it.soul.lab.sql.query.SQLSelectQuery;
 import com.it.soul.lab.sql.query.models.AndExpression;
@@ -97,7 +96,7 @@ public class QueryBuilderTest {
 	
 	@Test
 	public void countTest(){
-		Property prop = new Property("name", "sohana", DataType.STRING);
+		Property prop = new Property("name", "sohana");
 		Expression comps = new Expression("name", Operator.EQUAL);
 		
 		SQLScalerQuery count = new SQLQuery.Builder(QueryType.COUNT)

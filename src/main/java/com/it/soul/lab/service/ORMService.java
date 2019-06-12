@@ -14,7 +14,7 @@ import javax.persistence.TypedQuery;
 
 import com.it.soul.lab.jpql.query.JPQLQuery;
 import com.it.soul.lab.jpql.query.JPQLSelectQuery;
-import com.it.soul.lab.sql.query.SQLQuery.QueryType;
+import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.models.Expression;
 import com.it.soul.lab.sql.query.models.ExpressionInterpreter;
 import com.it.soul.lab.sql.query.models.Logic;

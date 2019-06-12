@@ -1,13 +1,13 @@
 package com.it.soul.lab.sql.query.models;
 
+import com.it.soul.lab.sql.entity.EntityInterface;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import com.it.soul.lab.sql.query.models.DataType;
 
 public class Row {
 	
@@ -27,11 +27,9 @@ public class Row {
 		properties.add(prop);
 		return this;
 	}
-	public Row add(String name){
-		return add(new Property(name));
-	}
-	public Row add(String name, Object value, DataType type){
-		return add(new Property(name, value, type));
+	public Row add(String name){return add(new Property(name));}
+	public Row add(String name, Object value){
+		return add(new Property(name, value));
 	}
 	public List<Property> getCloneProperties(){
 		//All standard collections have copy constructors.
@@ -77,8 +75,7 @@ public class Row {
         		if (dataMap.containsKey(columnName)) {
         			String newKey = mapEntry.getValue();
                 	Property m = dataMap.get(columnName);
-                	Property newProp = new Property(mapEntry.getValue(), m.getValue(),
-                            m.getType());
+                	Property newProp = new Property(mapEntry.getValue(), m.getValue());
                     nXRow.put(newKey, newProp);
                 }
 			}
@@ -94,7 +91,12 @@ public class Row {
     public <T> T inflate(Class<T> type, Map<String, String> mappingKeys) throws InstantiationException, IllegalAccessException {
 		Class<T> cls = type;
 		T newInstance = cls.newInstance();
-		Field[] fields = cls.getDeclaredFields();
+		Field[] fields;
+		if (EntityInterface.class.isAssignableFrom(cls)){
+		    fields = ((EntityInterface)newInstance).getDeclaredFields(true);
+        }else{
+            fields = cls.getDeclaredFields();
+        }
 		Map<String, Property> data = this.keyValueMapToNames(mappingKeys);
         for (Field field : fields) {
             field.setAccessible(true);

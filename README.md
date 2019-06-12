@@ -16,7 +16,7 @@
     Connection conn = new JDBConnection.Builder(DriverClass.MYSQL)
                       		.host("localhost", "3306")
                       		.database("testDB")
-                      		.credential("root","********")
+                      		.credential("root","****")
                       		.build();
     
 ##### Closing Connections :
@@ -308,7 +308,7 @@
     }
     
 
-##### How to work with Person.java entiry.
+##### How to work with Person.java entity.
 	
     Connection conn = new JDBConnection.Builder("jdbc:mysql://localhost:3306/testDB")
 					.driver(DriverClass.MYSQL)
@@ -336,11 +336,124 @@
     //Read All
     //ExpressionInterpreter clause = new Expression(new Property("name", "Jake"), Operator.EQUAL);
     Predicate clause = new Where("name").isEqualTo("Jake");
-	List<Person> sons = Person.read(Person.class, exe, clause); //if clause is null the return all.
+	List<Person> sons = Person.read(Person.class, exe, clause); //if clause is null then return all.
     
     
     
 ####
+##### JSQLEditor has support for Cassandra CQL!
+    
+    //First declare a entity call with annotation and base class 
+    //CQLEntity.java
+    
+    @TableName(value = "order_event")
+    public class OrderEvent extends CQLEntity {
+    
+        @PrimaryKey(name = "track_id")
+        private String trackID; //Partitioning ID
+        @PrimaryKey(name = "user_id")
+        private String userID; //Partitioning ID
+    
+        @ClusteringKey(name = "uuid", type = DataType.UUID)
+        private UUID uuid; //Clustering ID
+    
+        private Date timestamp = new Date();
+        private Map<String, String> kvm;
+        private Map<String, Integer> kvm2;
+    
+        public OrderEvent() {}
+        
+        ......Getter-Setter......
+    }
+    
+    //Now How to deal with CQL!
+    
+    CQLExecutor cqlExecutor = new CQLExecutor.Builder()
+                                  .connectTo(9042, "127.0.0.1")
+                                  .build();
+                                  
+    //cqlExecutor.close(); //Close after use
+    
+    //Create Keyspace if needed.
+    Boolean newKeyspace = cqlExecutor.createKeyspace("OrderLogs"
+                                                     , ReplicationStrategy.SimpleStrategy
+                                                     , 1);
+    //Switch to created Keyspace
+    if (newKeyspace){
+          cqlExecutor.switchKeyspace("OrderLogs");
+    }
+    
+    //
+    //CRUD actions:
+    try {
+        //Creating a Table from CQLEntity @TableName description.
+        boolean created = cqlExecutor.createTable(OrderEvent.class);
+        Assert.assertTrue("Successfully Created", created);
+        
+        OrderEvent event = new OrderEvent();
+        
+        event.setTrackID(UUID.randomUUID().toString());
+        event.setUserID(UUID.randomUUID().toString());
+        event.setUuid(UUID.randomUUID());
+        
+        Map<String, String> names = new HashMap<>();
+        names.put("name-1", "James");
+        names.put("name-2", "Julian");
+        event.setKvm(names);
+        
+        Map<String, Integer> collections = new HashMap<>();
+        collections.put("hello-1", 1);
+        collections.put("hello-2", 24);
+        event.setKvm2(collections);
+
+        //Insert
+        boolean inserted = event.insert(cqlExecutor);
+        Assert.assertTrue("Successfully Inserted", inserted);
+
+        //Select From Cassandra:
+        CQLSelectQuery query = new CQLQuery.Builder(QueryType.SELECT)
+                .columns()
+                .from(Entity.tableName(OrderEvent.class))
+                .build();
+        List<OrderEvent> items = cqlExecutor.executeSelect(query, OrderEvent.class);
+        Assert.assertTrue("Successfully Fetched:", items.isEmpty() == false);
+
+        //Update
+        if (items.size() > 0){
+            OrderEvent event1 = items.get(0);
+            event1.getKvm().put("name-3", "sumaiya");
+            boolean updated = event1.update(cqlExecutor);
+            Assert.assertTrue("Successfully Updated", updated);
+        }
+        
+        //Delete
+        if (items.size() > 1){
+            OrderEvent event1 = items.get(1);
+            boolean delete = event1.delete(cqlExecutor);
+            Assert.assertTrue("Successfully Deleted", delete);
+        }
+
+    } catch (SQLException e) {
+        System.out.println(e.getMessage());
+    } catch (IllegalAccessException e) {
+        System.out.println(e.getMessage());
+    } catch (InstantiationException e) {
+        System.out.println(e.getMessage());
+    }
+    
+    //CRUD action ends:
+    
+    //Read from Cassandra
+    //Cassandra force to have all PartitionKey in where clause and they must have to be in sequence as they appear in table schema.
+    //ClusteringKey's are optional they may or may not in clause.
+    Predicate predicate = new Where("track_id")
+                                    .isEqualTo("3ab863f1...89f")
+                                    .and("user_id")
+                                    .isEqualTo("776aa40b...be0");
+
+    List<OrderEvent> otherItems = OrderEvent.read(OrderEvent.class, cqlExecutor, predicate);
+    otherItems.stream().forEach(event -> System.out.println("track_id "+event.getTrackID()));
+    
 
 ### Questions?
 -------------

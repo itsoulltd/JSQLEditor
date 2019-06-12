@@ -1,4 +1,4 @@
-package com.it.soul.lab.test;
+package com.it.soul.lab.sql;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -13,11 +13,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.it.soul.lab.connect.JDBConnection;
-import com.it.soul.lab.sql.SQLExecutor;
 import com.it.soul.lab.sql.query.SQLDeleteQuery;
 import com.it.soul.lab.sql.query.SQLInsertQuery;
 import com.it.soul.lab.sql.query.SQLQuery;
-import com.it.soul.lab.sql.query.SQLQuery.QueryType;
+import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.SQLScalerQuery;
 import com.it.soul.lab.sql.query.SQLSelectQuery;
 import com.it.soul.lab.sql.query.SQLUpdateQuery;
@@ -30,7 +29,7 @@ public class QueryExecutionTest {
 	public void before(){
 		try {
 			Connection conn = new JDBConnection.Builder("jdbc:mysql://localhost:3306/testDB")
-										.credential("root","towhid@123")
+										.credential("root","****")
 										.build();
 			exe = new SQLExecutor(conn);
 		} catch (SQLException e) {
@@ -90,7 +89,7 @@ public class QueryExecutionTest {
 		//Insert into
 		SQLInsertQuery iQuery2 = (SQLInsertQuery) new SQLQuery.Builder(QueryType.INSERT)
 										.into("Passenger")
-										.values(new Property("name","tanvir"), new Property("age", 28, DataType.INT), new Property("sex"))
+										.values(new Property("name","tanvir"), new Property("age", 28), new Property("sex"))
 										.build();
 		try {
 			int autoId = exe.executeInsert(true, iQuery2);
@@ -107,13 +106,20 @@ public class QueryExecutionTest {
 			SQLScalerQuery max = (SQLScalerQuery) new SQLQuery.Builder(QueryType.MAX).columns("id").on("Passenger").build();
 			int autoId = exe.getScalerValue(max);
 			Assert.assertTrue("Get Max value", true);
-			
-			Expression compareWith = new Expression("id", Operator.EQUAL).setPropertyValue(autoId, DataType.INT);
 
-			SQLUpdateQuery upQuery = (SQLUpdateQuery) new SQLQuery.Builder(QueryType.UPDATE)
-											.set(new Property("name","tanvir Islam"), new Property("age", 29, DataType.INT))
+			Row nP = new Row()
+					.add("name","tanvir Islam")
+					.add("age", 29);
+			Property[] values =  nP.getCloneProperties().toArray(new Property[0]);
+
+			//Expression compareWith = new Expression("id", Operator.EQUAL).setPropertyValue(autoId, DataType.INT);
+			Predicate compareWith = new Where("id").isEqualTo(autoId);
+
+					SQLUpdateQuery upQuery = new SQLQuery.Builder(QueryType.UPDATE)
+											.set(values)
 											.from("Passenger")
-											.where(compareWith).build();
+											.where(compareWith)
+											.build();
 
 			int updateId = exe.executeUpdate(upQuery);
 			Assert.assertTrue("Updated Successfull", true);

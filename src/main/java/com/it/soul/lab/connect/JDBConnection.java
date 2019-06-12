@@ -188,7 +188,7 @@ public class JDBConnection implements Serializable{
 			dbConnection.password = password;
 			return this;
 		}
-		public Connection build() throws SQLException, Exception{
+		public Connection build() throws Exception{
 			if(dbConnection.serverUrl == null) {
 				String hostName = hostStr.toString();
 				if(hostName.isEmpty()) {
@@ -221,7 +221,7 @@ public class JDBConnection implements Serializable{
 		System.out.println("driver Version  "+dma.getDriverVersion());
 	}
 
-	private Connection getConnection() throws SQLException, Exception{
+	private Connection getConnection() throws Exception{
 		Connection conn = null;
 		try{
 			if(getDriver() != null 

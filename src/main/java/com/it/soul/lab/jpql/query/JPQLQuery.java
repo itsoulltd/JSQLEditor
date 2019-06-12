@@ -1,5 +1,6 @@
 package com.it.soul.lab.jpql.query;
 
+import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.SQLQuery;
 import com.it.soul.lab.sql.query.builder.QueryBuilderImpl;
 
