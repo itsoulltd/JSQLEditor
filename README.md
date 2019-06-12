@@ -86,7 +86,7 @@
     .
     .
     //We may have an entity that represent person_tbl in database
-    @Entiry
+    @Entity
     @Table(name="person_tbl")
     public class Person{
     
