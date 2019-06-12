@@ -29,7 +29,7 @@ public class QueryExecutionTest {
 	public void before(){
 		try {
 			Connection conn = new JDBConnection.Builder("jdbc:mysql://localhost:3306/testDB")
-										.credential("root","towhid@123")
+										.credential("root","****")
 										.build();
 			exe = new SQLExecutor(conn);
 		} catch (SQLException e) {

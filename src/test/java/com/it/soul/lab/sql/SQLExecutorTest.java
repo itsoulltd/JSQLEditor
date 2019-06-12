@@ -17,7 +17,7 @@ public class SQLExecutorTest {
     @Before
     public void setUp() throws Exception {
         exe = new SQLExecutor.Builder(JDBConnection.DriverClass.MYSQL)
-                .database("testDB").credential("root", "towhid@123").build();
+                .database("testDB").credential("root", "****").build();
     }
 
     @After

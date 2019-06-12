@@ -25,7 +25,7 @@ public class PassengerTest {
 		try {
 			Connection conn = new JDBConnection.Builder(DriverClass.MYSQL)
 					.database("testDB")
-					.credential("root","towhid@123")
+					.credential("root","****")
 					.build();
 			exe = new SQLExecutor(conn);
 		} catch (SQLException e) {

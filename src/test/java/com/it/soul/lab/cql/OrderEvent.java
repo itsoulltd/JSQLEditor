@@ -11,24 +11,21 @@ import java.util.Map;
 import java.util.UUID;
 
 @TableName(value = "tracking_event")
-public class TrackingEvent extends CQLEntity {
+public class OrderEvent extends CQLEntity {
 
     @PrimaryKey(name = "track_id")
     private String trackID; //Partitioning ID
     @PrimaryKey(name = "user_id")
     private String userID; //Partitioning ID
 
-    @ClusteringKey(name = "tenant_id")
-    private String tenantID; //Clustering ID
     @ClusteringKey(name = "uuid", type = DataType.UUID)
     private UUID uuid; //Clustering ID
 
-    private String locations; //Geo-Hash
-    private Date timestamp = new Date(); //FIXME: Need to test
+    private Date timestamp = new Date();
     private Map<String, String> kvm;
     private Map<String, Integer> kvm2;
 
-    public TrackingEvent() {}
+    public OrderEvent() {}
 
     public Map<String, String> getKvm() {
         return kvm;
@@ -54,28 +51,12 @@ public class TrackingEvent extends CQLEntity {
         this.userID = userID;
     }
 
-    public String getTenantID() {
-        return tenantID;
-    }
-
-    public void setTenantID(String tenantID) {
-        this.tenantID = tenantID;
-    }
-
     public UUID getUuid() {
         return uuid;
     }
 
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
-    }
-
-    public String getLocations() {
-        return locations;
-    }
-
-    public void setLocations(String locations) {
-        this.locations = locations;
     }
 
     public Date getTimestamp() {
