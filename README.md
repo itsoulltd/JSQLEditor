@@ -1,7 +1,7 @@
-## JDBConnector
+## JSQLEditor
 
 
-### JDBConnector has 3 ways of connecting with DataSource:
+### JSQLEditor has 3 ways of connecting with DataSource:
 ----
 	
     - JDBC Connection URL
@@ -117,7 +117,7 @@
     
     
     
-### JDBConnector has QueryBuilder to create verbose sql statements.
+### JSQLEditor has QueryBuilder to create verbose sql statements.
 ----
 
 #### Select Query Example:
@@ -250,7 +250,7 @@
 							.orderBy("Customers.CustomerName").build();
     
  
-### JDBConnector has built-in Entity class (light weight), only required a JDBC Connection.
+### JSQLEditor has built-in Entity class (light weight), only required a JDBC Connection.
 ----
 	
 #### Here are detailed example:
@@ -466,7 +466,7 @@
 
 ### License
 ----
-#### JDBConnector is available under the MIT license.
+#### JSQLEditor is available under the MIT license.
  
  
  
