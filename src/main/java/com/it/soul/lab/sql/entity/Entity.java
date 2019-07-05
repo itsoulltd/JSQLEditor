@@ -254,6 +254,8 @@ public abstract class Entity implements EntityInterface{
     public Map<String, Object> marshallingToMap(boolean inherit) {
         Map<String, Object> result = new HashMap<>();
         for (Field field : getDeclaredFields(inherit)) {
+			if (field.isAnnotationPresent(Ignore.class))
+				continue;
             try {
                 field.setAccessible(true);
                 if (field.isAnnotationPresent(Column.class)){
@@ -274,6 +276,22 @@ public abstract class Entity implements EntityInterface{
         }
         return result;
     }
+
+	public void unmarshallingFromMap(Map<String, Object> data, boolean inherit){
+		if (data != null) {
+			Field[] fields = getDeclaredFields(inherit);
+			for (Field field : fields) {
+				field.setAccessible(true);
+				Object entry = data.get(field.getName());
+				if(entry != null) {
+					try {
+						field.set(this, entry);
+					} catch (IllegalAccessException e) {}
+				}
+				field.setAccessible(false);
+			}
+		}
+	}
 
 	/**
 	 *
