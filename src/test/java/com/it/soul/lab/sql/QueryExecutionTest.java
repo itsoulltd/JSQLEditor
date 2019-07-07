@@ -24,7 +24,7 @@ import com.it.soul.lab.sql.query.SQLUpdateQuery;
 public class QueryExecutionTest {
 	
 	SQLExecutor exe;
-	String password = "****";
+	String password = "root";
 	
 	@Before
 	public void before(){

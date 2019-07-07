@@ -10,7 +10,7 @@ import com.it.soul.lab.connect.JDBConnection.DriverClass;
 
 public class JDBConnectorTest {
 
-	String password = "****";
+	String password = "root";
 
 	@Test
 	public void testConnUrl() {

@@ -27,7 +27,7 @@ public class PersonTest {
 	SQLExecutor exe;
 	String[] names = new String[]{"Sohana","Towhid","Tanvir","Sumaiya","Tusin"};
 	Integer[] ages = new Integer[] {15, 18, 28, 26, 32, 34, 25, 67};
-	String password = "****";
+	String password = "root";
 	
 	@Before @SuppressWarnings("Duplicates")
 	public void before(){

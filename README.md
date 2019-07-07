@@ -16,7 +16,7 @@
     Connection conn = new JDBConnection.Builder(DriverClass.MYSQL)
                       		.host("localhost", "3306")
                       		.database("testDB")
-                      		.credential("root","****")
+                      		.credential("root","towhid")
                       		.build();
     
 ##### Closing Connections :

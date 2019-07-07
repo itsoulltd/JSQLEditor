@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 public class SQLExecutorTest {
 
     private SQLExecutor exe;
-    String password = "****";
+    String password = "root";
 
     @Before
     public void setUp() throws Exception {
