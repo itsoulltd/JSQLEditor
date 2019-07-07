@@ -7,8 +7,8 @@ networks:
        driver: bridge
 
 volumes:
-   mysql-db-storage:
-   cassandra_storage:
+   mysql-test-storage:
+   cassandra-test-storage:
 
 services:
 
@@ -18,11 +18,11 @@ services:
           MYSQL_DATABASE: testDB
           MYSQL_ROOT_PASSWORD: root
       ports:
-          - 3306
+          - 3306:3306
       networks:
           - jsql-app-net
       volumes:
-          - mysql-db-storage:/var/lib/mysql
+          - mysql-test-storage:/var/lib/mysql
 
    cassandra:
          image: cassandra:latest
@@ -31,4 +31,4 @@ services:
          networks:
            - jsql-app-net
          volumes:
-           - cassandra_storage:/var/lib/cassandra
+           - cassandra-test-storage:/var/lib/cassandra
