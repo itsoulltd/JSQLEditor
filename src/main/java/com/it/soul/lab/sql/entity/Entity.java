@@ -8,6 +8,7 @@ import com.it.soul.lab.sql.query.SQLSelectQuery;
 import com.it.soul.lab.sql.query.SQLUpdateQuery;
 import com.it.soul.lab.sql.query.models.*;
 
+import javax.persistence.Table;
 import java.lang.reflect.Field;
 import java.sql.Date;
 import java.sql.SQLException;
@@ -455,12 +456,17 @@ public abstract class Entity implements EntityInterface{
 		return result;
 	}
 	public static <T extends Entity> String tableName(Class<T> type) {
-		if(type.isAnnotationPresent(TableName.class) == false) {
+		if (type.isAnnotationPresent(TableName.class)){
+			TableName tableName = type.getAnnotation(TableName.class);
+			String name = (tableName.value().trim().length() == 0) ? type.getSimpleName() : tableName.value().trim();
+			return name;
+		}else if (type.isAnnotationPresent(Table.class)){
+			Table tableName = type.getAnnotation(Table.class);
+			String name = (tableName.name().trim().length() == 0) ? type.getSimpleName() : tableName.name().trim();
+			return name;
+		}else {
 			return type.getSimpleName();
 		}
-		TableName tableName = type.getAnnotation(TableName.class);
-		String name = (tableName.value().trim().length() == 0) ? type.getSimpleName() : tableName.value().trim();
-		return name;
 	}
 	public static <T extends Entity> List<T> read(Class<T>  type, QueryExecutor exe, Property...match) throws SQLException, Exception{
 		ExpressionInterpreter and = null;
