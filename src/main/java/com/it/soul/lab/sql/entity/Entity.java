@@ -414,9 +414,9 @@ public abstract class Entity implements EntityInterface{
 	///////////////////////////////////////Class API///////////////////////////////////////
 	protected static <T extends Entity> boolean shouldAcceptAllAsProperty(Class<T> type) {
 		if(type.isAnnotationPresent(TableName.class) == false) {
-			return true;
+			return false;
 		}
-		TableName tableName = (TableName) type.getAnnotation(TableName.class);
+		TableName tableName = type.getAnnotation(TableName.class);
 		return tableName.acceptAll();
 	}
     protected final static <T extends Entity> Field[] getDeclaredFields(Class<T> type, boolean inherit){
@@ -440,6 +440,7 @@ public abstract class Entity implements EntityInterface{
 		for (Field field : Entity.getDeclaredFields(type, true)) {
 			if(acceptAll == false
 					&& field.isAnnotationPresent(Column.class) == false
+					&& field.isAnnotationPresent(javax.persistence.Column.class) == false
 					&& field.isAnnotationPresent(PrimaryKey.class) == false) {
 				continue;
 			}
@@ -451,7 +452,11 @@ public abstract class Entity implements EntityInterface{
 				PrimaryKey primaryKey = field.getAnnotation(PrimaryKey.class);
 				String columnName = (primaryKey.name().trim().isEmpty() == false) ? primaryKey.name().trim() : field.getName();
 				result.put(columnName, field.getName());
-			}
+			}else if (field.isAnnotationPresent(javax.persistence.Column.class)){
+                javax.persistence.Column column = field.getAnnotation(javax.persistence.Column.class);
+                String columnName = (column.name().trim().isEmpty() == false) ? column.name().trim() : field.getName();
+                result.put(columnName, field.getName());
+            }
 		}
 		return result;
 	}
