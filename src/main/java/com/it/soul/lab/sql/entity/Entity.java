@@ -1,11 +1,7 @@
 package com.it.soul.lab.sql.entity;
 
 import com.it.soul.lab.sql.QueryExecutor;
-import com.it.soul.lab.sql.query.SQLDeleteQuery;
-import com.it.soul.lab.sql.query.SQLInsertQuery;
-import com.it.soul.lab.sql.query.QueryType;
-import com.it.soul.lab.sql.query.SQLSelectQuery;
-import com.it.soul.lab.sql.query.SQLUpdateQuery;
+import com.it.soul.lab.sql.query.*;
 import com.it.soul.lab.sql.query.models.*;
 
 import javax.persistence.Table;
