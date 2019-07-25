@@ -8,7 +8,7 @@ import com.it.soul.lab.sql.query.models.DataType;
 import com.it.soul.lab.sql.query.models.Logic;
 import com.it.soul.lab.sql.query.models.Property;
 
-@Deprecated
+@Deprecated @SuppressWarnings("Duplicates")
 public class SQLBuilder {
 	
 	private static final char QUIENTIFIER = 'e';
@@ -21,9 +21,7 @@ public class SQLBuilder {
 	 * 
 	 * @param tableName
 	 * @param param
-	 * @param where
 	 * @param type
-	 * @param value
 	 * @return
 	 */
 	@Deprecated
@@ -109,9 +107,7 @@ public class SQLBuilder {
 	 * 
 	 * @param tableName
 	 * @param param
-	 * @param where
 	 * @param type
-	 * @param value
 	 * @return
 	 */
 	@Deprecated
@@ -625,20 +621,7 @@ public class SQLBuilder {
 	}
 	
 	private static boolean isAllParamEmpty(Object[]paramList){
-		
-		boolean result = false;
-		if(paramList != null && paramList.length > 0){
-			
-			int count = 0;
-			for(Object item : paramList){
-				
-				if(item.toString().trim().equals(""))
-					continue;
-				count++;
-			}
-			result = (count == 0) ? true : false;
-		}
-		return result;
+		return SQLQuery.isAllParamEmpty(paramList);
 	}
 	
 }

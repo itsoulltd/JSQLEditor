@@ -2,10 +2,12 @@ package com.it.soul.lab.jpql.query;
 
 import java.util.Map;
 import java.util.Map.Entry;
+
+import com.it.soul.lab.sql.query.SQLQuery;
 import com.it.soul.lab.sql.query.models.Operator;
 import com.it.soul.lab.sql.query.models.Logic;
 
-@Deprecated
+@Deprecated @SuppressWarnings("Duplicates")
 public class JPQLBuilders {
 	
 	private static final char QUIENTIFIER = 'e';
@@ -223,20 +225,7 @@ public class JPQLBuilders {
 	}
 	
 	private static boolean isAllParamEmpty(Object[]paramList){
-		
-		boolean result = false;
-		if(paramList != null && paramList.length > 0){
-			
-			int count = 0;
-			for(Object item : paramList){
-				
-				if(item.toString().trim().equals(""))
-					continue;
-				count++;
-			}
-			result = (count == 0) ? true : false;
-		}
-		return result;
+		return SQLQuery.isAllParamEmpty(paramList);
 	}
 	
 }

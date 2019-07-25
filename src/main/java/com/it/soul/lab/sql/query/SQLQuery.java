@@ -52,12 +52,11 @@ public class SQLQuery {
 		return Expression.convertToRow(whereParamExpressions);
 	}
 
-	protected static boolean isAllParamEmpty(Object[]paramList){
+	public static boolean isAllParamEmpty(Object[]paramList){
 		boolean result = false;
 		if(paramList != null && paramList.length > 0){
 			int count = 0;
 			for(Object item : paramList){
-				
 				if(item.toString().trim().equals(""))
 					continue;
 				count++;
