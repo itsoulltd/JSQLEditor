@@ -1,27 +1,15 @@
 package com.it.soul.lab.sql.query.builder;
 
+import com.it.soul.lab.sql.query.*;
+import com.it.soul.lab.sql.query.models.*;
+
 import java.util.Arrays;
 import java.util.List;
 
-import com.it.soul.lab.sql.query.SQLDeleteQuery;
-import com.it.soul.lab.sql.query.SQLDistinctQuery;
-import com.it.soul.lab.sql.query.SQLInsertQuery;
-import com.it.soul.lab.sql.query.SQLJoinQuery;
-import com.it.soul.lab.sql.query.SQLQuery;
-import com.it.soul.lab.sql.query.models.Logic;
-import com.it.soul.lab.sql.query.models.Operator;
-import com.it.soul.lab.sql.query.QueryType;
-import com.it.soul.lab.sql.query.SQLScalerQuery;
-import com.it.soul.lab.sql.query.SQLSelectQuery;
-import com.it.soul.lab.sql.query.SQLUpdateQuery;
-import com.it.soul.lab.sql.query.models.Expression;
-import com.it.soul.lab.sql.query.models.ExpressionInterpreter;
-import com.it.soul.lab.sql.query.models.JoinExpression;
-import com.it.soul.lab.sql.query.models.Property;
-import com.it.soul.lab.sql.query.models.ScalerType;
-
 public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuilder
-, WhereClauseBuilder, InsertBuilder, ScalerClauseBuilder, GroupByBuilder, HavingBuilder, JoinBuilder, JoinOnBuilder{
+        , WhereClauseBuilder, InsertBuilder, ScalerClauseBuilder, GroupByBuilder
+        , HavingBuilder, JoinBuilder, JoinOnBuilder
+        , IndexBuilder{
 
 	protected QueryType tempType = QueryType.SELECT;
 	protected SQLQuery tempQuery;
@@ -92,6 +80,11 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 		tempQuery.setTableName(name);
 		return this;
 	}
+    @Override
+    public WhereClauseBuilder rowsFrom(String name) {
+        tempQuery.setTableName(name);
+        return this;
+    }
 	@Override
 	public TableBuilder columns(String... name){
 		tempQuery.setColumns(name);
@@ -125,13 +118,6 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 			}catch(IllegalArgumentException are){
 				System.out.println(are.getMessage());
 			}
-		}
-		return this;
-	}
-	@Override
-	public WhereClauseBuilder rowsFrom(String name) {
-		if(tempQuery instanceof SQLDeleteQuery){
-			((SQLDeleteQuery)tempQuery).setTableName(name);
 		}
 		return this;
 	}
@@ -197,4 +183,14 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 		}
 		return this;
 	}
+
+    @Override
+    public ColumnsBuilder index(String name) {
+        return this;
+    }
+
+    @Override
+    public ColumnsBuilder uniqueIndex(String name) {
+        return this;
+    }
 }

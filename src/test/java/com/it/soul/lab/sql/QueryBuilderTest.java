@@ -308,5 +308,27 @@ public class QueryBuilderTest {
 		
 		Assert.assertEquals(expected, join.toString());
 	}
+
+	@Test
+	public void indexQuery(){
+		//CREATE INDEX index_name
+		//ON table_name (column1, column2, ...);
+
+		SQLQuery query = new SQLQuery.Builder(QueryType.CREATE)
+				.index("idx_name")
+				.columns("column1", "column2")
+				.on("table_name")
+				.build();
+
+
+		//CREATE UNIQUE INDEX index_name
+		//ON table_name (column1, column2, ...);
+
+		SQLQuery unquery = new SQLQuery.Builder(QueryType.CREATE)
+				.uniqueIndex("idx_name")
+				.columns("column1", "column2")
+				.on("table_name")
+				.build();
+	}
 	
 }
