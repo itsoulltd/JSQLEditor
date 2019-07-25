@@ -2,11 +2,11 @@ package com.it.soul.lab.jpql.query;
 
 import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.SQLQuery;
-import com.it.soul.lab.sql.query.builder.QueryBuilderImpl;
+import com.it.soul.lab.sql.query.builder.AbstractQueryBuilder;
 
 public class JPQLQuery extends SQLQuery{
 
-public static class Builder extends QueryBuilderImpl{
+public static class Builder extends AbstractQueryBuilder {
 		
 		public Builder(QueryType type){
 			tempType = type;

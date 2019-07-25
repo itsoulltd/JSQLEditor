@@ -3,7 +3,7 @@ package com.it.soul.lab.sql;
 import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.SQLQuery;
-import com.it.soul.lab.sql.query.builder.QueryBuilderImpl;
+import com.it.soul.lab.sql.query.builder.AbstractQueryBuilder;
 import com.it.soul.lab.sql.query.models.Row;
 
 import java.sql.SQLException;
@@ -16,7 +16,7 @@ public interface QueryExecutor<S extends SQLQuery
         , D extends SQLQuery
         , C extends SQLQuery> extends AutoCloseable {
 
-    QueryBuilderImpl createQueryBuilder(QueryType queryType);
+    AbstractQueryBuilder createQueryBuilder(QueryType queryType);
     Object createBlob(String val) throws SQLException;
     Boolean executeDDLQuery(String query) throws SQLException;
 

@@ -11,6 +11,6 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Target(TYPE)
 public @interface TableName {
-	public String value() default "";
-	public boolean acceptAll() default true;
+	String value() default "";
+	boolean acceptAll() default true;
 }

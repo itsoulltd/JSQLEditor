@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.it.soul.lab.sql.query.builder.QueryBuilderImpl;
+import com.it.soul.lab.sql.query.builder.AbstractQueryBuilder;
 import com.it.soul.lab.sql.query.models.Expression;
 import com.it.soul.lab.sql.query.models.ExpressionInterpreter;
 import com.it.soul.lab.sql.query.models.Logic;
@@ -14,7 +14,7 @@ import com.it.soul.lab.sql.query.models.Row;
 
 public class SQLQuery {
 	
-	public static class Builder extends QueryBuilderImpl{
+	public static class Builder extends AbstractQueryBuilder {
 		
 		public Builder(QueryType type){
 			tempType = type;

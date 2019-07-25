@@ -20,13 +20,13 @@ import com.it.soul.lab.sql.query.models.JoinExpression;
 import com.it.soul.lab.sql.query.models.Property;
 import com.it.soul.lab.sql.query.models.ScalerType;
 
-public class QueryBuilderImpl implements ColumnsBuilder, TableBuilder
+public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuilder
 , WhereClauseBuilder, InsertBuilder, ScalerClauseBuilder, GroupByBuilder, HavingBuilder, JoinBuilder, JoinOnBuilder{
 
 	protected QueryType tempType = QueryType.SELECT;
 	protected SQLQuery tempQuery;
 
-	public QueryBuilderImpl(){
+	public AbstractQueryBuilder(){
 		tempQuery = factory(tempType);
 	}
 

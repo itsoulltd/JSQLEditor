@@ -7,7 +7,7 @@ import com.it.soul.lab.sql.query.models.ExpressionInterpreter;
 
 public class CQLQuery extends SQLQuery {
 
-    public static class Builder extends QueryBuilderImpl {
+    public static class Builder extends AbstractQueryBuilder {
 
         public Builder(QueryType type){
             tempType = type;
