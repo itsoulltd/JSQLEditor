@@ -487,22 +487,26 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
     }
 
     public <T extends Entity> boolean createIndexOn(String onColumn, Class<T> tableType) throws SQLException {
+        //
         String tableNameStr = getTableName(tableType);
         if (tableNameStr == null) return false;
 
         StringBuffer buffer = new StringBuffer();
         try {
             Field column = tableType.getDeclaredField(onColumn);
-            if (column.isAnnotationPresent(PrimaryKey.class) || column.isAnnotationPresent(ClusteringKey.class)
-                    || column.isAnnotationPresent(Column.class)){
+            if (!column.isAnnotationPresent(ClusteringKey.class)){
+                return false;
+            }
+            //
+            if (column.isAnnotationPresent(ClusteringKey.class)){
                 String annotatedName = onColumn;
-                if (column.isAnnotationPresent(PrimaryKey.class)){
-                    annotatedName = column.getAnnotation(PrimaryKey.class).name();
-                }else if (column.isAnnotationPresent(ClusteringKey.class)){
+                if (column.isAnnotationPresent(ClusteringKey.class)){
                     annotatedName = column.getAnnotation(ClusteringKey.class).name();
+                }/*else if (column.isAnnotationPresent(PrimaryKey.class)){
+                    annotatedName = column.getAnnotation(PrimaryKey.class).name();
                 }else if (column.isAnnotationPresent(Column.class)){
                     annotatedName = column.getAnnotation(Column.class).name();
-                }
+                }*/
                 if (!annotatedName.trim().isEmpty()){
                     onColumn = annotatedName;
                 }
@@ -515,6 +519,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
                 }else{
                     buffer.append(String.format("CREATE INDEX IF NOT EXISTS %s_%s ON %s (%s) ", index.prefix().trim(), indexName, tableNameStr, onColumn));
                 }
+                //FIXME: Checks for legacy: < 3.4.x => here!
                 if (!index.using().trim().isEmpty()){
                     buffer.append("USING '" + index.using().trim() + "' ");
                     if (!index.options().trim().isEmpty()){
@@ -526,8 +531,9 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
         }
-
-        String query = (buffer.length() > 0) ? buffer.toString() : String.format("CREATE INDEX IF NOT EXISTS %s_idx ON %s (%s);", onColumn, tableNameStr, onColumn);
+        //
+        if (buffer.length() <= 0) return false;
+        String query = buffer.toString();
         try{
             ResultSet set = getSession().execute(query);
             return set.wasApplied();
