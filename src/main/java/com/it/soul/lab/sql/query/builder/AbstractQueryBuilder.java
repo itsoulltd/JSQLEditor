@@ -77,20 +77,33 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 		}
 		return temp;
 	}
-
+	@Override
 	public WhereClauseBuilder from(String name){
 		tempQuery.setTableName(name);
 		return this;
 	}
+	@Override
+	public ScalerClauseBuilder on(String name) {
+		tempQuery.setTableName(name);
+		return this;
+	}
+	@Override
+	public InsertBuilder into(String name) {
+		tempQuery.setTableName(name);
+		return this;
+	}
+	@Override
 	public TableBuilder columns(String... name){
 		tempQuery.setColumns(name);
 		return this;
 	}
+	@Override
 	public GroupByBuilder whereParams(Logic logic, String... name){
 		if (logic != null){tempQuery.setLogic(logic);}
 		tempQuery.setWhereParams(name);
 		return this;
 	}
+	@Override
 	public GroupByBuilder whereParams(Logic logic, Expression... comps){
 		if (logic != null){tempQuery.setLogic(logic);}
 		List<Expression> items = Arrays.asList(comps);
@@ -98,23 +111,9 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 		return this;
 	}
 	@Override
-	public ScalerClauseBuilder on(String name) {
-		if(tempQuery instanceof SQLScalerQuery){
-			((SQLScalerQuery)tempQuery).setTableName(name);
-		}
-		return this;
-	}
-	@Override
 	public QueryBuilder scalerClause(Property prop, Expression comps) {
 		if(tempQuery instanceof SQLScalerQuery){
 			((SQLScalerQuery)tempQuery).setScalerClouse(prop, comps);
-		}
-		return this;
-	}
-	@Override
-	public InsertBuilder into(String name) {
-		if(tempQuery instanceof SQLInsertQuery){
-			((SQLInsertQuery)tempQuery).setTableName(name);
 		}
 		return this;
 	}

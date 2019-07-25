@@ -12,7 +12,7 @@ import com.it.soul.lab.sql.query.models.Logic;
 import com.it.soul.lab.sql.query.models.Operator;
 import com.it.soul.lab.sql.query.models.Row;
 
-public class SQLQuery {
+public abstract class SQLQuery {
 	
 	public static class Builder extends AbstractQueryBuilder {
 		
