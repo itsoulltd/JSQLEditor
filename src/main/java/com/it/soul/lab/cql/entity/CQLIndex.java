@@ -14,4 +14,6 @@ public @interface CQLIndex {
     String prefix() default "idx";
     String name() default "";
     boolean custom() default false;
+    String using() default "";
+    String options() default "";
 }

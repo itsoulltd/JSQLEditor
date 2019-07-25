@@ -5,6 +5,7 @@ import com.datastax.driver.core.policies.DCAwareRoundRobinPolicy;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.it.soul.lab.cql.entity.CQLEntity;
+import com.it.soul.lab.cql.entity.CQLIndex;
 import com.it.soul.lab.cql.entity.ClusteringKey;
 import com.it.soul.lab.cql.query.*;
 import com.it.soul.lab.cql.query.ReplicationStrategy;
@@ -489,7 +490,44 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         String tableNameStr = getTableName(tableType);
         if (tableNameStr == null) return false;
 
-        String query = String.format("CREATE INDEX IF NOT EXISTS %s_idx ON %s (%s);", onColumn, tableNameStr, onColumn);
+        StringBuffer buffer = new StringBuffer();
+        try {
+            Field column = tableType.getDeclaredField(onColumn);
+            if (column.isAnnotationPresent(PrimaryKey.class) || column.isAnnotationPresent(ClusteringKey.class)
+                    || column.isAnnotationPresent(Column.class)){
+                String annotatedName = onColumn;
+                if (column.isAnnotationPresent(PrimaryKey.class)){
+                    annotatedName = column.getAnnotation(PrimaryKey.class).name();
+                }else if (column.isAnnotationPresent(ClusteringKey.class)){
+                    annotatedName = column.getAnnotation(ClusteringKey.class).name();
+                }else if (column.isAnnotationPresent(Column.class)){
+                    annotatedName = column.getAnnotation(Column.class).name();
+                }
+                if (!annotatedName.trim().isEmpty()){
+                    onColumn = annotatedName;
+                }
+            }
+            if (column.isAnnotationPresent(CQLIndex.class)){
+                CQLIndex index = column.getAnnotation(CQLIndex.class);
+                String indexName = index.name().trim().isEmpty() ? onColumn : index.name().trim();
+                if (index.custom()){
+                    buffer.append(String.format("CREATE CUSTOM INDEX IF NOT EXISTS %s_%s ON %s (%s) ", index.prefix().trim(), indexName, tableNameStr, onColumn));
+                }else{
+                    buffer.append(String.format("CREATE INDEX IF NOT EXISTS %s_%s ON %s (%s) ", index.prefix().trim(), indexName, tableNameStr, onColumn));
+                }
+                if (!index.using().trim().isEmpty()){
+                    buffer.append("USING '" + index.using().trim() + "' ");
+                    if (!index.options().trim().isEmpty()){
+                        buffer.append("WITH OPTIONS = {" + index.options() + "}");
+                    }
+                }
+                buffer.append(";");
+            }
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+
+        String query = (buffer.length() > 0) ? buffer.toString() : String.format("CREATE INDEX IF NOT EXISTS %s_idx ON %s (%s);", onColumn, tableNameStr, onColumn);
         try{
             ResultSet set = getSession().execute(query);
             return set.wasApplied();

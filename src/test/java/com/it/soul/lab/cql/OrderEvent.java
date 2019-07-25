@@ -1,6 +1,7 @@
 package com.it.soul.lab.cql;
 
 import com.it.soul.lab.cql.entity.CQLEntity;
+import com.it.soul.lab.cql.entity.CQLIndex;
 import com.it.soul.lab.cql.entity.ClusteringKey;
 import com.it.soul.lab.sql.entity.PrimaryKey;
 import com.it.soul.lab.sql.entity.TableName;
@@ -15,11 +16,18 @@ public class OrderEvent extends CQLEntity {
 
     @PrimaryKey(name = "track_id")
     private String trackID; //Partitioning ID
+
     @PrimaryKey(name = "user_id")
     private String userID; //Partitioning ID
 
     @ClusteringKey(name = "uuid", type = DataType.UUID)
     private UUID uuid; //Clustering ID
+
+    @ClusteringKey(name = "guid", type = DataType.STRING)
+    @CQLIndex(custom = true
+            , using = "org.apache.cassandra.index.sasi.SASIIndex"
+            , options = "'mode': 'CONTAINS', 'analyzer_class': 'org.apache.cassandra.index.sasi.analyzer.StandardAnalyzer', 'case_sensitive': 'false'")
+    private String guid; //Clustering ID
 
     private Date timestamp = new Date();
     private Map<String, String> kvm;
@@ -75,4 +83,11 @@ public class OrderEvent extends CQLEntity {
         this.kvm2 = kvm2;
     }
 
+    public String getGuid() {
+        return guid;
+    }
+
+    public void setGuid(String guid) {
+        this.guid = guid;
+    }
 }

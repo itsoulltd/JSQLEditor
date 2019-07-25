@@ -3,8 +3,11 @@ package com.it.soul.lab.cql;
 import com.it.soul.lab.cql.query.CQLQuery;
 import com.it.soul.lab.cql.query.CQLSelectQuery;
 import com.it.soul.lab.cql.query.ReplicationStrategy;
+import com.it.soul.lab.sql.SQLExecutor;
 import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.query.QueryType;
+import com.it.soul.lab.sql.query.SQLQuery;
+import com.it.soul.lab.sql.query.SQLSelectQuery;
 import com.it.soul.lab.sql.query.models.Predicate;
 import com.it.soul.lab.sql.query.models.Where;
 import org.junit.After;
@@ -13,10 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class CQLExecutorTest {
 
@@ -143,6 +143,74 @@ public class CQLExecutorTest {
         //}
         //To Succeed the build
         Assert.assertTrue(true);
+    }
+
+    @Test
+    public void indexTest(){
+        try {
+            boolean droped = cqlExecutor.dropTable(OrderEvent.class);
+            boolean created = cqlExecutor.createTable(OrderEvent.class);
+            boolean isDone = cqlExecutor.createIndexOn("guid", OrderEvent.class);
+
+            addEvent("Uttara-10", "wh0rbu49qh61");
+            addEvent("Dhaka-City", "wh0qcrdbngk4");
+            addEvent("Fhulbaria", "wh0rbeq1t329");
+            addEvent("Uttara-3", "wh0rc02u9d88");
+            addEvent("BamnarTek", "wh0rbshf6x0m");
+            addEvent("Uttara-4", "wh0rc0m8j2s6");
+            addEvent("Abdullahpur", "wh0rchf3uw1x");
+            addEvent("KamarPara", "wh0rbsy8v1wt");
+
+            printAll();
+            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
+            List<OrderEvent> items = search("wh0rbu49qh61", 5, cqlExecutor);
+            items.forEach(orderEvent -> System.out.println(orderEvent.getUserID() + "# " + orderEvent.getGuid()));
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean addEvent(String city, String guid) throws SQLException {
+        OrderEvent event = new OrderEvent();
+        event.setTrackID(UUID.randomUUID().toString());
+        event.setUserID(city);
+        event.setUuid(UUID.randomUUID());
+        event.setGuid(guid);
+        return event.insert(cqlExecutor);
+    }
+
+    private List<OrderEvent> search(String guid, int matchUptoLength, CQLExecutor executor) throws IllegalAccessException, InstantiationException, SQLException {
+        //
+        if (guid == null || guid.isEmpty()) return new ArrayList<>();
+        if (matchUptoLength <= 0) matchUptoLength = 5;
+        String likeToBe = "%" + guid.substring(0, matchUptoLength) + "%";
+        //
+        String tableName = com.it.soul.lab.sql.entity.Entity.tableName(OrderEvent.class);
+        CQLSelectQuery nearby = new CQLQuery.Builder(QueryType.SELECT)
+                .columns()
+                .from(tableName)
+                .where(new Where("guid").isLike(likeToBe))
+                .build();
+        //
+        List<OrderEvent> items = executor.executeSelect(nearby, OrderEvent.class);
+        return items;
+    }
+
+    private void printAll() throws IllegalAccessException, SQLException, InstantiationException {
+        //
+        CQLSelectQuery query = new CQLQuery.Builder(QueryType.SELECT)
+                .columns()
+                .from(Entity.tableName(OrderEvent.class))
+                .build();
+        //
+        List<OrderEvent> items = cqlExecutor.executeSelect(query, OrderEvent.class);
+        items.forEach(orderEvent -> System.out.println(orderEvent.getUserID() + "# " + orderEvent.getGuid()));
     }
 
 }
