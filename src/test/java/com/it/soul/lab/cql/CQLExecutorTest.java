@@ -44,6 +44,12 @@ public class CQLExecutorTest {
     }
 
     @Test
+    public void versionTest(){
+        String version = cqlExecutor.version();
+        System.out.println("Cassandra: " + version);
+    }
+
+    @Test
     public void cassandraCRUDTest(){
         try {
             //Creating a Table from CQLEntity @TableName description.

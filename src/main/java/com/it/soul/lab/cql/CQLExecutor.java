@@ -21,6 +21,7 @@ import com.it.soul.lab.sql.query.SQLSelectQuery;
 import com.it.soul.lab.sql.query.models.Property;
 import com.it.soul.lab.sql.query.models.Row;
 import com.it.soul.lab.sql.query.models.Table;
+import com.it.soul.lab.sql.query.models.Where;
 
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Field;
@@ -714,4 +715,18 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         }
     }
 
+    public String version(){
+        CQLSelectQuery query = new CQLQuery.Builder(QueryType.SELECT)
+                .columns("release_version")
+                .from("system.local")
+                .where(new Where("key").isEqualTo("local")).build();
+        Statement stmt = createSelectStatementFrom(query);
+        ResultSet set = getSession().execute(stmt);
+        List<Row> items = createRowsFrom(set);
+        if (items.size() > 0){
+            Map<String, Object> on = items.get(0).keyObjectMap();
+            return on.get("release_version").toString();
+        }
+        return null;
+    }
 }
