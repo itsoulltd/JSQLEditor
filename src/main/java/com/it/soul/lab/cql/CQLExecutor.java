@@ -483,20 +483,20 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         }
     }
 
-    public <T extends Entity> boolean createIndexOn(String onColumn, Class<T> tableType) throws SQLException {
+    public <T extends Entity> boolean createIndexOn(String entityFieldName, Class<T> tableType) throws SQLException {
         //
         String tableNameStr = getTableName(tableType);
         if (tableNameStr == null) return false;
 
         StringBuffer buffer = new StringBuffer();
         try {
-            Field column = tableType.getDeclaredField(onColumn);
+            Field column = tableType.getDeclaredField(entityFieldName);
             if (!column.isAnnotationPresent(ClusteringKey.class)){
                 return false;
             }
             //
             if (column.isAnnotationPresent(ClusteringKey.class)){
-                String annotatedName = onColumn;
+                String annotatedName = entityFieldName;
                 if (column.isAnnotationPresent(ClusteringKey.class)){
                     annotatedName = column.getAnnotation(ClusteringKey.class).name();
                 }/*else if (column.isAnnotationPresent(PrimaryKey.class)){
@@ -504,16 +504,16 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
                     annotatedName = column.getAnnotation(PrimaryKey.class).name();
                 }*/
                 if (!annotatedName.trim().isEmpty()){
-                    onColumn = annotatedName;
+                    entityFieldName = annotatedName;
                 }
             }
             if (column.isAnnotationPresent(CQLIndex.class)){
                 CQLIndex index = column.getAnnotation(CQLIndex.class);
-                String indexName = index.name().trim().isEmpty() ? onColumn : index.name().trim();
+                String indexName = index.name().trim().isEmpty() ? entityFieldName : index.name().trim();
                 if (index.custom()){
-                    buffer.append(String.format("CREATE CUSTOM INDEX IF NOT EXISTS %s_%s ON %s (%s) ", index.prefix().trim(), indexName, tableNameStr, onColumn));
+                    buffer.append(String.format("CREATE CUSTOM INDEX IF NOT EXISTS %s_%s ON %s (%s) ", index.prefix().trim(), indexName, tableNameStr, entityFieldName));
                 }else{
-                    buffer.append(String.format("CREATE INDEX IF NOT EXISTS %s_%s ON %s (%s) ", index.prefix().trim(), indexName, tableNameStr, onColumn));
+                    buffer.append(String.format("CREATE INDEX IF NOT EXISTS %s_%s ON %s (%s) ", index.prefix().trim(), indexName, tableNameStr, entityFieldName));
                 }
                 //FIXME: Checks for legacy: < 3.4.x => here!
                 if (!index.using().trim().isEmpty()){
