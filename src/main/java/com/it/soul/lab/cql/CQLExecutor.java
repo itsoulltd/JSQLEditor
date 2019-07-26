@@ -503,9 +503,8 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
                 if (column.isAnnotationPresent(ClusteringKey.class)){
                     annotatedName = column.getAnnotation(ClusteringKey.class).name();
                 }/*else if (column.isAnnotationPresent(PrimaryKey.class)){
+                    //Not Supported yet (till 3.11.x)
                     annotatedName = column.getAnnotation(PrimaryKey.class).name();
-                }else if (column.isAnnotationPresent(Column.class)){
-                    annotatedName = column.getAnnotation(Column.class).name();
                 }*/
                 if (!annotatedName.trim().isEmpty()){
                     onColumn = annotatedName;

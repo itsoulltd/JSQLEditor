@@ -23,7 +23,7 @@ public class OrderEvent extends CQLEntity {
     @ClusteringKey(name = "uuid", type = DataType.UUID)
     private UUID uuid; //Clustering ID
 
-    @ClusteringKey(name = "guid", type = DataType.STRING)
+    @ClusteringKey(name = "guid")
     @CQLIndex(custom = true
             , using = "org.apache.cassandra.index.sasi.SASIIndex"
             , options = "'mode': 'CONTAINS', 'analyzer_class': 'org.apache.cassandra.index.sasi.analyzer.StandardAnalyzer', 'case_sensitive': 'false'")
