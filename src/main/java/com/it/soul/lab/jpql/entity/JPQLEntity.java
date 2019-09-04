@@ -18,7 +18,6 @@ public abstract class JPQLEntity<T extends JPQLEntity> extends Entity {
             ORMServiceProtocol<T> protocol = (ORMServiceProtocol<T>) exe;
             try {
                 Entity ent = protocol.insert((T) this);
-                //protocol.getEntityManager().flush();
                 result = (ent != null);
             } catch (Exception e) {
                 log.warning(e.getMessage());
@@ -35,7 +34,6 @@ public abstract class JPQLEntity<T extends JPQLEntity> extends Entity {
             ORMServiceProtocol<T> protocol = (ORMServiceProtocol<T>) exe;
             try {
                 Entity ent = protocol.update((T) this);
-                //protocol.getEntityManager().flush();
                 result = (ent != null);
             } catch (Exception e) {
                 log.warning(e.getMessage());
@@ -52,7 +50,6 @@ public abstract class JPQLEntity<T extends JPQLEntity> extends Entity {
             ORMServiceProtocol<T> protocol = (ORMServiceProtocol<T>) exe;
             try {
                 result = protocol.delete((T) this);
-                //protocol.getEntityManager().flush();
             } catch (Exception e) {
                 log.warning(e.getMessage());
                 throw new SQLException(e.getMessage());
