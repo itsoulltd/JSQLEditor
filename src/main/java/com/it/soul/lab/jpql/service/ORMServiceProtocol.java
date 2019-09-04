@@ -1,4 +1,4 @@
-package com.it.soul.lab.service;
+package com.it.soul.lab.jpql.service;
 
 import java.util.Collection;
 import java.util.Map;
