@@ -257,25 +257,25 @@ public class JDBConnection implements Serializable{
 	private void setPassword(String password) {
 		this.password = password;
 	}
-	
+
 	/**
-	 * @param Connection conn
+	 * @param connection
 	 * @throws SQLException
 	 */
-	public static void close(Connection conn) throws SQLException{
-		if(conn != null && !conn.isClosed()){
+	public static void close(Connection connection) throws SQLException{
+		if(connection != null && !connection.isClosed()){
 			try{
-				if(!conn.getAutoCommit())
-					conn.commit();
+				if(!connection.getAutoCommit())
+					connection.commit();
 			}catch(SQLException exp){
-				if(!conn.getAutoCommit())
-					conn.rollback();
+				if(!connection.getAutoCommit())
+					connection.rollback();
 				throw exp;
 			}
 			finally{
 	        	try {
-					if(conn != null && !conn.isClosed())
-						conn.close();
+					if(connection != null && !connection.isClosed())
+						connection.close();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
