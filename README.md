@@ -73,7 +73,11 @@
                  <property name="hibernate.connection.username" value="root"/>
                  <property name="hibernate.connection.password" value="****"/>
                  <property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/testDB?useUnicode=true&amp;useJDBCCompliantTimezoneShift=true&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC"/>
-                 <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
+                 <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5Dialect"/>
+                 <!--<property name="hibernate.archive.autodetection" value="class"/>-->
+                 <property name="hibernate.show_sql" value="true"/>
+                 <property name="hibernate.format_sql" value="true"/>
+                 <property name="hibernate.hbm2ddl.auto" value="create"/>
             </properties>
        </persistence-unit>
     </persistence>

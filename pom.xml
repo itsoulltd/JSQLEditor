@@ -65,6 +65,13 @@
             <version>4.1.31.Final</version>
         </dependency>
         <!-- -->
+        <!-- Hibernate 5.2.6 Final -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>5.4.4.Final</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>
