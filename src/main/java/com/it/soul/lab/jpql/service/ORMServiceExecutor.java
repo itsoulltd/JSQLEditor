@@ -14,8 +14,11 @@ import javax.persistence.TypedQuery;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class ORMServiceExecutor<T> extends ORMService<T> implements QueryExecutor<JPQLSelectQuery, JPQLQuery,JPQLUpdateQuery, JPQLQuery, JPQLQuery>, QueryTransaction {
+
+    private Logger log = Logger.getLogger(this.getClass().getSimpleName());
 
     public ORMServiceExecutor(EntityManager manager, String entity, Class<T> type) {
         super(manager, entity, type);
@@ -32,42 +35,62 @@ public class ORMServiceExecutor<T> extends ORMService<T> implements QueryExecuto
 
     @Override
     public Object createBlob(String val) throws SQLException {
+        //TODO:
         return null;
     }
 
     @Override
     public Boolean executeDDLQuery(String query) throws SQLException {
+        //TODO:
         return null;
     }
 
     @Override
     public Integer executeInsert(boolean autoId, JPQLQuery insertQuery) throws SQLException, IllegalArgumentException {
+        //TODO:
         return null;
     }
 
     @Override
     public Integer executeBatchDelete(int batchSize, JPQLQuery deleteQuery, List whereClause) throws SQLException {
+        //TODO:
         return null;
     }
 
     @Override
     public Integer executeDelete(JPQLQuery deleteQuery) throws SQLException {
+        //TODO:
         return null;
     }
 
     @Override
     public Integer[] executeBatchUpdate(int batchSize, JPQLUpdateQuery query, List updateProperties, List whereClause) throws SQLException, IllegalArgumentException {
+        //TODO:
         return new Integer[0];
     }
 
     @Override
     public Integer executeUpdate(JPQLUpdateQuery query) throws SQLException {
+        //TODO:
         return null;
     }
 
     @Override
     public Integer getScalerValue(JPQLQuery scalerQuery) throws SQLException {
+        //TODO:
         return null;
+    }
+
+    @Override
+    public List executeCRUDQuery(String query, Class type) throws SQLException, IllegalAccessException, InstantiationException {
+        //TODO:
+        return null;
+    }
+
+    @Override
+    public Integer[] executeBatchInsert(boolean autoId, int batchSize, String tableName, List params) throws SQLException, IllegalArgumentException {
+        //TODO:
+        return new Integer[0];
     }
 
     @Override
@@ -89,32 +112,33 @@ public class ORMServiceExecutor<T> extends ORMService<T> implements QueryExecuto
     }
 
     @Override
-    public List executeCRUDQuery(String query, Class type) throws SQLException, IllegalAccessException, InstantiationException {
-        return null;
-    }
-
-    @Override
-    public Integer[] executeBatchInsert(boolean autoId, int batchSize, String tableName, List params) throws SQLException, IllegalArgumentException {
-        return new Integer[0];
-    }
-
-    @Override
     public void begin() throws SQLException {
-
+        getEntityManager().getTransaction().begin();
     }
 
     @Override
     public void end() throws SQLException {
-
+        getEntityManager().getTransaction().commit();
     }
 
     @Override
     public void abort() throws SQLException {
-
+        getEntityManager().getTransaction().rollback();
     }
 
     @Override
     public void close() throws Exception {
-
+        if (getEntityManager().isOpen()){
+            try {
+                begin();
+                getEntityManager().flush();
+                end();
+            } catch (SQLException e) {
+                log.warning(e.getMessage());
+                abort();
+            } finally {
+                getEntityManager().close();
+            }
+        }
     }
 }

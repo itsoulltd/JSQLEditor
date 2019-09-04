@@ -1,10 +1,14 @@
 package com.it.soul.lab.jpql.service;
 
 import com.it.soul.lab.jpql.entity.JPassenger;
+import com.it.soul.lab.jpql.query.JPQLQuery;
+import com.it.soul.lab.jpql.query.JPQLSelectQuery;
 import com.it.soul.lab.sql.entity.Entity;
+import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.models.Predicate;
 import com.it.soul.lab.sql.query.models.Where;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,14 +38,15 @@ public class JPassengerTest{
     @After
     public void after(){
         try {
-            if(executor != null) executor.close();
+            if(executor != null)
+                executor.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Test
-    public void personTest() throws Exception {
+    public void personInsertTest() throws Exception {
         Random random = new Random();
         int index_age = random.nextInt(ages.length -2) + 1;
         int index_name = random.nextInt(names.length -2) + 1;
@@ -54,11 +59,37 @@ public class JPassengerTest{
         }else {
             passenger.setSex(Sex.Female.name());
         }
-        passenger.insert(executor);
-        //Read
-        Predicate where = new Where("sex").isEqualTo("Male");
-        List<JPassenger> readed = Entity.read(JPassenger.class, executor, where);
-        if (readed != null) readed.forEach(rperson -> System.out.println(rperson.marshallingToMap(false)));
+        boolean em = passenger.insert(executor);
+        Assert.assertTrue("Insert Failed", em);
+    }
+
+    @Test
+    public void personUpdateTest() throws Exception {
+        Random random = new Random();
+        //Update
+        int index_name = random.nextInt(names.length -2) + 1;
+        Predicate findNameBy = new Where("name").isEqualTo(names[index_name]);
+        List<JPassenger> byName = Entity.read(JPassenger.class, executor, findNameBy);
+        if (byName != null && byName.size() > 0){
+            JPassenger passenger1 = byName.get(0);
+            passenger1.setName(passenger1.getName() + "_updated");
+            passenger1.update(executor);
+            //executor.clearItem(passenger1);
+            //System.out.println(passenger1.marshallingToMap(false));
+        }
         //
+        Predicate likeWise = new Where("name").isLike("%_update%");
+        List<JPassenger> readed = Entity.read(JPassenger.class, executor, likeWise);
+        if (readed != null) readed.forEach(rperson -> System.out.println(rperson.marshallingToMap(false)));
+    }
+
+    @Test
+    public void personReadTest() throws Exception {
+        //Read
+        Predicate where = new Where("sex").isEqualTo("Male")
+                .and("age").isGreaterThenOrEqual(30);
+        List<JPassenger> readed = Entity.read(JPassenger.class, executor, where);
+        if (readed != null)
+            readed.forEach(rperson -> System.out.println(rperson.marshallingToMap(false)));
     }
 }
