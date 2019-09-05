@@ -31,7 +31,7 @@ public class JPQLUpdateQuery extends SQLUpdateQuery {
 		prepareWhereParams(Expression.createListFrom(whereParams, Operator.EQUAL));
 	}
 	
-	@Override
+	@Override @SuppressWarnings("Duplicates")
 	protected void prepareWhereParams(List<Expression> whereParams) {
 		if(whereParams != null 
 				&& whereParams.size() > 0

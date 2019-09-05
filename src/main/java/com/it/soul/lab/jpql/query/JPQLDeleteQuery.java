@@ -13,7 +13,7 @@ public class JPQLDeleteQuery extends SQLDeleteQuery {
         pqlBuffer.append(name + " " + QUIENTIFIER + " ");
     }
 
-    @Override
+    @Override @SuppressWarnings("Duplicates")
     protected void prepareWhereParams(List<Expression> whereParams) {
         if(whereParams != null
                 && whereParams.size() > 0

@@ -69,12 +69,12 @@ public class SQLUpdateQuery extends SQLSelectQuery{
 		prepareWhereParams(Expression.createListFrom(whereParams, Operator.EQUAL));
 	}
 	
-	@Override
+	@Override @SuppressWarnings("Duplicates")
 	protected void prepareWhereParams(List<Expression> whereParams) {
-		if(whereParams != null 
+		if(whereParams != null
 				&& whereParams.size() > 0
 				&& !isAllParamEmpty(whereParams.toArray())){
-			
+
 			if(whereBuffer.length() > 0){
 				whereBuffer.append("WHERE ");
 				int count = 0;

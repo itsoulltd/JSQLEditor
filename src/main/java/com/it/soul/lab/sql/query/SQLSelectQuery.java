@@ -153,7 +153,8 @@ public class SQLSelectQuery extends SQLQuery{
 		super.setWhereParamExpressions(whereParams);
 		prepareWhereParams(whereParams);
 	}
-	
+
+	@SuppressWarnings("Duplicates")
 	protected void prepareWhereParams(List<Expression> whereParams) {
 		if(whereParams != null 
 				&& whereParams.size() > 0
