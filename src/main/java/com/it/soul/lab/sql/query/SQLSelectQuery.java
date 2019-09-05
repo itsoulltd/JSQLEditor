@@ -51,7 +51,8 @@ public class SQLSelectQuery extends SQLQuery{
 			if (offset > 0) { pqlBuffer.append(" OFFSET " + offset) ;}
 		}
 	}
-	
+
+	@SuppressWarnings("Duplicates")
 	public void setOrderBy(List<String> columns, Operator opt) {
 		this.orderByList = columns;
 		if (columns != null && columns.size() > 0) {
@@ -69,7 +70,8 @@ public class SQLSelectQuery extends SQLQuery{
 			}
 		}
 	}
-	
+
+	@SuppressWarnings("Duplicates")
 	public void setGroupBy(List<String> columns) {
 		this.groupByList = columns;
 		if (columns != null && columns.size() > 0) {

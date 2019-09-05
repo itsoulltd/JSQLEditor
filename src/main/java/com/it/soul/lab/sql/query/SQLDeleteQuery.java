@@ -37,20 +37,7 @@ public class SQLDeleteQuery extends SQLSelectQuery{
 	
 	@Override
 	protected void prepareWhereParams(List<Expression> whereParams) {
-		if(whereParams != null 
-				&& whereParams.size() > 0
-				&& !isAllParamEmpty(whereParams.toArray())){
-
-			if(pqlBuffer.length() > 0){
-				pqlBuffer.append( "WHERE ");
-				int count = 0;
-				for(Expression ent : whereParams){
-					if(ent.getProperty().trim().equals("")){continue;}
-					if(count++ != 0){pqlBuffer.append( " " + getLogic().name() + " ");}
-					pqlBuffer.append( ent.getProperty() + " " + ent.getType().toString() + " " + MARKER);
-				}
-			}
-		}
+		super.prepareWhereParams(whereParams);
 	}
 
 	@Deprecated @SuppressWarnings("Duplicates")
