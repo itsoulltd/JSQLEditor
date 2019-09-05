@@ -138,5 +138,13 @@ public class Where implements WhereClause {
 		return getProxy().createExpression(value, Operator.NOT_LIKE);
 	}
 
-	
+	@Override
+	public Predicate isNull() {
+		return getProxy().createExpression(null, Operator.IS_NULL);
+	}
+
+	@Override
+	public Predicate notNull() {
+		return getProxy().createExpression(null, Operator.NOT_NULL);
+	}
 }

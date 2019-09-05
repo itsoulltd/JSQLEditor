@@ -98,14 +98,13 @@ public class JPassengerTest{
     @Test
     public void passengerUpdateThoseWhoSexIsNullTest() throws Exception {
         //Update
-        //TODO: Implement: background check : null comparison on column value:
-        //TODO: in JPQL a valid Null check query is
-        //TODO: "SELECT c FROM Concept c WHERE c.conceptName = :conceptName and c.refTable IS NULL"
-        Predicate sexNotSet = new Where("sex").isEqualTo("<null>");
-        List<JPassenger> nullSex = Entity.read(JPassenger.class, executor, sexNotSet);
-        if (nullSex != null && nullSex.size() > 0){
-            nullSex.forEach(jPassenger -> {
+        //"SELECT c FROM Concept c WHERE c.conceptName = :conceptName and c.refTable IS NULL"
+        Predicate isNUll = new Where("sex").isNull();
+        List<JPassenger> sexIsNull = Entity.read(JPassenger.class, executor, isNUll);
+        if (sexIsNull != null && sexIsNull.size() > 0){
+            sexIsNull.forEach(jPassenger -> {
                 try {
+                    if (jPassenger.getName() == null) return;
                     if (jPassenger.getName().toLowerCase().startsWith("mr")){
                         jPassenger.setSex(Sex.Male.name());
                     }else {
@@ -161,5 +160,15 @@ public class JPassengerTest{
         List<JPassenger> retrieved = Entity.read(JPassenger.class, executor);
         if (retrieved != null)
             retrieved.forEach(passenger -> System.out.println(passenger.marshallingToMap(false)));
+    }
+
+    @Test
+    public void notNullQueryTest() throws Exception {
+        //Checking isNotNull query
+        Predicate notNullQuery = new Where("sex").notNull()
+                .and("name").notNull();
+        List<JPassenger> notNull = Entity.read(JPassenger.class, executor, notNullQuery);
+        if (notNull != null)
+            notNull.forEach(jPassenger -> System.out.println(jPassenger.getName() + "#" + jPassenger.getSex()));
     }
 }

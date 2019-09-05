@@ -88,8 +88,11 @@ public class Expression implements ExpressionInterpreter{
 	}
 	@Override
 	public String interpret() {
-		if (Character.isWhitespace(quientifier) == false) {return quientifier+ "." + getProperty() + " " + type.toString() + " " + expressMarker;}
-		else {return getProperty() + " " + type.toString() + " " + MARKER;}
+		if (Character.isWhitespace(quientifier) == false) {
+		    return quientifier+ "." + getProperty() + " " + type.toString() + " " + ((getValueProperty().getValue() != null) ? expressMarker : "");
+		}else {
+			return getProperty() + " " + type.toString() + " " + ((getValueProperty().getValue() != null) ? MARKER : "");
+		}
 	}
 	@Override
 	public Expression[] resolveExpressions() {

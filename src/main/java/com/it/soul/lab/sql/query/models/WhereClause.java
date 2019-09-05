@@ -1,14 +1,16 @@
 package com.it.soul.lab.sql.query.models;
 
 public interface WhereClause {
-	public Predicate isEqualTo(Object value);
-	public Predicate notEqualTo(Object value);
-	public Predicate isGreaterThen(Object value);
-	public Predicate isGreaterThenOrEqual(Object value);
-	public Predicate isLessThen(Object value);
-	public Predicate isLessThenOrEqual(Object value);
-	public Predicate isIn(Object value);
-	public Predicate notIn(Object value);
-	public Predicate isLike(Object value);
-	public Predicate notLike(Object value);
+	Predicate isEqualTo(Object value);
+	Predicate notEqualTo(Object value);
+	Predicate isGreaterThen(Object value);
+	Predicate isGreaterThenOrEqual(Object value);
+	Predicate isLessThen(Object value);
+	Predicate isLessThenOrEqual(Object value);
+	Predicate isIn(Object value);
+	Predicate notIn(Object value);
+	Predicate isLike(Object value);
+	Predicate notLike(Object value);
+	Predicate isNull();
+    Predicate notNull();
 }

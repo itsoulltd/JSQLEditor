@@ -27,7 +27,7 @@ public class PredicateTest {
 				.isEqualTo("sohana")
 				.and("salary")
 				.isGreaterThen(2000.0)
-				.or(new Expression("age", Operator.EQUAL))
+				.or(new Expression(new Property("age", 18), Operator.EQUAL))
 				.not();
 		//System.out.println(pred.interpret());
 		
@@ -64,7 +64,7 @@ public class PredicateTest {
 		
 		ExpressionInterpreter pred = new AndExpression(new Expression(new Property("name", "sohana"), Operator.EQUAL)
 				, new Expression(new Property("salary", "20000.00"), Operator.GREATER_THAN));
-		pred = new OrExpression(pred, new Expression("age", Operator.EQUAL));
+		pred = new OrExpression(pred, new Expression(new Property("age", 18), Operator.EQUAL));
 		pred = new NotExpression(pred);
 		//System.out.println(pred.interpret());
 		

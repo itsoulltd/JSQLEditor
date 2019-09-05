@@ -82,8 +82,8 @@ public class QueryBuilderTest {
 	@Test
 	public void select_where_expressionTest(){
 		
-		ExpressionInterpreter andExp = new AndExpression(new Expression("id", Operator.EQUAL), new Expression("age", Operator.GREATER_THAN_OR_EQUAL));
-		ExpressionInterpreter orExp = new OrExpression(new Expression("name", Operator.LIKE), andExp);
+		ExpressionInterpreter andExp = new AndExpression(new Expression(new Property("id", "kajalrer"), Operator.EQUAL), new Expression(new Property("age", 18), Operator.GREATER_THAN_OR_EQUAL));
+		ExpressionInterpreter orExp = new OrExpression(new Expression(new Property("name", "batil"), Operator.LIKE), andExp);
 		
 		SQLSelectQuery qu6 = new SQLQuery.Builder(QueryType.SELECT)
 									.columns("name","age")
@@ -97,7 +97,7 @@ public class QueryBuilderTest {
 	@Test
 	public void countTest(){
 		Property prop = new Property("name", "sohana");
-		Expression comps = new Expression("name", Operator.EQUAL);
+		Expression comps = new Expression(new Property("name", "batil"), Operator.EQUAL);
 		
 		SQLScalerQuery count = new SQLQuery.Builder(QueryType.COUNT)
 										.columns("id")
@@ -116,7 +116,7 @@ public class QueryBuilderTest {
 	@Test 
 	public void distinctTest(){
 		
-		Expression comps = new Expression("name", Operator.EQUAL);
+		Expression comps = new Expression(new Property("name", "batil"), Operator.EQUAL);
 		
 		SQLQuery distinct = new SQLQuery.Builder(QueryType.DISTINCT)
 										.columns("name")
@@ -149,7 +149,7 @@ public class QueryBuilderTest {
 	@Test
 	public void updateTest(){
 		
-		ExpressionInterpreter andExpression = new AndExpression(new Expression("name", Operator.EQUAL), new Expression("age", Operator.GREATER_THAN));
+		ExpressionInterpreter andExpression = new AndExpression(new Expression(new Property("name", "batil"), Operator.EQUAL), new Expression(new Property("age", 18), Operator.GREATER_THAN));
 		
 		SQLQuery update = new SQLQuery.Builder(QueryType.UPDATE)
 								.columns("name","age")
@@ -164,7 +164,7 @@ public class QueryBuilderTest {
 	@Test
 	public void deleteTest(){
 		
-		ExpressionInterpreter andExpression = new AndExpression(new Expression("name", Operator.EQUAL), new Expression("age", Operator.GREATER_THAN));
+		ExpressionInterpreter andExpression = new AndExpression(new Expression(new Property("name", "batil"), Operator.EQUAL), new Expression(new Property("age", 18), Operator.GREATER_THAN));
 		
 		SQLQuery delete = new SQLQuery.Builder(QueryType.DELETE)
 										.rowsFrom("Passenger")
@@ -178,7 +178,7 @@ public class QueryBuilderTest {
 	@Test
 	public void jpqlTest(){
 		
-		ExpressionInterpreter andExpression = new AndExpression(new Expression("name", Operator.EQUAL), new Expression("age", Operator.GREATER_THAN));
+		ExpressionInterpreter andExpression = new AndExpression(new Expression(new Property("name", "batil"), Operator.EQUAL), new Expression(new Property("age", 18), Operator.GREATER_THAN));
 		
 		JPQLSelectQuery jqpSel = new JPQLQuery.Builder(QueryType.SELECT)
 											.columns("name","age","sex")
@@ -269,7 +269,7 @@ public class QueryBuilderTest {
 				.columns("name",ScalerType.COUNT.toAlias("age"))
 				.from("Passenger")
 				.groupBy("name")
-				.having(new Expression(ScalerType.COUNT.toString("age"), Operator.GREATER_THAN))
+				.having(new Expression(new Property(ScalerType.COUNT.toString("age"), ""), Operator.GREATER_THAN))
 				.orderBy(ScalerType.COUNT.toString("age"))
 				.build();
 

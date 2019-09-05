@@ -144,7 +144,8 @@ public class ORMServiceExecutor<T> extends ORMService<T> implements QueryExecuto
         List<Expression> expressions = query.getWhereParamExpressions();
         if (expressions != null) {
             for (Expression expression : expressions) {
-                typedQuery.setParameter(expression.getProperty(), expression.getValueProperty().getValue());
+                if (expression.getValueProperty().getValue() != null)
+                    typedQuery.setParameter(expression.getProperty(), expression.getValueProperty().getValue());
             }
         }
         return typedQuery.getResultList();

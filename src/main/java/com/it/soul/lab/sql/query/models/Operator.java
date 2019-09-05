@@ -12,7 +12,9 @@ public enum Operator {
 	LIKE,
 	NOT_LIKE,
 	ASC,
-	DESC;
+	DESC,
+	IS_NULL,
+	NOT_NULL;
 
 	public String toString(){
 
@@ -50,6 +52,12 @@ public enum Operator {
 			break;
 		case DESC:
 			eq = "DESC";
+			break;
+		case IS_NULL:
+			eq = "IS NULL";
+			break;
+		case NOT_NULL:
+			eq = "IS NOT NULL";
 			break;
 		default:
 			break;
