@@ -12,6 +12,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -26,7 +27,6 @@ public class JPassengerTest{
 
     String[] names = new String[]{"Sohana","Mr.Towhid","Mr.Tanvir","Sumaiya","Tusin"};
     Integer[] ages = new Integer[] {15, 18, 28, 26, 32, 34, 25, 67};
-    String password = "root";
     ORMServiceExecutor<JPassenger> executor;
 
     @Before
@@ -46,50 +46,120 @@ public class JPassengerTest{
     }
 
     @Test
-    public void personInsertTest() throws Exception {
+    public void passengerInsertTest() throws Exception {
         Random random = new Random();
-        int index_age = random.nextInt(ages.length -2) + 1;
-        int index_name = random.nextInt(names.length -2) + 1;
         JPassenger passenger = new JPassenger();
         passenger.setUuid(UUID.randomUUID().toString());
+        //
+        int index_age = random.nextInt(ages.length -2) + 1;
         passenger.setAge(ages[index_age]);
+        //
+        int index_name = random.nextInt(names.length -2) + 1;
         passenger.setName(names[index_name]);
+        //
         if (passenger.getName().toLowerCase().startsWith("mr")){
             passenger.setSex(Sex.Male.name());
         }else {
             passenger.setSex(Sex.Female.name());
         }
-        boolean em = passenger.insert(executor);
-        Assert.assertTrue("Insert Failed", em);
+        //Insertion
+        long countBeforeInsert = executor.rowCount();
+        boolean isInserted = passenger.insert(executor);
+        long countAfterInsert = executor.rowCount();
+        Assert.assertTrue("Insert Failed!", isInserted && (countBeforeInsert < countAfterInsert));
     }
 
     @Test
-    public void personUpdateTest() throws Exception {
+    public void passengerUpdateTest() throws Exception {
         Random random = new Random();
-        //Update
+        //
         int index_name = random.nextInt(names.length -2) + 1;
         Predicate findNameBy = new Where("name").isEqualTo(names[index_name]);
+        //
         List<JPassenger> byName = Entity.read(JPassenger.class, executor, findNameBy);
+        //
+        String updatedUid = null;
         if (byName != null && byName.size() > 0){
             JPassenger passenger1 = byName.get(0);
             passenger1.setName(passenger1.getName() + "_updated");
-            passenger1.update(executor);
-            //executor.clearItem(passenger1);
-            //System.out.println(passenger1.marshallingToMap(false));
+            //Update
+            boolean isUpdated = passenger1.update(executor);
+            updatedUid = passenger1.getUuid();
+            Assert.assertTrue("Update Failed!", isUpdated);
         }
         //
-        Predicate likeWise = new Where("name").isLike("%_update%");
-        List<JPassenger> readed = Entity.read(JPassenger.class, executor, likeWise);
-        if (readed != null) readed.forEach(rperson -> System.out.println(rperson.marshallingToMap(false)));
+        if (updatedUid != null && !updatedUid.isEmpty()) {
+            Predicate likeWise = new Where("uuid").isLike(updatedUid);
+            List<JPassenger> retrieved = Entity.read(JPassenger.class, executor, likeWise);
+            if (retrieved != null) retrieved.forEach(passenger -> System.out.println(passenger.marshallingToMap(false)));
+        }
+    }
+    
+    @Test
+    public void passengerUpdateThoseWhoSexIsNullTest() throws Exception {
+        //Update
+        //TODO: Implement: background check : null comparison on column value:
+        //TODO: in JPQL a valid Null check query is
+        //TODO: "SELECT c FROM Concept c WHERE c.conceptName = :conceptName and c.refTable IS NULL"
+        Predicate sexNotSet = new Where("sex").isEqualTo("<null>");
+        List<JPassenger> nullSex = Entity.read(JPassenger.class, executor, sexNotSet);
+        if (nullSex != null && nullSex.size() > 0){
+            nullSex.forEach(jPassenger -> {
+                try {
+                    if (jPassenger.getName().toLowerCase().startsWith("mr")){
+                        jPassenger.setSex(Sex.Male.name());
+                    }else {
+                        jPassenger.setSex(Sex.Female.name());
+                    }
+                    jPassenger.update(executor);
+                    System.out.println("Updated: " + jPassenger.marshallingToMap(false));
+                } catch (SQLException e) {
+                }
+            });
+        }
+        //
     }
 
     @Test
-    public void personReadTest() throws Exception {
+    public void passengerDeleteTest() throws Exception {
+        Random random = new Random();
+        //
+        int index_name = random.nextInt(names.length -2) + 1;
+        Predicate findNameBy = new Where("name").isEqualTo(names[index_name]);
+        //
+        List<JPassenger> byName = Entity.read(JPassenger.class, executor, findNameBy);
+        String goingToDeleteId = null;
+        //
+        if (byName != null && byName.size() > 0){
+            JPassenger passenger1 = byName.get(0);
+            goingToDeleteId = passenger1.getUuid();
+            //Delete
+            boolean isDeleted = passenger1.delete(executor);
+            Assert.assertTrue("Deletion Failed!", isDeleted);
+        }
+        //
+        if (goingToDeleteId != null && !goingToDeleteId.isEmpty()) {
+            Predicate likeWise = new Where("uuid").isLike(goingToDeleteId);
+            List<JPassenger> retrieved = Entity.read(JPassenger.class, executor, likeWise);
+            if (retrieved == null || retrieved.size() <= 0) System.out.println(goingToDeleteId + " has been successfully deleted.");
+        }
+    }
+
+    @Test
+    public void passengerReadTest() throws Exception {
         //Read
         Predicate where = new Where("sex").isEqualTo("Male")
                 .and("age").isGreaterThenOrEqual(30);
-        List<JPassenger> readed = Entity.read(JPassenger.class, executor, where);
-        if (readed != null)
-            readed.forEach(rperson -> System.out.println(rperson.marshallingToMap(false)));
+        List<JPassenger> retrieved = Entity.read(JPassenger.class, executor, where);
+        if (retrieved != null)
+            retrieved.forEach(passenger -> System.out.println(passenger.marshallingToMap(false)));
+    }
+
+    @Test
+    public void passengerReadAllTest() throws Exception {
+        //Read All
+        List<JPassenger> retrieved = Entity.read(JPassenger.class, executor);
+        if (retrieved != null)
+            retrieved.forEach(passenger -> System.out.println(passenger.marshallingToMap(false)));
     }
 }

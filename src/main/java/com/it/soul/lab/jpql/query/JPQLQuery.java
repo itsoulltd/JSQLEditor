@@ -27,6 +27,12 @@ public static class Builder extends AbstractQueryBuilder {
 			case UPDATE:
 				temp = new JPQLUpdateQuery();
 				break;
+            case INSERT:
+                temp = new JPQLInsertQuery();
+                break;
+            case DELETE:
+                temp = new JPQLDeleteQuery();
+                break;
 			default:
 				temp = super.factory(type);
 				break;

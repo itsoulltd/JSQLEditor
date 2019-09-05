@@ -1,6 +1,7 @@
 package com.it.soul.lab.jpql.entity;
 
 import com.it.soul.lab.sql.entity.PrimaryKey;
+import com.it.soul.lab.sql.entity.TableName;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
