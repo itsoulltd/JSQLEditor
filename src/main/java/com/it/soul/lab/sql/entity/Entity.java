@@ -137,7 +137,8 @@ public abstract class Entity implements EntityInterface{
 
     protected boolean isFieldAnnotatedWith(Field field) {
         boolean isAnnotated = field.isAnnotationPresent(Column.class)
-                || field.isAnnotationPresent(PrimaryKey.class);
+                || field.isAnnotationPresent(PrimaryKey.class)
+				|| field.isAnnotationPresent(javax.persistence.Column.class);
         return isAnnotated;
     }
 
@@ -409,11 +410,14 @@ public abstract class Entity implements EntityInterface{
 	}
 	///////////////////////////////////////Class API///////////////////////////////////////
 	protected static <T extends Entity> boolean shouldAcceptAllAsProperty(Class<T> type) {
-		if(type.isAnnotationPresent(TableName.class) == false) {
-			return false;
-		}
-		TableName tableName = type.getAnnotation(TableName.class);
-		return tableName.acceptAll();
+		if(type.isAnnotationPresent(TableName.class)) {
+            TableName tableName = type.getAnnotation(TableName.class);
+            return tableName.acceptAll();
+        }
+        if (type.isAnnotationPresent(javax.persistence.Entity.class)){
+		    return true;
+        }
+        return false;
 	}
     protected final static <T extends Entity> Field[] getDeclaredFields(Class<T> type, boolean inherit){
         Field[] fields = new Field[0];
