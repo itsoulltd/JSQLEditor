@@ -21,12 +21,15 @@ public interface QueryExecutor<S extends SQLQuery
     Boolean executeDDLQuery(String query) throws SQLException;
 
     Integer executeUpdate(U query) throws SQLException;
+    //FIXME: executeBatchUpdate: refactoring signature
     Integer[] executeBatchUpdate(int batchSize, U query, List<Row> updateProperties, List<Row> whereClause) throws SQLException,IllegalArgumentException;
 
     Integer executeDelete(D deleteQuery) throws SQLException;
+    //FIXME: executeBatchUpdate: refactoring signature
     Integer executeBatchDelete(int batchSize, D deleteQuery, List<Row> whereClause) throws SQLException;
 
     Integer executeInsert(boolean autoId, I insertQuery) throws SQLException, IllegalArgumentException;
+    //FIXME: executeBatchUpdate: refactoring signature
     Integer[] executeBatchInsert(boolean autoId, int batchSize, String tableName, List<Row> params) throws SQLException,IllegalArgumentException;
 
     Integer getScalerValue(C scalerQuery) throws SQLException;
