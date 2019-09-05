@@ -65,7 +65,8 @@ public class SQLInsertQuery extends SQLQuery{
 			valueBuffer.append(MARKER);
 		}
 	}
-	
+
+	@Deprecated @SuppressWarnings("Duplicates")
 	public static String createInsertQuery(String tableName, Row properties){
 		
 		//Checking Illegal Arguments

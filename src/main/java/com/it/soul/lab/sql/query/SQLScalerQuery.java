@@ -78,7 +78,8 @@ public class SQLScalerQuery extends SQLSelectQuery{
 			}    			
 		}
 	}
-	
+
+	@Deprecated @SuppressWarnings("Duplicates")
 	public static String createCountFunctionQuery(String tableName, String param, Logic logic, List<Expression> whereParams){
 
 		param = (param != null && param.length()>=1) ? param : "*";
@@ -100,6 +101,7 @@ public class SQLScalerQuery extends SQLSelectQuery{
 		return builder.toString();
 	}
 
+	@Deprecated @SuppressWarnings("Duplicates")
 	public static String createCountFunctionQuery(String tableName, String param, String whereParam,Operator type, Property paramValue){
 
 		param = (param != null && param.length()>=1) ? param : "*";

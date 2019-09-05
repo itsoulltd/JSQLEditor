@@ -52,7 +52,8 @@ public class SQLDeleteQuery extends SQLSelectQuery{
 			}
 		}
 	}
-	
+
+	@Deprecated @SuppressWarnings("Duplicates")
 	public static String create(String tableName ,Logic whereLogic ,List<Expression> whereParams)
 			throws IllegalArgumentException{
 

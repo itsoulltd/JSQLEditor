@@ -91,11 +91,13 @@ public class SQLUpdateQuery extends SQLSelectQuery{
 	protected void prepareWhereExpression(ExpressionInterpreter whereExpression) {
 		whereBuffer.append("WHERE " + whereExpression.interpret());
 	}
-	
+
+	@Deprecated @SuppressWarnings("Duplicates")
 	public static String create(String tableName, String[]setParams, Logic whereLogic, String[] whereParams){
 		return SQLUpdateQuery.create(tableName, setParams, whereLogic, Expression.createListFrom(whereParams, Operator.EQUAL));
 	}
-	
+
+	@Deprecated @SuppressWarnings("Duplicates")
 	public static String create(String tableName, String[]setParams, Logic whereLogic, List<Expression> whereParams){
 		
 		//Checking Illegal Arguments

@@ -178,7 +178,8 @@ public class SQLSelectQuery extends SQLQuery{
 	protected void prepareWhereExpression(ExpressionInterpreter whereExpression){
 		pqlBuffer.append("WHERE " + whereExpression.interpret());
 	}
-	
+
+	@Deprecated @SuppressWarnings("Duplicates")
 	public static String create(String tableName, String[]projectionParams, Logic whereLogic, List<Expression> whereParams)
 			throws IllegalArgumentException{
 
@@ -204,12 +205,14 @@ public class SQLSelectQuery extends SQLQuery{
 		//
 		return pqlBuffer.toString();
 	}
-	
+
+    @Deprecated @SuppressWarnings("Duplicates")
 	public static String create(String tableName, String[]projectionParams, Logic whereLogic, String[] whereParams)
 			throws IllegalArgumentException{
 		return SQLSelectQuery.create(tableName, projectionParams, whereLogic, Expression.createListFrom(whereParams, Operator.EQUAL));
 	}
-	
+
+    @Deprecated @SuppressWarnings("Duplicates")
 	public static String create(String tableName, String...projectionParams)
 			throws IllegalArgumentException{
 		//Query Builders
