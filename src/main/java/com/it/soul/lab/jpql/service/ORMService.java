@@ -21,19 +21,15 @@ import com.it.soul.lab.sql.query.models.Logic;
 import com.it.soul.lab.sql.query.models.Operator;
 import com.it.soul.lab.sql.query.models.Property;
 
-public class ORMService<T> extends AbstractService<T> implements ORMServiceProtocol<T>,Serializable {
+public class ORMService<T> extends AbstractService<T> implements ORMServiceProtocol<T>, Serializable {
 
 	private static final long serialVersionUID = -1656018780509389672L;
 	private static final String _TAG = "GenericServiceImpl";
 	@SuppressWarnings("unused")
 	private static final String _MESSAGE = "GenericServiceImpl not available now!";
 	
-	public ORMService(EntityManager manager, String entity, Class<T> type){
-		super(manager,entity,type);
-	}
-	
 	public ORMService(EntityManager manager, Class<T> type){
-		this(manager,type.getSimpleName(),type);
+		super(manager, type);
 	}
 	
 	@Override

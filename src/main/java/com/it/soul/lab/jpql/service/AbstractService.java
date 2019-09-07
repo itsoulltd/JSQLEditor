@@ -14,10 +14,10 @@ public abstract class AbstractService<T> {
 	
 	private AbstractService(){}
 	
-	public AbstractService(EntityManager manager, String entity, Class<T> type){
+	public AbstractService(EntityManager manager, Class<T> type){
 		this();
 		this.entityManager = manager;
-		this.entity = entity;
+		this.entity = type.getSimpleName();
 		this.entityType = type;
 	}
 

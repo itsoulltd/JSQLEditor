@@ -22,16 +22,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class ORMServiceExecutor<T> extends ORMService<T> implements QueryExecutor<JPQLSelectQuery, SQLInsertQuery,JPQLUpdateQuery, JPQLDeleteQuery, SQLScalerQuery>, QueryTransaction {
+public class ORMServiceExecutor implements QueryExecutor<JPQLSelectQuery, SQLInsertQuery,JPQLUpdateQuery, JPQLDeleteQuery, SQLScalerQuery>, QueryTransaction {
 
     private Logger log = Logger.getLogger(this.getClass().getSimpleName());
 
-    public ORMServiceExecutor(EntityManager manager, String entity, Class<T> type) {
-        super(manager, entity, type);
+    private EntityManager entityManager = null;
+
+    public EntityManager getEntityManager() {
+        return entityManager;
     }
 
-    public ORMServiceExecutor(EntityManager manager, Class<T> type) {
-        super(manager, type);
+    public ORMServiceExecutor(EntityManager manager) {
+        this.entityManager = manager;
     }
 
     @Override
@@ -98,7 +100,7 @@ public class ORMServiceExecutor<T> extends ORMService<T> implements QueryExecuto
     public Integer executeInsert(boolean autoId, SQLInsertQuery insertQuery) throws SQLException, IllegalArgumentException {
         Query query = null;
         if (insertQuery instanceof SQLInsertQuery){
-            query = getEntityManager().createNativeQuery(insertQuery.toString(), getEntityType());
+            query = getEntityManager().createNativeQuery(insertQuery.toString()/*, getEntityType()*/);
             List<Property> values = insertQuery.getRow().getProperties();
             if (values != null) {
                 int counter = 1;
@@ -139,8 +141,8 @@ public class ORMServiceExecutor<T> extends ORMService<T> implements QueryExecuto
     }
 
     @Override
-    public List executeSelect(JPQLSelectQuery query, Class type, Map mappingKeys) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
-        TypedQuery<T> typedQuery = getEntityManager().createQuery(query.toString(), getEntityType());
+    public <T> List<T> executeSelect(JPQLSelectQuery query, Class<T> type, Map mappingKeys) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
+        TypedQuery<T> typedQuery = getEntityManager().createQuery(query.toString(), type);
         List<Expression> expressions = query.getWhereParamExpressions();
         if (expressions != null) {
             for (Expression expression : expressions) {
