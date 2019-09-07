@@ -1,6 +1,6 @@
 package com.it.soul.lab.sql.query.models;
 
-public enum ScalerType{
+public enum ScalarType {
 	COUNT,
 	MAX,
 	MIN,

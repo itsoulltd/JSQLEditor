@@ -1,10 +1,7 @@
 package com.it.soul.lab.jpql.service;
 
 import com.it.soul.lab.jpql.entity.JPassenger;
-import com.it.soul.lab.jpql.query.JPQLQuery;
-import com.it.soul.lab.jpql.query.JPQLSelectQuery;
 import com.it.soul.lab.sql.entity.Entity;
-import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.models.Predicate;
 import com.it.soul.lab.sql.query.models.Where;
 import org.junit.After;
@@ -27,12 +24,12 @@ public class JPassengerTest{
 
     String[] names = new String[]{"Sohana","Mr.Towhid","Mr.Tanvir","Sumaiya","Tusin"};
     Integer[] ages = new Integer[] {15, 18, 28, 26, 32, 34, 25, 67};
-    ORMServiceExecutor<JPassenger> executor;
+    JPQLExecutor executor;
 
     @Before
     public void before(){
         ORMController controller = new ORMController("testDB");
-        executor = new ORMServiceExecutor<>(controller.getEntityManager(), JPassenger.class);
+        executor = new JPQLExecutor(controller.getEntityManager());
     }
 
     @After
@@ -63,9 +60,9 @@ public class JPassengerTest{
             passenger.setSex(Sex.Female.name());
         }
         //Insertion
-        long countBeforeInsert = executor.rowCount();
+        long countBeforeInsert = executor.rowCount(JPassenger.class);
         boolean isInserted = passenger.insert(executor);
-        long countAfterInsert = executor.rowCount();
+        long countAfterInsert = executor.rowCount(JPassenger.class);
         Assert.assertTrue("Insert Failed!", isInserted && (countBeforeInsert < countAfterInsert));
     }
 

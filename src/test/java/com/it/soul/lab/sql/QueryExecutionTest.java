@@ -17,7 +17,7 @@ import com.it.soul.lab.sql.query.SQLDeleteQuery;
 import com.it.soul.lab.sql.query.SQLInsertQuery;
 import com.it.soul.lab.sql.query.SQLQuery;
 import com.it.soul.lab.sql.query.QueryType;
-import com.it.soul.lab.sql.query.SQLScalerQuery;
+import com.it.soul.lab.sql.query.SQLScalarQuery;
 import com.it.soul.lab.sql.query.SQLSelectQuery;
 import com.it.soul.lab.sql.query.SQLUpdateQuery;
 
@@ -104,8 +104,8 @@ public class QueryExecutionTest {
 	@Test public void updateTest(){
 		
 		try {
-			SQLScalerQuery max = (SQLScalerQuery) new SQLQuery.Builder(QueryType.MAX).columns("id").on("Passenger").build();
-			int autoId = exe.getScalerValue(max);
+			SQLScalarQuery max = (SQLScalarQuery) new SQLQuery.Builder(QueryType.MAX).columns("id").on("Passenger").build();
+			int autoId = exe.getScalarValue(max);
 			Assert.assertTrue("Get Max value", true);
 
 			Row nP = new Row()
@@ -133,8 +133,8 @@ public class QueryExecutionTest {
 	@Test public void deleteTest(){
 
 		try {
-			SQLScalerQuery max = (SQLScalerQuery) new SQLQuery.Builder(QueryType.MAX).columns("id").on("Passenger").build();
-			int autoId = exe.getScalerValue(max);
+			SQLScalarQuery max = (SQLScalarQuery) new SQLQuery.Builder(QueryType.MAX).columns("id").on("Passenger").build();
+			int autoId = exe.getScalarValue(max);
 			Assert.assertTrue("Get Max value", autoId > 0);
 
 			Expression compareWith = new Expression("id", Operator.EQUAL).setPropertyValue(autoId, DataType.INT);
@@ -156,11 +156,11 @@ public class QueryExecutionTest {
 		
 		try {
 			SQLSelectQuery qu12 = (SQLSelectQuery) new SQLQuery.Builder(QueryType.SELECT)
-					.columns("name",ScalerType.COUNT.toAlias("age"))
+					.columns("name",ScalarType.COUNT.toAlias("age"))
 					.from("Passenger")
 					.groupBy("name")
-					.having(new Expression(ScalerType.COUNT.toString("age"), Operator.GREATER_THAN).setPropertyValue(1, DataType.INT))
-					.orderBy(ScalerType.COUNT.toString("age"))
+					.having(new Expression(ScalarType.COUNT.toString("age"), Operator.GREATER_THAN).setPropertyValue(1, DataType.INT))
+					.orderBy(ScalarType.COUNT.toString("age"))
 					.build();
 			
 			ResultSet set = exe.executeSelect(qu12);

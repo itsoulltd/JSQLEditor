@@ -32,7 +32,7 @@ public interface QueryExecutor<S extends SQLQuery
     //FIXME: executeBatchUpdate: refactoring signature
     Integer[] executeBatchInsert(boolean autoId, int batchSize, String tableName, List<Row> params) throws SQLException,IllegalArgumentException;
 
-    Integer getScalerValue(C scalerQuery) throws SQLException;
+    Integer getScalarValue(C scalarQuery) throws SQLException;
 
     <T> List<T> executeSelect(String query, Class<T> type, Map<String, String> mappingKeys) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException;
     <T> List<T> executeSelect(S query, Class<T> type, Map<String, String> mappingKeys) throws SQLException,IllegalArgumentException, IllegalAccessException, InstantiationException;

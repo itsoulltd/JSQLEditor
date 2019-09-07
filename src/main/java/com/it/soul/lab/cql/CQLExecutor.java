@@ -16,7 +16,7 @@ import com.it.soul.lab.sql.entity.Column;
 import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.entity.PrimaryKey;
 import com.it.soul.lab.sql.query.QueryType;
-import com.it.soul.lab.sql.query.SQLScalerQuery;
+import com.it.soul.lab.sql.query.SQLScalarQuery;
 import com.it.soul.lab.sql.query.SQLSelectQuery;
 import com.it.soul.lab.sql.query.models.Property;
 import com.it.soul.lab.sql.query.models.Row;
@@ -39,7 +39,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSelectQuery, CQLInsertQuery, CQLUpdateQuery, CQLDeleteQuery, SQLScalerQuery>, QueryTransaction {
+public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSelectQuery, CQLInsertQuery, CQLUpdateQuery, CQLDeleteQuery, SQLScalarQuery>, QueryTransaction {
 
     public static class Builder {
 
@@ -242,7 +242,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
     }
 
     @Override
-    public Integer getScalerValue(SQLScalerQuery sqlScalerQuery) throws SQLException {
+    public Integer getScalarValue(SQLScalarQuery sqlScalarQuery) throws SQLException {
         throw new SQLException("Not Implemented YET");
     }
 

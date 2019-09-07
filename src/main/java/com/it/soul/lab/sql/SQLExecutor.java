@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSelectQuery, SQLInsertQuery, SQLUpdateQuery, SQLDeleteQuery, SQLScalerQuery>, QueryTransaction{
+public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSelectQuery, SQLInsertQuery, SQLUpdateQuery, SQLDeleteQuery, SQLScalarQuery>, QueryTransaction{
 
 	public static class Builder {
 		private JDBConnection.Builder connectionBuilder;
@@ -497,7 +497,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		return rowCount;
 	}
 
-	public Integer getScalerValue(SQLScalerQuery scalerQuery)
+	public Integer getScalarValue(SQLScalarQuery scalerQuery)
 			throws SQLException{
 
 		ResultSet rs = null;

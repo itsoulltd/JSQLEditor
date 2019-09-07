@@ -1,8 +1,6 @@
 package com.it.soul.lab.jpql.service;
 
 import com.it.soul.lab.jpql.entity.JPerson;
-import com.it.soul.lab.jpql.service.ORMController;
-import com.it.soul.lab.jpql.service.ORMServiceExecutor;
 import com.it.soul.lab.sql.entity.Entity;
 import org.junit.After;
 import org.junit.Before;
@@ -17,12 +15,12 @@ public class JPersonTest {
     String[] names = new String[]{"Sohana","Towhid","Tanvir","Sumaiya","Tusin"};
     Integer[] ages = new Integer[] {15, 18, 28, 26, 32, 34, 25, 67};
     String password = "root";
-    ORMServiceExecutor<JPerson> executor;
+    JPQLExecutor executor;
 
     @Before
     public void before(){
         ORMController controller = new ORMController("testDB");
-        executor = new ORMServiceExecutor<>(controller.getEntityManager(), JPerson.class);
+        executor = new JPQLExecutor(controller.getEntityManager());
     }
 
     @After

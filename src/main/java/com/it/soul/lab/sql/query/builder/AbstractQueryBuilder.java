@@ -39,19 +39,19 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 			temp = new SQLUpdateQuery();
 			break;
 		case COUNT:
-			temp = new SQLScalerQuery(ScalerType.COUNT);
+			temp = new SQLScalarQuery(ScalarType.COUNT);
 			break;
 		case MAX:
-			temp = new SQLScalerQuery(ScalerType.MAX);
+			temp = new SQLScalarQuery(ScalarType.MAX);
 			break;
 		case MIN:
-			temp = new SQLScalerQuery(ScalerType.MIN);
+			temp = new SQLScalarQuery(ScalarType.MIN);
 			break;
 		case AVG:
-			temp = new SQLScalerQuery(ScalerType.AVG);
+			temp = new SQLScalarQuery(ScalarType.AVG);
 			break;
 		case SUM:
-			temp = new SQLScalerQuery(ScalerType.SUM);
+			temp = new SQLScalarQuery(ScalarType.SUM);
 			break;
 		case INNER_JOIN:
 		case LEFT_JOIN:
@@ -105,8 +105,8 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 	}
 	@Override
 	public QueryBuilder scalerClause(Property prop, Expression comps) {
-		if(tempQuery instanceof SQLScalerQuery){
-			((SQLScalerQuery)tempQuery).setScalerClouse(prop, comps);
+		if(tempQuery instanceof SQLScalarQuery){
+			((SQLScalarQuery)tempQuery).setScalerClouse(prop, comps);
 		}
 		return this;
 	}

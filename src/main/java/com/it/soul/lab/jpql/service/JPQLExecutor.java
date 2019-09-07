@@ -1,28 +1,33 @@
 package com.it.soul.lab.jpql.service;
 
+import com.it.soul.lab.jpql.entity.JPQLEntity;
 import com.it.soul.lab.jpql.query.JPQLDeleteQuery;
 import com.it.soul.lab.jpql.query.JPQLQuery;
 import com.it.soul.lab.jpql.query.JPQLSelectQuery;
 import com.it.soul.lab.jpql.query.JPQLUpdateQuery;
+import com.it.soul.lab.sql.AbstractExecutor;
 import com.it.soul.lab.sql.QueryExecutor;
 import com.it.soul.lab.sql.QueryTransaction;
 import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.SQLInsertQuery;
-import com.it.soul.lab.sql.query.SQLScalerQuery;
+import com.it.soul.lab.sql.query.SQLQuery;
+import com.it.soul.lab.sql.query.SQLScalarQuery;
 import com.it.soul.lab.sql.query.builder.AbstractQueryBuilder;
 import com.it.soul.lab.sql.query.models.Expression;
 import com.it.soul.lab.sql.query.models.Property;
 import com.it.soul.lab.sql.query.models.Row;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import java.math.BigInteger;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class ORMServiceExecutor implements QueryExecutor<JPQLSelectQuery, SQLInsertQuery,JPQLUpdateQuery, JPQLDeleteQuery, SQLScalerQuery>, QueryTransaction {
+public class JPQLExecutor extends AbstractExecutor implements QueryExecutor<JPQLSelectQuery, SQLInsertQuery,JPQLUpdateQuery, JPQLDeleteQuery, SQLScalarQuery>, QueryTransaction {
 
     private Logger log = Logger.getLogger(this.getClass().getSimpleName());
 
@@ -32,7 +37,7 @@ public class ORMServiceExecutor implements QueryExecutor<JPQLSelectQuery, SQLIns
         return entityManager;
     }
 
-    public ORMServiceExecutor(EntityManager manager) {
+    public JPQLExecutor(EntityManager manager) {
         this.entityManager = manager;
     }
 
@@ -136,12 +141,32 @@ public class ORMServiceExecutor implements QueryExecutor<JPQLSelectQuery, SQLIns
     }
 
     @Override
-    public Integer getScalerValue(SQLScalerQuery scalerQuery) throws SQLException {
-        return null;
+    public Integer getScalarValue(SQLScalarQuery scalarQuery) throws SQLException {
+        int result = 0;
+        //Checking entityManager
+        if(getEntityManager() == null || !getEntityManager().isOpen()){return result;}
+        if (scalarQuery instanceof SQLScalarQuery){
+            try {
+                String pql = scalarQuery.toString();
+                Query query = getEntityManager().createNativeQuery(pql);
+                Object val = query.getSingleResult();
+                if (val instanceof BigInteger) result = ((BigInteger)val).intValue();
+                else if (val instanceof Long) result = ((Long)val).intValue();
+            } catch (Exception e) {
+                throw new SQLException(e.getMessage());
+            }
+        }
+        return result;
     }
 
     @Override
-    public <T> List<T> executeSelect(JPQLSelectQuery query, Class<T> type, Map mappingKeys) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
+    public <T> List<T> executeSelect(String query, Class<T> type, Map<String, String> mappingKeys) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
+        TypedQuery<T> typedQuery = getEntityManager().createQuery(query, type);
+        return typedQuery.getResultList();
+    }
+
+    @Override
+    public <T> List<T> executeSelect(JPQLSelectQuery query, Class<T> type, Map<String, String> mappingKeys) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
         TypedQuery<T> typedQuery = getEntityManager().createQuery(query.toString(), type);
         List<Expression> expressions = query.getWhereParamExpressions();
         if (expressions != null) {
@@ -150,12 +175,6 @@ public class ORMServiceExecutor implements QueryExecutor<JPQLSelectQuery, SQLIns
                     typedQuery.setParameter(expression.getProperty(), expression.getValueProperty().getValue());
             }
         }
-        return typedQuery.getResultList();
-    }
-
-    @Override
-    public List executeSelect(String query, Class type, Map mappingKeys) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
-        TypedQuery<T> typedQuery = getEntityManager().createQuery(query, getEntityType());
         return typedQuery.getResultList();
     }
 
@@ -188,5 +207,21 @@ public class ORMServiceExecutor implements QueryExecutor<JPQLSelectQuery, SQLIns
                 getEntityManager().close();
             }
         }
+    }
+
+    public int rowCount(Class<? extends JPQLEntity> type) throws Exception {
+        int result = 0;
+        //Checking entityManager
+        if(getEntityManager() == null || !getEntityManager().isOpen()){return result;}
+        try{
+            //String pql = "SELECT COUNT(u) FROM "+ JPQLEntity.tableName(type) +" u";
+            SQLScalarQuery scalar = new SQLQuery.Builder(QueryType.COUNT)
+                                            .columns()
+                                            .on(JPQLEntity.tableName(type)).build();
+            result = getScalarValue(scalar);
+        }catch(PersistenceException e){
+            throw  e;
+        }
+        return result;
     }
 }

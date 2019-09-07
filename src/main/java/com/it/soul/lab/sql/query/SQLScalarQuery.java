@@ -7,22 +7,22 @@ import com.it.soul.lab.sql.query.models.Expression;
 import com.it.soul.lab.sql.query.models.Logic;
 import com.it.soul.lab.sql.query.models.Operator;
 import com.it.soul.lab.sql.query.models.Property;
-import com.it.soul.lab.sql.query.models.ScalerType;
+import com.it.soul.lab.sql.query.models.ScalarType;
 
-public class SQLScalerQuery extends SQLSelectQuery{
+public class SQLScalarQuery extends SQLSelectQuery{
 	
-	public SQLScalerQuery() {
-		this(ScalerType.COUNT);
+	public SQLScalarQuery() {
+		this(ScalarType.COUNT);
 	}
 
-	public SQLScalerQuery(ScalerType type) {
+	public SQLScalarQuery(ScalarType type) {
 		this.pqlBuffer = new StringBuffer("SELECT ");
 		this.type = type;
 	}
 	
-	private ScalerType type = ScalerType.COUNT;
+	private ScalarType type = ScalarType.COUNT;
 
-	public ScalerType getType() {
+	public ScalarType getType() {
 		return type;
 	}
 
@@ -85,7 +85,7 @@ public class SQLScalerQuery extends SQLSelectQuery{
 		param = (param != null && param.length()>=1) ? param : "*";
 		
 		StringBuilder builder = new StringBuilder("SELECT ");
-		builder.append(ScalerType.COUNT.toString()+"(" + param + ")");
+		builder.append(ScalarType.COUNT.toString()+"(" + param + ")");
 		builder.append(" From " + tableName + " ");
 
 		if(whereParams != null && whereParams.size() > 0){
@@ -107,7 +107,7 @@ public class SQLScalerQuery extends SQLSelectQuery{
 		param = (param != null && param.length()>=1) ? param : "*";
 
 		StringBuilder builder = new StringBuilder("SELECT ");
-		builder.append(ScalerType.COUNT.toString()+"(" + param + ")");
+		builder.append(ScalarType.COUNT.toString()+"(" + param + ")");
 		builder.append(" From " + tableName + " ");
 
 		if(whereParam != null && paramValue != null){

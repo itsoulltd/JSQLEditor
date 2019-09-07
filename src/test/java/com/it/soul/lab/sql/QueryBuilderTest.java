@@ -11,7 +11,7 @@ import com.it.soul.lab.sql.query.SQLQuery;
 import com.it.soul.lab.sql.query.models.Logic;
 import com.it.soul.lab.sql.query.models.Operator;
 import com.it.soul.lab.sql.query.QueryType;
-import com.it.soul.lab.sql.query.SQLScalerQuery;
+import com.it.soul.lab.sql.query.SQLScalarQuery;
 import com.it.soul.lab.sql.query.SQLSelectQuery;
 import com.it.soul.lab.sql.query.models.AndExpression;
 import com.it.soul.lab.sql.query.models.Expression;
@@ -19,7 +19,7 @@ import com.it.soul.lab.sql.query.models.ExpressionInterpreter;
 import com.it.soul.lab.sql.query.models.JoinExpression;
 import com.it.soul.lab.sql.query.models.OrExpression;
 import com.it.soul.lab.sql.query.models.Row;
-import com.it.soul.lab.sql.query.models.ScalerType;
+import com.it.soul.lab.sql.query.models.ScalarType;
 import com.it.soul.lab.sql.query.models.Property;
 
 public class QueryBuilderTest {
@@ -99,7 +99,7 @@ public class QueryBuilderTest {
 		Property prop = new Property("name", "sohana");
 		Expression comps = new Expression(new Property("name", "batil"), Operator.EQUAL);
 		
-		SQLScalerQuery count = new SQLQuery.Builder(QueryType.COUNT)
+		SQLScalarQuery count = new SQLQuery.Builder(QueryType.COUNT)
 										.columns("id")
 										.on("Passenger")
 										.scalerClause(prop, comps)
@@ -257,20 +257,20 @@ public class QueryBuilderTest {
 	@Test public void GroupBy() {
 		
 		SQLQuery qu11 = new SQLQuery.Builder(QueryType.SELECT)
-				.columns("name",ScalerType.COUNT.toAlias("age"))
+				.columns("name",ScalarType.COUNT.toAlias("age"))
 				.from("Passenger")
 				.groupBy("name")
-				.orderBy(ScalerType.COUNT.toString("age"))
+				.orderBy(ScalarType.COUNT.toString("age"))
 				.build();
 
 		Assert.assertEquals("SELECT name, COUNT(age) AS count_age FROM Passenger  GROUP BY name ORDER BY COUNT(age) ASC", qu11.toString());
 		
 		SQLQuery qu12 = new SQLQuery.Builder(QueryType.SELECT)
-				.columns("name",ScalerType.COUNT.toAlias("age"))
+				.columns("name",ScalarType.COUNT.toAlias("age"))
 				.from("Passenger")
 				.groupBy("name")
-				.having(new Expression(new Property(ScalerType.COUNT.toString("age"), ""), Operator.GREATER_THAN))
-				.orderBy(ScalerType.COUNT.toString("age"))
+				.having(new Expression(new Property(ScalarType.COUNT.toString("age"), ""), Operator.GREATER_THAN))
+				.orderBy(ScalarType.COUNT.toString("age"))
 				.build();
 
 		Assert.assertEquals("SELECT name, COUNT(age) AS count_age FROM Passenger  GROUP BY name HAVING COUNT(age) > ? ORDER BY COUNT(age) ASC", qu12.toString());
