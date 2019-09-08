@@ -72,7 +72,7 @@ public class QueryBuilderTest {
 		SQLQuery qu5 = new SQLQuery.Builder(QueryType.SELECT)
 									.columns("name","age")
 									.from("Passenger")
-									.whereParams(Logic.OR, "id", "age")
+									.where(Logic.OR, "id", "age")
 									.build();
 		
 		Assert.assertEquals(SELECT_WHERE_OR, qu5.toString());
@@ -199,7 +199,7 @@ public class QueryBuilderTest {
 		SQLQuery qu5 = new SQLQuery.Builder(QueryType.SELECT)
 				.columns("name","age")
 				.from("Passenger")
-				.whereParams(Logic.OR, "id", "age")
+				.where(Logic.OR, "id", "age")
 				.orderBy("id")
 				.addLimit(10, 20)
 				.build();
@@ -209,7 +209,7 @@ public class QueryBuilderTest {
 		SQLQuery qu8 = new SQLQuery.Builder(QueryType.SELECT)
 				.columns("name","age")
 				.from("Passenger")
-				.whereParams(Logic.OR, "id", "age")
+				.where(Logic.OR, "id", "age")
 				.orderBy()
 				.addLimit(-1, 0)
 				.build();
@@ -219,7 +219,7 @@ public class QueryBuilderTest {
 		SQLQuery qu6 = new SQLQuery.Builder(QueryType.SELECT)
 				.columns("name","age")
 				.from("Passenger")
-				.whereParams(Logic.OR, "id", "age")
+				.where(Logic.OR, "id", "age")
 				.orderBy("id")
 				.addLimit(10, 0)
 				.build();
@@ -229,7 +229,7 @@ public class QueryBuilderTest {
 		SQLQuery qu7 = new SQLQuery.Builder(QueryType.SELECT)
 				.columns("name","age")
 				.from("Passenger")
-				.whereParams(Logic.OR, "id", "age")
+				.where(Logic.OR, "id", "age")
 				.orderBy("id")
 				.addLimit(-1, 0)
 				.build();

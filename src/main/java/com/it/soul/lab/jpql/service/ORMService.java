@@ -70,7 +70,7 @@ public class ORMService<T> extends AbstractService<T> implements ORMServiceProto
 		if(getEntityManager() == null || !getEntityManager().isOpen()){return result;}
 		try{
 			//String jpql = JPQLBuilders.createSelectQuery(getEntity(), propertyNames, Logic.AND, new String[]{searchKey});
-			JPQLSelectQuery jpql = (JPQLSelectQuery) new JPQLQuery.Builder(QueryType.SELECT).columns(columns).from(getEntity()).whereParams(Logic.AND, item.getKey()).build();
+			JPQLSelectQuery jpql = (JPQLSelectQuery) new JPQLQuery.Builder(QueryType.SELECT).columns(columns).from(getEntity()).where(Logic.AND, item.getKey()).build();
 			TypedQuery<T> query = getEntityManager().createQuery(jpql.toString(), getEntityType());
 			query.setParameter(item.getKey(), item.getValue());
 			result = query.getResultList();
@@ -87,7 +87,7 @@ public class ORMService<T> extends AbstractService<T> implements ORMServiceProto
 		try{
 			//String jpql = JPQLBuilders.createSelectQuery(getEntity(), propertyNames, whereLogic, keyValuePair.keySet().toArray(new String[]{}));
 			String[] whereParams = itemIds.keySet().toArray(new String[]{});
-			JPQLSelectQuery jpql = (JPQLSelectQuery) new JPQLQuery.Builder(QueryType.SELECT).columns(columns).from(getEntity()).whereParams(whereLogic, whereParams).build();
+			JPQLSelectQuery jpql = (JPQLSelectQuery) new JPQLQuery.Builder(QueryType.SELECT).columns(columns).from(getEntity()).where(whereLogic, whereParams).build();
 			TypedQuery<T> query = getEntityManager().createQuery(jpql.toString(), getEntityType());
 			for (Entry<String,Object> item : itemIds.entrySet()) {
 				query.setParameter(item.getKey(), item.getValue());
@@ -104,7 +104,7 @@ public class ORMService<T> extends AbstractService<T> implements ORMServiceProto
 		if(getEntityManager() == null || !getEntityManager().isOpen()){return result;}
 		try{
 			//String jpql = JPQLBuilders.createSelectQuery(getEntity(), propertyNames, whereLogic, keyValuePair.keySet().toArray(new String[]{}));
-			//String[] whereParams = itemIds.keySet().toArray(new String[]{});
+			//String[] where = itemIds.keySet().toArray(new String[]{});
 			JPQLSelectQuery jpql = (JPQLSelectQuery) new JPQLQuery.Builder(QueryType.SELECT).columns(columns).from(getEntity()).where(expression).build();
 			TypedQuery<T> query = getEntityManager().createQuery(jpql.toString(), getEntityType());
 			for (Expression item : expression.resolveExpressions()) {
@@ -128,7 +128,7 @@ public class ORMService<T> extends AbstractService<T> implements ORMServiceProto
 				compares.add(new Expression(string, operators.get(string)));
 			}
 			Expression[] whereCompares = compares.toArray(new Expression[0]);
-			JPQLSelectQuery jpql = (JPQLSelectQuery) new JPQLQuery.Builder(QueryType.SELECT).columns(columns).from(getEntity()).whereParams(whereLogic, whereCompares).build();
+			JPQLSelectQuery jpql = (JPQLSelectQuery) new JPQLQuery.Builder(QueryType.SELECT).columns(columns).from(getEntity()).where(whereLogic, whereCompares).build();
 			//
 			//String jpql = JPQLBuilders.createSelectQuery(getEntity(), propertyNames, whereLogic, operators);
 			TypedQuery<T> query = getEntityManager().createQuery(jpql.toString(), getEntityType());
@@ -150,7 +150,7 @@ public class ORMService<T> extends AbstractService<T> implements ORMServiceProto
 		
 		try{
 			//String jpql = JPQLBuilders.createSelectQuery(getEntity(), null, Logic.AND, new String[]{searchKey});
-			JPQLSelectQuery jpql = (JPQLSelectQuery) new JPQLQuery.Builder(QueryType.SELECT).columns().from(getEntity()).whereParams(Logic.AND, searchProperty.getKey()).build();
+			JPQLSelectQuery jpql = (JPQLSelectQuery) new JPQLQuery.Builder(QueryType.SELECT).columns().from(getEntity()).where(Logic.AND, searchProperty.getKey()).build();
 			TypedQuery<T> query = getEntityManager().createQuery(jpql.toString(), getEntityType());
 			query.setParameter(searchProperty.getKey(), searchProperty.getValue());
 			result = query.getSingleResult();
@@ -168,7 +168,7 @@ public class ORMService<T> extends AbstractService<T> implements ORMServiceProto
 		
 		try{
 			//String jpql = JPQLBuilders.createSelectQuery(getEntity(), propertyNames, Logic.AND, new String[]{searchKey});
-			JPQLSelectQuery jpql = (JPQLSelectQuery) new JPQLQuery.Builder(QueryType.SELECT).columns(columns).from(getEntity()).whereParams(Logic.AND, searchProperty.getKey()).build();
+			JPQLSelectQuery jpql = (JPQLSelectQuery) new JPQLQuery.Builder(QueryType.SELECT).columns(columns).from(getEntity()).where(Logic.AND, searchProperty.getKey()).build();
 			TypedQuery<T> query = getEntityManager().createQuery(jpql.toString(), getEntityType());
 			query.setParameter(searchProperty.getKey(), searchProperty.getValue());
 			result = query.getSingleResult();

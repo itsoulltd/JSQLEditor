@@ -97,13 +97,13 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 		return this;
 	}
 	@Override
-	public GroupByBuilder whereParams(Logic logic, String... name){
+	public GroupByBuilder where(Logic logic, String... name){
 		if (logic != null){tempQuery.setLogic(logic);}
 		tempQuery.setWhereParams(name);
 		return this;
 	}
 	@Override
-	public GroupByBuilder whereParams(Logic logic, Expression... comps){
+	public GroupByBuilder where(Logic logic, Expression... comps){
 		if (logic != null){tempQuery.setLogic(logic);}
 		List<Expression> items = Arrays.asList(comps);
 		tempQuery.setWhereParamExpressions(items);
