@@ -110,7 +110,7 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 		return this;
 	}
 	@Override
-	public QueryBuilder scalarClause(Property prop, Expression comps) {
+	public QueryBuilder where(Property prop, Expression comps) {
 		if(tempQuery instanceof SQLScalarQuery){
 			((SQLScalarQuery)tempQuery).setScalerClouse(prop, comps);
 		}

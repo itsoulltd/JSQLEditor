@@ -102,7 +102,7 @@ public class QueryBuilderTest {
 		SQLScalarQuery count = new SQLQuery.Builder(QueryType.COUNT)
 										.columns("id")
 										.on("Passenger")
-										.scalarClause(prop, comps)
+										.where(prop, comps)
 										.build();
 		Assert.assertEquals(COUNT_VALUE, count.toString());
 		
