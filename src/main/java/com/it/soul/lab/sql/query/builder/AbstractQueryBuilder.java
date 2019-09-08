@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuilder
-        , WhereClauseBuilder, InsertBuilder, ScalerClauseBuilder, GroupByBuilder
+        , WhereExpressionBuilder, InsertBuilder, ScalarExpressionBuilder, GroupByBuilder
         , HavingBuilder, JoinBuilder, JoinOnBuilder
         , IndexBuilder{
 
@@ -72,12 +72,12 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 		return temp;
 	}
 	@Override
-	public WhereClauseBuilder from(String name){
+	public WhereExpressionBuilder from(String name){
 		tempQuery.setTableName(name);
 		return this;
 	}
 	@Override
-	public ScalerClauseBuilder on(String name) {
+	public ScalarExpressionBuilder on(String name) {
 		tempQuery.setTableName(name);
 		return this;
 	}
@@ -87,7 +87,7 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 		return this;
 	}
     @Override
-    public WhereClauseBuilder rowsFrom(String name) {
+    public WhereExpressionBuilder rowsFrom(String name) {
         tempQuery.setTableName(name);
         return this;
     }
@@ -110,7 +110,7 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 		return this;
 	}
 	@Override
-	public QueryBuilder scalerClause(Property prop, Expression comps) {
+	public QueryBuilder scalarClause(Property prop, Expression comps) {
 		if(tempQuery instanceof SQLScalarQuery){
 			((SQLScalarQuery)tempQuery).setScalerClouse(prop, comps);
 		}
