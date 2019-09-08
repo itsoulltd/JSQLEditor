@@ -17,13 +17,12 @@ public abstract class SQLQuery {
 	public static class Builder extends AbstractQueryBuilder {
 		
 		public Builder(QueryType type){
-			tempType = type;
-			tempQuery = factory(tempType);
+			factory(type);
 		}
 		
 		@SuppressWarnings("unchecked")
 		public <T extends SQLQuery> T build(){
-			return (T) tempQuery;
+			return (T) super.build();
 		}
 		
 	}

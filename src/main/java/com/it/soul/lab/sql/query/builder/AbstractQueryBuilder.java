@@ -11,12 +11,16 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
         , HavingBuilder, JoinBuilder, JoinOnBuilder
         , IndexBuilder{
 
-	protected QueryType tempType = QueryType.SELECT;
-	protected SQLQuery tempQuery;
+	private QueryType tempType = QueryType.SELECT;
+	private SQLQuery tempQuery;
 
-	public AbstractQueryBuilder(){
-		tempQuery = factory(tempType);
-	}
+    protected void setTempType(QueryType type) {
+        this.tempType = type;
+    }
+
+    protected void setTempQuery(SQLQuery sqlQuery) {
+        this.tempQuery = sqlQuery;
+    }
 
 	@SuppressWarnings("unchecked")
 	public <T extends SQLQuery> T build(){
@@ -24,7 +28,7 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 	}
 
 	protected SQLQuery factory(QueryType type){
-		SQLQuery temp = null;
+		SQLQuery temp;
 		switch (type) {
 		case DISTINCT:
 			temp = new SQLDistinctQuery();
@@ -63,6 +67,8 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 			temp = new SQLSelectQuery();
 			break;
 		}
+        setTempType(type);
+		setTempQuery(temp);
 		return temp;
 	}
 	@Override

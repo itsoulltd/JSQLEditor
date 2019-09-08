@@ -10,13 +10,12 @@ public class CQLQuery extends SQLQuery {
     public static class Builder extends AbstractQueryBuilder {
 
         public Builder(QueryType type){
-            tempType = type;
-            tempQuery = factory(tempType);
+            factory(type);
         }
 
         @SuppressWarnings("unchecked")
         public <T extends SQLQuery> T build(){
-            return (T) tempQuery;
+            return (T) super.build();
         }
 
         protected SQLQuery factory(QueryType type){
@@ -38,6 +37,8 @@ public class CQLQuery extends SQLQuery {
                     temp = super.factory(type);
                     break;
             }
+            setTempType(type);
+            setTempQuery(temp);
             return temp;
         }
 
