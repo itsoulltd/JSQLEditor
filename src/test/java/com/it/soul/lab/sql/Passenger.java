@@ -2,8 +2,10 @@ package com.it.soul.lab.sql;
 
 import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.entity.PrimaryKey;
+import com.it.soul.lab.sql.entity.TableName;
 import com.it.soul.lab.sql.query.models.Property;
 
+@TableName
 public class Passenger extends Entity {
 	
 	@PrimaryKey(name="id", autoIncrement=true)
