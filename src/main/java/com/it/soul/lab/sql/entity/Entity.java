@@ -338,7 +338,7 @@ public abstract class Entity implements EntityInterface{
 	 */
 	@Override
 	public Boolean insert(QueryExecutor exe, String... keys) throws SQLException {
-		List<Property> properties = getPropertiesFromKeys(exe, keys, isAutoIncrement());
+		List<Property> properties = getPropertiesFromKeys(exe, keys, false);
 		SQLInsertQuery query = exe.createQueryBuilder(QueryType.INSERT)
 															.into(Entity.tableName(getClass()))
 															.values(properties.toArray(new Property[0])).build();
