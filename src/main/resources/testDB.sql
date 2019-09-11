@@ -1,5 +1,4 @@
-
-CREATE TABLE Passenger
+CREATE TABLE IF NOT EXISTS Passenger
  (
  id int auto_increment primary key,
  name varchar(1024) null,
@@ -8,7 +7,7 @@ CREATE TABLE Passenger
  constraint Passenger_id_uindex unique (id)
  );
 
-CREATE TABLE Person
+CREATE TABLE IF NOT EXISTS Person
 (
   uuid       varchar(512) not null primary key,
   name       varchar(512) null,
