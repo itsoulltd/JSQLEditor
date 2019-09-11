@@ -31,6 +31,8 @@ public class ScriptRunner {
         List<String> comsn = Arrays.asList(cmds);
         try (SQLExecutor executor = new SQLExecutor(connection)){
             comsn.forEach(cmd -> {
+                if (!cmd.toLowerCase().startsWith(CREATE_TABLE_PREFIX.toLowerCase()))
+                    return;
                 try {
                     if (executor.executeDDLQuery(cmd)) {
                         try {
