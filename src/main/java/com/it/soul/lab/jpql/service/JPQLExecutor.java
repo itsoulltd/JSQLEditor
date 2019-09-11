@@ -1,6 +1,5 @@
 package com.it.soul.lab.jpql.service;
 
-import com.it.soul.lab.jpql.entity.JPQLEntity;
 import com.it.soul.lab.jpql.query.JPQLDeleteQuery;
 import com.it.soul.lab.jpql.query.JPQLQuery;
 import com.it.soul.lab.jpql.query.JPQLSelectQuery;
@@ -8,6 +7,7 @@ import com.it.soul.lab.jpql.query.JPQLUpdateQuery;
 import com.it.soul.lab.sql.AbstractExecutor;
 import com.it.soul.lab.sql.QueryExecutor;
 import com.it.soul.lab.sql.QueryTransaction;
+import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.SQLInsertQuery;
 import com.it.soul.lab.sql.query.SQLQuery;
@@ -67,12 +67,13 @@ public class JPQLExecutor extends AbstractExecutor implements QueryExecutor<JPQL
     private Integer executeUpdate(Query typedQuery) throws SQLException {
         if (typedQuery == null) return 0;
         int result = 0;
+        boolean isNotAlreadyActive = !isTransactionActive();
         try{
-            begin();
+            if(isNotAlreadyActive) begin();
             result = typedQuery.executeUpdate();
-            end();
+            if (isNotAlreadyActive) end();
         }catch (Exception e){
-            abort();
+            if (isNotAlreadyActive) abort();
         }
         return result;
     }
@@ -178,6 +179,10 @@ public class JPQLExecutor extends AbstractExecutor implements QueryExecutor<JPQL
         return typedQuery.getResultList();
     }
 
+    protected boolean isTransactionActive(){
+        return getEntityManager().getTransaction().isActive();
+    }
+
     @Override
     public void begin() throws SQLException {
         getEntityManager().getTransaction().begin();
@@ -197,7 +202,7 @@ public class JPQLExecutor extends AbstractExecutor implements QueryExecutor<JPQL
     public void close() throws Exception {
         if (getEntityManager().isOpen()){
             try {
-                begin();
+                if(!isTransactionActive()) begin();
                 getEntityManager().flush();
                 end();
             } catch (SQLException e) {
@@ -209,15 +214,15 @@ public class JPQLExecutor extends AbstractExecutor implements QueryExecutor<JPQL
         }
     }
 
-    public int rowCount(Class<? extends JPQLEntity> type) throws Exception {
+    public int rowCount(Class<? extends Entity> type) throws Exception {
         int result = 0;
         //Checking entityManager
         if(getEntityManager() == null || !getEntityManager().isOpen()){return result;}
         try{
-            //String pql = "SELECT COUNT(u) FROM "+ JPQLEntity.tableName(type) +" u";
+            //String pql = "SELECT COUNT(u) FROM "+ Entity.tableName(type) +" u";
             SQLScalarQuery scalar = new SQLQuery.Builder(QueryType.COUNT)
                                             .columns()
-                                            .on(JPQLEntity.tableName(type)).build();
+                                            .on(Entity.tableName(type)).build();
             result = getScalarValue(scalar);
         }catch(PersistenceException e){
             throw  e;
