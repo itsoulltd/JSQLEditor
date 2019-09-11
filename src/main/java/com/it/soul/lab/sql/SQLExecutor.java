@@ -1,5 +1,6 @@
 package com.it.soul.lab.sql;
 
+import com.it.soul.lab.connect.DriverClass;
 import com.it.soul.lab.connect.JDBConnection;
 import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.query.*;
@@ -18,7 +19,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 
 	public static class Builder {
 		private JDBConnection.Builder connectionBuilder;
-		public Builder(JDBConnection.DriverClass driver){
+		public Builder(DriverClass driver){
 			connectionBuilder = new JDBConnection.Builder(driver);
 		}
 		public Builder host(String name, String port) {
@@ -592,13 +593,13 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		return executeDDLStatement(query);
 	}
 
-	public <T extends Entity> Boolean createTable(Class<T> tableType, JDBConnection.DriverClass driverClass) throws SQLException {
+	public <T extends Entity> Boolean createTable(Class<T> tableType, DriverClass driverClass) throws SQLException {
 		String tableNameStr = getTableName(tableType);
 		if (tableNameStr == null) return false;
 
 		StringBuffer headBuffer = new StringBuffer("CREATE TABLE IF NOT EXISTS " + tableNameStr);
 
-		if (driverClass == JDBConnection.DriverClass.MYSQL){
+		if (driverClass == DriverClass.MYSQL){
 			//TODO:
 		}else{
 			//TODO:

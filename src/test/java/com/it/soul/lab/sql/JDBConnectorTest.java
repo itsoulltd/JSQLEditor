@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.it.soul.lab.connect.JDBConnection;
-import com.it.soul.lab.connect.JDBConnection.DriverClass;
+import com.it.soul.lab.connect.DriverClass;
 
 public class JDBConnectorTest {
 

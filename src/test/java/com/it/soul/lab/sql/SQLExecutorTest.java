@@ -1,14 +1,12 @@
 package com.it.soul.lab.sql;
 
-import com.it.soul.lab.connect.JDBConnection;
+import com.it.soul.lab.connect.DriverClass;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.sql.SQLException;
-
-import static org.junit.Assert.*;
 
 public class SQLExecutorTest {
 
@@ -17,7 +15,7 @@ public class SQLExecutorTest {
 
     @Before
     public void setUp() throws Exception {
-        exe = new SQLExecutor.Builder(JDBConnection.DriverClass.MYSQL)
+        exe = new SQLExecutor.Builder(DriverClass.MYSQL)
                 .database("testDB").credential("root", password).build();
     }
 
