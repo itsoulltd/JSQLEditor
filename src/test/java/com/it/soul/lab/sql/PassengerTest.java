@@ -100,4 +100,39 @@ public class PassengerTest {
 		Assert.assertTrue(prop != null);
 	}
 
+	//@Test
+	public void transactionTest(){
+		//
+        int rand = (new Random()).nextInt(2);
+        boolean shouldFailed = rand >= 1;
+		//
+        try {
+            exe.begin();
+            System.out.println("begin()");
+            Passenger passenger = new Passenger();
+            passenger.setName(getRandomName());
+            System.out.println("Name: " + passenger.getName());
+            passenger.setAge(getRandomAge());
+            passenger.insert(exe);
+            try{
+                Thread.sleep(5000);
+            }catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+            if (shouldFailed) {
+                throw new SQLException("Going To Failed!!!");
+            }
+            exe.end();
+            System.out.println("end()");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            try {
+                exe.abort();
+                System.out.println("abort()");
+            } catch (SQLException e1) {System.out.println(e1.getMessage());}
+        } finally {
+            //
+        }
+    }
+
 }

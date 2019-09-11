@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 
 @Entity(name = "jp_table")
 @Table(name = "jp_table")
-public class JPerson extends JPQLEntity{
+public class JPerson extends com.it.soul.lab.sql.entity.Entity{
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @PrimaryKey(name="uuid")

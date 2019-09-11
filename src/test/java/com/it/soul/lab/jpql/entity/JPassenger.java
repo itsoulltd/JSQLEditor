@@ -1,14 +1,13 @@
 package com.it.soul.lab.jpql.entity;
 
 import com.it.soul.lab.sql.entity.PrimaryKey;
-import com.it.soul.lab.sql.entity.TableName;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
 @Entity
-public class JPassenger extends JPQLEntity {
+public class JPassenger extends com.it.soul.lab.sql.entity.Entity {
     @Id
     @PrimaryKey(name="uuid")
     @Column(length = 250)

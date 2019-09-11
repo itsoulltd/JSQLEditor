@@ -42,17 +42,26 @@ public class JPassengerTest{
         }
     }
 
+    private String getRandomName() {
+        Random rand = new Random();
+        int index = rand.nextInt(names.length);
+        return names[index];
+    }
+
+    private Integer getRandomAge() {
+        Random rand = new Random();
+        int index = rand.nextInt(ages.length);
+        return ages[index];
+    }
+
     @Test
     public void passengerInsertTest() throws Exception {
-        Random random = new Random();
+        //
         JPassenger passenger = new JPassenger();
         passenger.setUuid(UUID.randomUUID().toString());
         //
-        int index_age = random.nextInt(ages.length -2) + 1;
-        passenger.setAge(ages[index_age]);
-        //
-        int index_name = random.nextInt(names.length -2) + 1;
-        passenger.setName(names[index_name]);
+        passenger.setAge(getRandomAge());
+        passenger.setName(getRandomName());
         //
         if (passenger.getName().toLowerCase().startsWith("mr")){
             passenger.setSex(Sex.Male.name());
@@ -68,10 +77,8 @@ public class JPassengerTest{
 
     @Test
     public void passengerUpdateTest() throws Exception {
-        Random random = new Random();
         //
-        int index_name = random.nextInt(names.length -2) + 1;
-        Predicate findNameBy = new Where("name").isEqualTo(names[index_name]);
+        Predicate findNameBy = new Where("name").isEqualTo(getRandomName());
         //
         List<JPassenger> byName = Entity.read(JPassenger.class, executor, findNameBy);
         //
@@ -118,10 +125,8 @@ public class JPassengerTest{
 
     @Test
     public void passengerDeleteTest() throws Exception {
-        Random random = new Random();
         //
-        int index_name = random.nextInt(names.length -2) + 1;
-        Predicate findNameBy = new Where("name").isEqualTo(names[index_name]);
+        Predicate findNameBy = new Where("name").isEqualTo(getRandomName());
         //
         List<JPassenger> byName = Entity.read(JPassenger.class, executor, findNameBy);
         String goingToDeleteId = null;
@@ -168,4 +173,41 @@ public class JPassengerTest{
         if (notNull != null)
             notNull.forEach(jPassenger -> System.out.println(jPassenger.getName() + "#" + jPassenger.getSex()));
     }
+
+    //@Test
+    public void transactionTest(){
+        //
+        int rand = (new Random()).nextInt(2);
+        boolean shouldFailed = rand >= 1;
+        //
+        try {
+            executor.begin();
+            System.out.println("begin()");
+            JPassenger passenger = new JPassenger();
+            passenger.setUuid(UUID.randomUUID().toString());
+            passenger.setName(getRandomName());
+            System.out.println("Name: " + passenger.getName());
+            passenger.setAge(getRandomAge());
+            passenger.insert(executor);
+            try{
+                Thread.sleep(5000);
+            }catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+            if (shouldFailed) {
+                throw new RuntimeException("Going To Failed!!!");
+            }
+            executor.end();
+            System.out.println("end()");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            try {
+                executor.abort();
+                System.out.println("abort()");
+            } catch (Exception e1) {System.out.println(e1.getMessage());}
+        } finally {
+            //
+        }
+    }
+
 }
