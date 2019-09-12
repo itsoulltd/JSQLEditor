@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 @Table(name = "jp_table")
 public class JPerson extends com.it.soul.lab.sql.entity.Entity{
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
     @PrimaryKey(name="uuid")
     //@Column(length = 250)
     private long uuid;

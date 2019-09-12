@@ -4,6 +4,9 @@ import com.it.soul.lab.sql.QueryExecutor;
 import com.it.soul.lab.sql.query.*;
 import com.it.soul.lab.sql.query.models.*;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.Table;
 import java.lang.reflect.Field;
 import java.sql.Date;
@@ -185,13 +188,30 @@ public abstract class Entity implements EntityInterface{
 	private boolean isAutoIncrement() {
 		if(_isAutoIncremented == null) {
 			PrimaryKey primAnno = getPrimaryKey();
-			if(primAnno == null) {
-				_isAutoIncremented = false;
+			if(primAnno != null) {
+				_isAutoIncremented = primAnno.auto();
 			}
-			_isAutoIncremented = primAnno.auto();
+			Field genField = getGeneratedValueField();
+			if (!_isAutoIncremented && genField != null){
+                _isAutoIncremented = true;
+            }else{
+                _isAutoIncremented = false;
+            }
 		}
 		return _isAutoIncremented;
 	}
+
+	private Field getGeneratedValueField(){
+	    Field[] fields = getDeclaredFields(true);
+	    Field fl = null;
+        for (Field field: fields) {
+            if (field.isAnnotationPresent(GeneratedValue.class)){
+                fl = field;
+                break;
+            }
+        }
+        return fl;
+    }
 
     private List<PrimaryKey> getPrimaryKeys() {
         List<PrimaryKey> keys = new ArrayList<>();
@@ -434,7 +454,7 @@ public abstract class Entity implements EntityInterface{
 	public static <T extends Entity> Map<String, String> mapColumnsToProperties(Class<T> type) {
 
 		boolean acceptAll = Entity.shouldAcceptAllAsProperty(type);
-		/*if (acceptAll) {return null;}*/
+		if (acceptAll) {return null;}
 		
 		Map<String, String> result = new HashMap<>();
 		for (Field field : Entity.getDeclaredFields(type, true)) {
