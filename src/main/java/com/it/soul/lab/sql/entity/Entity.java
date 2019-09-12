@@ -274,23 +274,12 @@ public abstract class Entity implements EntityInterface{
         for (Field field : getDeclaredFields(inherit)) {
 			if (field.isAnnotationPresent(Ignore.class))
 				continue;
+            field.setAccessible(true);
+            //Notice:We are interested into reading just the filed name:value into a map.
             try {
-                field.setAccessible(true);
-                if (field.isAnnotationPresent(Column.class)){
-                    Column column = field.getAnnotation(Column.class);
-                    String columnName = (column.name().trim().isEmpty() == false) ? column.name().trim() : field.getName();
-                    result.put(columnName, field.get(this));
-                }else if(field.isAnnotationPresent(PrimaryKey.class)){
-                    PrimaryKey primaryKey = field.getAnnotation(PrimaryKey.class);
-                    String columnName = (primaryKey.name().trim().isEmpty() == false) ? primaryKey.name().trim() : field.getName();
-                    result.put(columnName, field.get(this));
-                }else{
-                    result.put(field.getName(), field.get(this));
-                }
-                field.setAccessible(false);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
+                result.put(field.getName(), field.get(this));
+            } catch (IllegalAccessException e) {}
+            field.setAccessible(false);
         }
         return result;
     }
@@ -299,6 +288,8 @@ public abstract class Entity implements EntityInterface{
 		if (data != null) {
 			Field[] fields = getDeclaredFields(inherit);
 			for (Field field : fields) {
+                if (field.isAnnotationPresent(Ignore.class))
+                    continue;
 				field.setAccessible(true);
 				Object entry = data.get(field.getName());
 				if(entry != null) {
