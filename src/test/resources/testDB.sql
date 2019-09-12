@@ -1,4 +1,7 @@
 
+DROP table IF EXISTS Passenger;
+DROP table IF EXISTS Person;
+
 CREATE TABLE IF NOT EXISTS Passenger
  (
  id int auto_increment primary key,

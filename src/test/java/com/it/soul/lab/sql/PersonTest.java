@@ -129,7 +129,7 @@ public class PersonTest {
 		}
 	}
 
-	@Test
+	//@Test
 	public void testReadClassOfTSQLExecutorPropertyArray() {
 		try {
 			List<Person> sons = Person.read(Person.class, exe, new Property("name", "Sohana"));
@@ -139,7 +139,7 @@ public class PersonTest {
 		}
 	}
 
-	@Test
+	//@Test
 	public void testReadClassOfTSQLExecutorExpressionInterpreter() {
 		try {
 			ExpressionInterpreter exp = new Expression(new Property("name", "Sohana"), Operator.EQUAL);

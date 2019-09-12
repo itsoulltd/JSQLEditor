@@ -187,6 +187,7 @@ public abstract class Entity implements EntityInterface{
 	private Boolean _isAutoIncremented = null;
 	private boolean isAutoIncrement() {
 		if(_isAutoIncremented == null) {
+            _isAutoIncremented = false;
 			PrimaryKey primAnno = getPrimaryKey();
 			if(primAnno != null) {
 				_isAutoIncremented = primAnno.auto();
@@ -194,8 +195,6 @@ public abstract class Entity implements EntityInterface{
 			Field genField = getGeneratedValueField();
 			if (!_isAutoIncremented && genField != null){
                 _isAutoIncremented = true;
-            }else{
-                _isAutoIncremented = false;
             }
 		}
 		return _isAutoIncremented;

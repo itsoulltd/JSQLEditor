@@ -16,6 +16,11 @@ public class ScriptRunner {
 
     private final String CREATE_TABLE_PREFIX = "CREATE TABLE ";
     private final String CREATE_TABLE_IF_NOT_PREFIX = "CREATE TABLE IF NOT EXISTS ";
+    private final String DROP_TABLE_PREFIX = "DROP TABLE ";
+    private final String SELECT_PREFIX= "SELECT";
+    private final String INSERT_PREFIX= "INSERT";
+    private final String UPDATE_PREFIX= "UPDATE";
+    private final String DELETE_PREFIX= "DELETE";
     private Logger log = Logger.getLogger(this.getClass().getSimpleName());
 
     public String[] commands(InputStream in){
@@ -31,21 +36,28 @@ public class ScriptRunner {
         List<String> comsn = Arrays.asList(cmds);
         try (SQLExecutor executor = new SQLExecutor(connection)){
             comsn.forEach(cmd -> {
-                if (!cmd.toLowerCase().startsWith(CREATE_TABLE_PREFIX.toLowerCase()))
+                if (cmd.toLowerCase().startsWith(SELECT_PREFIX.toLowerCase())
+                        || cmd.toLowerCase().startsWith(INSERT_PREFIX.toLowerCase())
+                        || cmd.toLowerCase().startsWith(UPDATE_PREFIX.toLowerCase())
+                        || cmd.toLowerCase().startsWith(DELETE_PREFIX.toLowerCase()))
                     return;
                 try {
                     if (executor.executeDDLQuery(cmd)) {
-                        try {
-                            int endIndex = cmd.indexOf("(");
-                            if (cmd.startsWith(CREATE_TABLE_IF_NOT_PREFIX))
-                                log.info("Created :: " + cmd.substring(CREATE_TABLE_IF_NOT_PREFIX.length(), endIndex));
-                            else
-                                log.info("Created :: " + cmd.substring(CREATE_TABLE_PREFIX.length(), endIndex));
-                        } catch (Exception e) {}
+                        printExecutionMessage(cmd);
                     }
                 }catch (SQLException e){log.warning(e.getMessage());}
             });
         }catch (Exception e) {log.warning(e.getMessage());}
+    }
+
+    private void printExecutionMessage(String cmd) {
+        try {
+            int endIndex = cmd.indexOf("(");
+            if (cmd.startsWith(CREATE_TABLE_IF_NOT_PREFIX))
+                log.info("Created :: " + cmd.substring(CREATE_TABLE_IF_NOT_PREFIX.length(), endIndex));
+            else if (cmd.startsWith(CREATE_TABLE_PREFIX))
+                log.info("Created :: " + cmd.substring(CREATE_TABLE_PREFIX.length(), endIndex));
+        } catch (Exception e) {}
     }
 
     private String readFrom(InputStream in){
