@@ -8,7 +8,7 @@ import com.it.soul.lab.sql.query.models.Property;
 @TableName
 public class Passenger extends Entity {
 	
-	@PrimaryKey(name="id", autoIncrement=true)
+	@PrimaryKey(name="id", auto =true)
 	private Integer id;
 	private Integer age;
 	private String name;

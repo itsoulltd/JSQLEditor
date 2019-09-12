@@ -13,5 +13,5 @@ import java.lang.annotation.Target;
 public @interface PrimaryKey {
 	String name();
 	DataType type() default DataType.STRING;
-	boolean autoIncrement() default false;
+	boolean auto() default false;
 }

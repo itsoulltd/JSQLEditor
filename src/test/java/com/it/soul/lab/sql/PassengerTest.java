@@ -92,7 +92,7 @@ public class PassengerTest {
 	@Test public void getPropertyTest() {
 		Passenger passenger = new Passenger();
 		
-		//UseCase when id is @PrimaryKey and autoIncrement is true.
+		//UseCase when id is @PrimaryKey and auto is true.
 		Property prop = passenger.getPropertyTest("id", exe, true);
 		Assert.assertTrue(prop == null);
 		

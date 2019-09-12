@@ -165,7 +165,7 @@ public class PersonTest {
 	public void getPropertyTest() {
 		Person person = new Person();
 		
-		//UseCase when uuid is @PrimaryKey and autoIncrement is false.
+		//UseCase when uuid is @PrimaryKey and auto is false.
 		Property prop = person.getPropertyTest("uuid_idx", exe, true);
 		Assert.assertTrue(prop == null);
 		

@@ -25,7 +25,7 @@ import com.it.soul.lab.sql.query.models.DataType;
 @TableName(value = "Person", acceptAll = false)
 public class Person extends Entity {
 
-	@PrimaryKey(name = "uuid", autoIncrement = false)
+	@PrimaryKey(name = "uuid", auto = false)
 	private String uuid_idx;
 
 	@Column(name="name", defaultValue="towhid-islam")

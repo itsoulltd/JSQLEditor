@@ -30,7 +30,7 @@ public abstract class Entity implements EntityInterface{
 			Field field = getDeclaredField(fieldName, true);
 			if(field.isAnnotationPresent(PrimaryKey.class)) {
 				if (skipPrimary) {return null;}
-				if (((PrimaryKey)field.getAnnotation(PrimaryKey.class)).autoIncrement() == true
+				if (((PrimaryKey)field.getAnnotation(PrimaryKey.class)).auto() == true
 						 && skipPrimary != false) {return null;}
 			}
 			field.setAccessible(true);
@@ -188,7 +188,7 @@ public abstract class Entity implements EntityInterface{
 			if(primAnno == null) {
 				_isAutoIncremented = false;
 			}
-			_isAutoIncremented = primAnno.autoIncrement();
+			_isAutoIncremented = primAnno.auto();
 		}
 		return _isAutoIncremented;
 	}
@@ -338,7 +338,7 @@ public abstract class Entity implements EntityInterface{
 	 */
 	@Override
 	public Boolean insert(QueryExecutor exe, String... keys) throws SQLException {
-		List<Property> properties = getPropertiesFromKeys(exe, keys, false);
+		List<Property> properties = getPropertiesFromKeys(exe, keys, isAutoIncrement());
 		SQLInsertQuery query = exe.createQueryBuilder(QueryType.INSERT)
 															.into(Entity.tableName(getClass()))
 															.values(properties.toArray(new Property[0])).build();
@@ -377,10 +377,10 @@ public abstract class Entity implements EntityInterface{
 		if (primaryFields.isEmpty()) return;
 
 		try {
-			//Update any primary field that has autoIncrement = yes
+			//Update any primary field that has auto = yes
 			for (Field primaryField : primaryFields) {
 				if (primaryField.isAnnotationPresent(PrimaryKey.class) == false) continue;
-				if (primaryField.getAnnotation(PrimaryKey.class).autoIncrement() == false) continue;
+				if (primaryField.getAnnotation(PrimaryKey.class).auto() == false) continue;
 				primaryField.setAccessible(true);
 				primaryField.set(this, insert);
 				primaryField.setAccessible(false);
@@ -434,7 +434,7 @@ public abstract class Entity implements EntityInterface{
 	public static <T extends Entity> Map<String, String> mapColumnsToProperties(Class<T> type) {
 
 		boolean acceptAll = Entity.shouldAcceptAllAsProperty(type);
-		if (acceptAll) {return null;}
+		/*if (acceptAll) {return null;}*/
 		
 		Map<String, String> result = new HashMap<>();
 		for (Field field : Entity.getDeclaredFields(type, true)) {
