@@ -102,6 +102,11 @@ public class JPQLExecutor extends AbstractExecutor implements QueryExecutor<JPQL
     }
 
     @Override
+    public Integer[] executeUpdate(int size, List<JPQLUpdateQuery> queries) throws SQLException, IllegalArgumentException {
+        throw new SQLException("Not Implemented YET");
+    }
+
+    @Override
     public Integer executeInsert(boolean autoId, SQLInsertQuery insertQuery) throws SQLException, IllegalArgumentException {
         Query query = null;
         if (insertQuery instanceof SQLInsertQuery){

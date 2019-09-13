@@ -185,6 +185,11 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
     }
 
     @Override
+    public Integer[] executeUpdate(int size, List<CQLUpdateQuery> queries) throws SQLException, IllegalArgumentException {
+        throw new SQLException("Not Implemented YET");
+    }
+
+    @Override
     public Integer executeDelete(CQLDeleteQuery cqlDeleteQuery) throws SQLException {
         try{
             Statement statement = createSelectStatementFrom(cqlDeleteQuery);

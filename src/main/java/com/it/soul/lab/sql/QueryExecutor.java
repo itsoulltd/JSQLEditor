@@ -22,6 +22,7 @@ public interface QueryExecutor<S extends SQLQuery
 
     Integer executeUpdate(U query) throws SQLException;
     Integer[] executeUpdate(int size, U query, List<Row> rows) throws SQLException,IllegalArgumentException;
+    Integer[] executeUpdate(int size, List<U> queries) throws SQLException,IllegalArgumentException;
 
     Integer executeDelete(D deleteQuery) throws SQLException;
     Integer executeDelete(int size, D deleteQuery, List<Row> where) throws SQLException;
