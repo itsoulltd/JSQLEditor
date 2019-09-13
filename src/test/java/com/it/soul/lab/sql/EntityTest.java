@@ -21,6 +21,10 @@ public class EntityTest {
         me.car.engineNo = UUID.randomUUID().toString();
         me.car.chassisNo = UUID.randomUUID().toString();
         me.car.countOfWheel = 4;
+        me.car.body = new CarBody();
+        me.car.body.cc = 1200.50;
+        me.car.body.madeOf = "Steel";
+        me.car.body.numberOfDoors = null;
 
         Map<String, Object> data = me.marshallingToMap(true);
         //Map<String, Object> carData = (Map<String, Object>) data.get("car");
@@ -85,6 +89,7 @@ public class EntityTest {
         private String engineNo;
         private String chassisNo;
         private Integer countOfWheel;
+        private CarBody body;
 
         public String getEngineNo() {
             return engineNo;
@@ -123,6 +128,59 @@ public class EntityTest {
         @Override
         public int hashCode() {
             return Objects.hash(engineNo, chassisNo, countOfWheel);
+        }
+
+        public CarBody getBody() {
+            return body;
+        }
+
+        public void setBody(CarBody body) {
+            this.body = body;
+        }
+    }
+
+    public static class CarBody extends Entity{
+        private String madeOf;
+        private Integer numberOfDoors;
+        private double cc;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            CarBody carBody = (CarBody) o;
+            return Double.compare(carBody.cc, cc) == 0 &&
+                    Objects.equals(madeOf, carBody.madeOf) &&
+                    Objects.equals(numberOfDoors, carBody.numberOfDoors);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(madeOf, numberOfDoors, cc);
+        }
+
+        public String getMadeOf() {
+            return madeOf;
+        }
+
+        public void setMadeOf(String madeOf) {
+            this.madeOf = madeOf;
+        }
+
+        public Integer getNumberOfDoors() {
+            return numberOfDoors;
+        }
+
+        public void setNumberOfDoors(Integer numberOfDoors) {
+            this.numberOfDoors = numberOfDoors;
+        }
+
+        public double getCc() {
+            return cc;
+        }
+
+        public void setCc(double cc) {
+            this.cc = cc;
         }
     }
 
