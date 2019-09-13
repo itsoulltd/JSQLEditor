@@ -33,7 +33,7 @@ public class ScriptRunnerTest {
             connection.close();
     }
 
-    @Test
+    //@Test
     public void runScripts(){
         File file = new File("src/test/resources/testDB.sql");
         if (file.isFile()){

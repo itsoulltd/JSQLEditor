@@ -86,12 +86,18 @@ public class Expression implements ExpressionInterpreter{
 			return  String.valueOf(MARKER);
 		}
 	}
+	private boolean shouldInsertMarker(){
+	    //return (getValueProperty().getValue() != null);
+	    return getType() != Operator.IS_NULL
+                &&
+                getType() != Operator.NOT_NULL;
+    }
 	@Override
 	public String interpret() {
 		if (Character.isWhitespace(quientifier) == false) {
-		    return quientifier+ "." + getProperty() + " " + type.toString() + " " + ((getValueProperty().getValue() != null) ? expressMarker : "");
+		    return quientifier+ "." + getProperty() + " " + type.toString() + " " + (shouldInsertMarker() ? expressMarker : "");
 		}else {
-			return getProperty() + " " + type.toString() + " " + ((getValueProperty().getValue() != null) ? MARKER : "");
+			return getProperty() + " " + type.toString() + " " + (shouldInsertMarker() ? MARKER : "");
 		}
 	}
 	@Override
