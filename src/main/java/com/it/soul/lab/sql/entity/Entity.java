@@ -5,8 +5,6 @@ import com.it.soul.lab.sql.query.*;
 import com.it.soul.lab.sql.query.models.*;
 
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Table;
 import java.lang.reflect.Field;
 import java.sql.Date;
@@ -276,7 +274,13 @@ public abstract class Entity implements EntityInterface{
             field.setAccessible(true);
             //Notice:We are interested into reading just the filed name:value into a map.
             try {
-                result.put(field.getName(), field.get(this));
+            	Object fieldValue = field.get(this);
+                if (fieldValue != null && EntityInterface.class.isAssignableFrom(fieldValue.getClass())){
+                    EntityInterface enIf = (EntityInterface) fieldValue;
+                    result.put(field.getName(), enIf.marshallingToMap(inherit));
+                }else {
+                    result.put(field.getName(), fieldValue);
+                }
             } catch (IllegalAccessException e) {}
             field.setAccessible(false);
         }
@@ -293,7 +297,19 @@ public abstract class Entity implements EntityInterface{
 				Object entry = data.get(field.getName());
 				if(entry != null) {
 					try {
-						field.set(this, entry);
+						if (EntityInterface.class.isAssignableFrom(field.getType())){
+						    //Now we can say this might-be a marshaled object that confirm to EntityInterface,
+                            try {
+                                EntityInterface enIf = (EntityInterface) field.getType().newInstance();
+                                if(entry instanceof Map)
+                                    enIf.unmarshallingFromMap((Map<String, Object>) entry, true);
+                                field.set(this, enIf);
+                            }catch (Exception e){
+                                System.out.println(e.getMessage());
+                            }
+                        }else{
+                            field.set(this, entry);
+                        }
 					} catch (IllegalAccessException e) {}
 				}
 				field.setAccessible(false);
