@@ -180,7 +180,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
     }
 
     @Override
-    public Integer[] executeBatchUpdate(int i, CQLUpdateQuery cqlUpdateQuery, List<Row> list, List<Row> list1) throws SQLException, IllegalArgumentException {
+    public Integer[] executeUpdate(int size, CQLUpdateQuery query, List<Row> rows) throws SQLException, IllegalArgumentException {
         throw new SQLException("Not Implemented YET");
     }
 
@@ -196,7 +196,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
     }
 
     @Override
-    public Integer executeBatchDelete(int i, CQLDeleteQuery cqlDeleteQuery, List<Row> list) throws SQLException {
+    public Integer executeDelete(int size, CQLDeleteQuery deleteQuery, List<Row> where) throws SQLException {
         throw new SQLException("Not Implemented YET");
     }
 
@@ -218,6 +218,11 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         }catch (Exception e){
             throw new SQLException(e.getMessage());
         }
+    }
+
+    @Override
+    public Integer[] executeInsert(boolean autoId, int size, CQLInsertQuery insertQuery, List<Row> rows) throws SQLException, IllegalArgumentException {
+        throw new SQLException("Not Implemented YET");
     }
 
     protected Statement createInsertStatement(CQLInsertQuery cqlInsertQuery) {
@@ -395,11 +400,6 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
 
     @Override
     public List executeCRUDQuery(String s, Class aClass) throws SQLException, IllegalAccessException, InstantiationException {
-        throw new SQLException("Not Implemented YET");
-    }
-
-    @Override
-    public Integer[] executeBatchInsert(boolean b, int i, String s, List list) throws SQLException, IllegalArgumentException {
         throw new SQLException("Not Implemented YET");
     }
 

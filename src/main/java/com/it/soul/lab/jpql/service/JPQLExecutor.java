@@ -97,9 +97,8 @@ public class JPQLExecutor extends AbstractExecutor implements QueryExecutor<JPQL
     }
 
     @Override
-    public Integer[] executeBatchUpdate(int batchSize, JPQLUpdateQuery query, List updateProperties, List whereClause) throws SQLException, IllegalArgumentException {
-        //TODO:
-        return new Integer[0];
+    public Integer[] executeUpdate(int size, JPQLUpdateQuery query, List<Row> rows) throws SQLException, IllegalArgumentException {
+        throw new SQLException("Not Implemented YET");
     }
 
     @Override
@@ -119,9 +118,8 @@ public class JPQLExecutor extends AbstractExecutor implements QueryExecutor<JPQL
     }
 
     @Override
-    public Integer[] executeBatchInsert(boolean autoId, int batchSize, String tableName, List params) throws SQLException, IllegalArgumentException {
-        //TODO:
-        return new Integer[0];
+    public Integer[] executeInsert(boolean autoId, int size, SQLInsertQuery insertQuery, List<Row> rows) throws SQLException, IllegalArgumentException {
+        throw new SQLException("Not Implemented YET");
     }
 
     @Override
@@ -137,8 +135,8 @@ public class JPQLExecutor extends AbstractExecutor implements QueryExecutor<JPQL
     }
 
     @Override
-    public Integer executeBatchDelete(int batchSize, JPQLDeleteQuery deleteQuery, List<Row> whereClause) throws SQLException {
-        return null;
+    public Integer executeDelete(int size, JPQLDeleteQuery deleteQuery, List<Row> where) throws SQLException {
+        throw new SQLException("Not Implemented YET");
     }
 
     @Override

@@ -184,68 +184,63 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		return rowUpdated;
 	}
 
-	public Integer[] executeBatchUpdate(int batchSize, SQLUpdateQuery updateQuery, List<Row> updateProperties, List<Row> whereClause) throws SQLException, IllegalArgumentException{
+    @Override
+    public Integer[] executeUpdate(int size, SQLUpdateQuery updateQuery, List<Row> rows) throws SQLException, IllegalArgumentException {
 
-		if(updateProperties == null
-				|| updateProperties.size() <= 0){
-			throw new SQLException("Set Parameter Should not be bull or empty!!!");
-		}
+        if(rows == null
+                || rows.size() <= 0){
+            throw new SQLException("Set Parameter Should not be bull or empty!!!");
+        }
 
-		List<Integer> affectedRows = new ArrayList<Integer>();
-		PreparedStatement stmt = null;
-		String query = updateQuery.toString();
+        List<Integer> affectedRows = new ArrayList<Integer>();
+        PreparedStatement stmt = null;
+        String query = updateQuery.toString();
 
-		try{
-			batchSize = (batchSize < 100) ? 100 : batchSize;//Least should be 100
-			if(conn != null){
-				//
-				List<int[]> batchUpdatedRowsCount = new ArrayList<int[]>();
+        try{
+            size = (size < 100) ? 100 : size;//Least should be 100
+            if(conn != null){
+                //
+                List<int[]> batchUpdatedRowsCount = new ArrayList<int[]>();
 
-				stmt = conn.prepareStatement(query);
-				int batchCount = 1;
-				for (int index = 0; index < updateProperties.size(); index++) {
+                stmt = conn.prepareStatement(query);
+                int batchCount = 1;
+                for (int index = 0; index < rows.size(); index++) {
 
-					String[] keySet = updateProperties.get(index).getKeys();
-					Map<String, Property> row = updateProperties.get(index).keyValueMap();
-					stmt = bindValueToStatement(stmt, 1, keySet, row);
+                    String[] keySet = rows.get(index).getKeys();
+                    Map<String, Property> row = rows.get(index).keyValueMap();
+                    stmt = bindValueToStatement(stmt, 1, keySet, row);
 
-					int length = keySet.length;
-					Row whereClouseProperties = getLeastAppropriateProperties(whereClause, index);
-					String[] whereKeySet = whereClouseProperties.getKeys();
-					Map<String, Property> rowWhere = whereClouseProperties.keyValueMap();
-					stmt = bindValueToStatement(stmt, length + 1, whereKeySet, rowWhere);
+                    int length = keySet.length;
+                    //Row whereProperties = getLeastAppropriateProperties(whereClause, index);
+                    Row whereProperties = updateQuery.getWhereProperties();
+                    String[] whereKeySet = whereProperties.getKeys();
+                    Map<String, Property> whereRow = whereProperties.keyValueMap();
+                    stmt = bindValueToStatement(stmt, length + 1, whereKeySet, whereRow);
 
-					stmt.addBatch();
-					if ((++batchCount % batchSize) == 0) {
-						batchUpdatedRowsCount.add(stmt.executeBatch());
-					}
-				}
-				if(updateProperties.size() % batchSize != 0)
-					batchUpdatedRowsCount.add(stmt.executeBatch());
+                    stmt.addBatch();
+                    if ((++batchCount % size) == 0) {
+                        batchUpdatedRowsCount.add(stmt.executeBatch());
+                    }
+                }
+                if(rows.size() % size != 0)
+                    batchUpdatedRowsCount.add(stmt.executeBatch());
 
-				for (int[] rr  : batchUpdatedRowsCount) {
-					for(int i = 0; i < rr.length ; i++){
-						affectedRows.add(rr[i]);
-					}
-				}
+                for (int[] rr  : batchUpdatedRowsCount) {
+                    for(int i = 0; i < rr.length ; i++){
+                        affectedRows.add(rr[i]);
+                    }
+                }
 
-			}
-		}catch(SQLException exp){
-			throw exp;
-		}catch(IllegalArgumentException iel){
-			throw iel;
-		}finally{
-			if(stmt != null){
-				try {
-					stmt.clearBatch();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				stmt.close();
-			}
-		}
-		return affectedRows.toArray(new Integer[]{});
-	}
+            }
+        }catch(SQLException exp){
+            throw exp;
+        }catch(IllegalArgumentException iel){
+            throw iel;
+        }finally{
+            clearBatch(stmt);
+        }
+        return affectedRows.toArray(new Integer[]{});
+    }
 
 	public Integer executeDelete(SQLDeleteQuery deleteQuery)
 			throws SQLException{
@@ -273,52 +268,45 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		return rowUpdated;
 	}
 
-	public Integer executeBatchDelete(int batchSize, SQLDeleteQuery deleteQuery, List<Row> whereClause) throws SQLException{
+    @Override
+    public Integer executeDelete(int size, SQLDeleteQuery deleteQuery, List<Row> where) throws SQLException {
+	    //
+        if(deleteQuery.getWhereParams() == null || deleteQuery.getWhereParams().length <= 0){
+            throw new SQLException("Where parameter should not be null or empty!!!");
+        }
+        //
+        int rowUpdated = 0;
+        PreparedStatement stmt=null;
+        String query = deleteQuery.toString();
+        String[] whereKeySet = where.get(0).getKeys();
+        try{
+            size = (size < 100) ? 100 : size;//Least should be 100
+            if(conn != null){
+                //
+                int batchCount = 1;
+                stmt = conn.prepareStatement(query);
+                for (Row paramValue: where) {
+                    stmt = bindValueToStatement(stmt, 1, whereKeySet, paramValue.keyValueMap());
+                    stmt.addBatch();
+                    if ((++batchCount % size) == 0) {
+                        stmt.executeBatch();
+                    }
+                }
+                if(where.size() % size != 0)
+                    stmt.executeBatch();
 
-		if(deleteQuery.getWhereParams() == null || deleteQuery.getWhereParams().length <= 0){
-			throw new SQLException("Where parameter should not be null or empty!!!");
-		}
+            }
+        }catch(SQLException exp){
+            throw exp;
+        }catch (IllegalArgumentException e) {
+            throw e;
+        }finally{
+            clearBatch(stmt);
+        }
+        return rowUpdated;
+    }
 
-		int rowUpdated = 0;
-		PreparedStatement stmt=null;
-		String query = deleteQuery.toString();
-		String[] whereKeySet = whereClause.get(0).getKeys();
-		try{
-			batchSize = (batchSize < 100) ? 100 : batchSize;//Least should be 100
-			if(conn != null){
-				//
-				int batchCount = 1;
-				stmt = conn.prepareStatement(query);
-				for (Row paramValue: whereClause) {
-					stmt = bindValueToStatement(stmt, 1, whereKeySet, paramValue.keyValueMap());
-					stmt.addBatch();
-					if ((++batchCount % batchSize) == 0) {
-						stmt.executeBatch();
-					}
-				}
-				if(whereClause.size() % batchSize != 0)
-					stmt.executeBatch();
-
-			}
-		}catch(SQLException exp){
-			throw exp;
-		}catch (IllegalArgumentException e) {
-			throw e;
-		}finally{
-			if(stmt != null){
-				try {
-					stmt.clearBatch();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				stmt.close();
-			}
-		}
-		return rowUpdated;
-	}
-
-	public Integer executeInsert(boolean isAutoGenaretedId
-			, String query)
+	public Integer executeInsert(boolean autoId, String query)
 			throws SQLException,IllegalArgumentException{
 
 		int lastIncrementedID = 0;
@@ -330,7 +318,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 				throw new IllegalArgumentException("Query string must be a Insert query!");
 			}
 			if(conn != null){
-				if (isAutoGenaretedId) {
+				if (autoId) {
 					stmt = conn.prepareStatement(query,Statement.RETURN_GENERATED_KEYS);
 					stmt.executeUpdate();
 					ResultSet rs = stmt.getGeneratedKeys();
@@ -388,90 +376,63 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		return affectedRows;
 	}
 
-	public Integer[] executeBatchInsert(boolean autoId
-			, int batchSize
-			, String tableName
-			, List<Row> params)
-			throws SQLException,IllegalArgumentException{
+    @Override
+    public Integer[] executeInsert(boolean autoId, int size, SQLInsertQuery insertQuery, List<Row> rows) throws SQLException, IllegalArgumentException {
+        if(rows == null || rows.size() <= 0){
+            throw new SQLException("Parameter should not be null or empty!!!");
+        }
+        List<Integer> affectedRows = new ArrayList<Integer>();
+        PreparedStatement stmt=null;
+        //
+        Object[] keySet = rows.get(0).getKeys();
+        String query = insertQuery.toString();
+        //
+        try{
+            size = (size < 100) ? 100 : size;//Least should be 100
+            if(conn != null){
+                //
+                stmt = autoId
+                        ? conn.prepareStatement(query,Statement.RETURN_GENERATED_KEYS)
+                        : conn.prepareStatement(query);
+                int batchCount = 1;
+                List<int[]> batchUpdatedRowsCount = new ArrayList<int[]>();
+                for (Row row : rows) {
+                    stmt = bindValueToStatement(stmt, 1, keySet, row.keyValueMap());
+                    stmt.addBatch();
+                    if((++batchCount % size) == 0){
+                        batchUpdatedRowsCount.add(stmt.executeBatch());
+                    }
+                }
+                if(rows.size() % size != 0)
+                    batchUpdatedRowsCount.add(stmt.executeBatch());
 
-		if(params == null || params.size() <= 0){
-			throw new SQLException("Parameter should not be null or empty!!!");
-		}
+                for (int[] rr  : batchUpdatedRowsCount) {
+                    for(int i = 0; i < rr.length ; i++){
+                        affectedRows.add(rr[i]);
+                    }
+                }
+                //
+            }
+        }catch(SQLException exp){
+            throw exp;
+        }catch(IllegalArgumentException iel){
+            throw iel;
+        }finally{
+            clearBatch(stmt);
+        }
+        return affectedRows.toArray(new Integer[]{});
+    }
 
-		List<Integer> affectedRows = new ArrayList<Integer>();
-		PreparedStatement stmt=null;
-		/**
-		 * Object[] keySet = iQuery.getProperties().getKeys();
-		 * String query = iQuery.toString();
-		 */
-		Object[] keySet = params.get(0).getKeys();
-		List<Property> nValues = new ArrayList<Property>();
-		for (Property property : params.get(0).getCloneProperties()) {
-			nValues.add(new Property(property.getKey()));
-		}
-		Property[] values = (Property[]) nValues.toArray(new Property[0]);
-		SQLInsertQuery iQuery = (SQLInsertQuery) new SQLQuery.Builder(QueryType.INSERT).into(tableName).values(values).build();
-		String query = iQuery.toString();
-
-		try{
-			batchSize = (batchSize < 100) ? 100 : batchSize;//Least should be 100
-			if(conn != null){
-				//
-				if(autoId){
-					stmt = conn.prepareStatement(query,Statement.RETURN_GENERATED_KEYS);
-					int batchCount = 1;
-					for (Row row : params) {
-						stmt = bindValueToStatement(stmt, 1, keySet, row.keyValueMap());
-						stmt.addBatch();
-						if((++batchCount % batchSize) == 0){
-							stmt.executeBatch();
-						}
-					}
-					if(params.size() % batchSize != 0)
-						stmt.executeBatch();
-
-					ResultSet set = stmt.getGeneratedKeys();
-
-					while(set.next()){
-						affectedRows.add(set.getInt(1));
-					}
-				}else{
-					stmt = conn.prepareStatement(query);
-					int batchCount = 1;
-					List<int[]> batchUpdatedRowsCount = new ArrayList<int[]>();
-					for (Row row : params) {
-						stmt = bindValueToStatement(stmt, 1, keySet, row.keyValueMap());
-						stmt.addBatch();
-						if((++batchCount % batchSize) == 0){
-							batchUpdatedRowsCount.add(stmt.executeBatch());
-						}
-					}
-					if(params.size() % batchSize != 0)
-						batchUpdatedRowsCount.add(stmt.executeBatch());
-
-					for (int[] rr  : batchUpdatedRowsCount) {
-						for(int i = 0; i < rr.length ; i++){
-							affectedRows.add(rr[i]);
-						}
-					}
-				}
-			}
-		}catch(SQLException exp){
-			throw exp;
-		}catch(IllegalArgumentException iel){
-			throw iel;
-		}finally{
-			if(stmt != null){
-				try {
-					stmt.clearBatch();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				stmt.close();
-			}
-		}
-		return affectedRows.toArray(new Integer[]{});
-	}
+    private void clearBatch(PreparedStatement stmt) throws SQLException {
+        if(stmt != null){
+            try {
+                stmt.clearBatch();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            stmt.close();
+        }
+    }
 
 	public Integer getScalerValue(String query)
 			throws SQLException{
@@ -682,6 +643,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
     	}	
     }
 
+    @Deprecated
     private Row getLeastAppropriateProperties(List<Row> items, int index){
     	if(items == null || items.isEmpty()){
     		return new Row();
