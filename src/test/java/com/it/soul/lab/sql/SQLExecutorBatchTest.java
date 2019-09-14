@@ -2,19 +2,16 @@ package com.it.soul.lab.sql;
 
 import com.it.soul.lab.connect.DriverClass;
 import com.it.soul.lab.sql.query.QueryType;
+import com.it.soul.lab.sql.query.SQLInsertQuery;
 import com.it.soul.lab.sql.query.SQLQuery;
 import com.it.soul.lab.sql.query.SQLUpdateQuery;
-import com.it.soul.lab.sql.query.models.DataType;
 import com.it.soul.lab.sql.query.models.Property;
 import com.it.soul.lab.sql.query.models.Where;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Map;
 import java.util.UUID;
-
-import static org.junit.Assert.*;
 
 public class SQLExecutorBatchTest {
 
@@ -40,7 +37,7 @@ public class SQLExecutorBatchTest {
                 .from("Passenger")
                 .where(new Where("uuid").notNull())
                 .build();
-        String buffer = exe.updateQueryValueBinding(updateQuery);
+        String buffer = exe.bindValueToQuery(updateQuery);
         System.out.println(buffer);
         //
         updateQuery = new SQLQuery.Builder(QueryType.UPDATE)
@@ -48,7 +45,14 @@ public class SQLExecutorBatchTest {
                 .from("Passenger")
                 .where(new Where("uuid").isEqualTo(UUID.randomUUID().toString()))
                 .build();
-        buffer = exe.updateQueryValueBinding(updateQuery);
+        buffer = exe.bindValueToQuery(updateQuery);
+        System.out.println(buffer);
+        //
+        SQLInsertQuery insertQuery = new SQLQuery.Builder(QueryType.INSERT)
+                .into("Passenger")
+                .values(new Property("name", "Towhid"), new Property("age", 36), new Property("sex", "male"))
+                .build();
+        buffer = exe.bindValueToQuery(insertQuery);
         System.out.println(buffer);
     }
 

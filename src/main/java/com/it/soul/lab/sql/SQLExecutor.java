@@ -243,16 +243,23 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
         return affectedRows.toArray(new Integer[]{});
     }
 
-    public String updateQueryValueBinding(SQLUpdateQuery updateQuery){
-	    StringBuffer buffer = new StringBuffer(updateQuery.toString());
+    public String bindValueToQuery(SQLQuery query){
+	    StringBuffer buffer = new StringBuffer(query.toString());
         System.out.println(buffer.toString());
         //
-        buffer = replaceMarker(buffer, updateQuery.getRow());
-        buffer = replaceMarker(buffer, updateQuery.getWhereProperties());
+        if(query instanceof SQLUpdateQuery)
+        	buffer = bindValueToQueryBuffer(buffer, ((SQLUpdateQuery)query).getRow());
+        //
+        if(query instanceof SQLInsertQuery)
+            buffer = bindValueToQueryBuffer(buffer, ((SQLInsertQuery)query).getRow());
+        //
+        if(query.getWhereProperties() != null)
+            buffer = bindValueToQueryBuffer(buffer, query.getWhereProperties());
+        //
 	    return buffer.toString();
     }
 
-    private StringBuffer replaceMarker(StringBuffer buffer, Row row){
+    private StringBuffer bindValueToQueryBuffer(StringBuffer buffer, Row row){
         String[] keySet = row.getKeys();
         Map<String, Property> propertyMap = row.keyValueMap();
         //
@@ -292,7 +299,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
                 int batchCount = 1;
                 for (int index = 0; index < queries.size(); index++) {
                     SQLUpdateQuery upQuery = queries.get(index);
-                    String queryAfter = updateQueryValueBinding(upQuery);
+                    String queryAfter = bindValueToQuery(upQuery);
                     stmt.addBatch(queryAfter);
                     if ((++batchCount % size) == 0) {
                         batchUpdatedRowsCount.add(stmt.executeBatch());
