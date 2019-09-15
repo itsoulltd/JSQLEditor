@@ -48,6 +48,23 @@ public class SQLExecutorBatchTest {
         exe = null;
     }
 
+    //@Test
+    public void seeAll(){
+        SQLSelectQuery selectQuery = new SQLQuery.Builder(QueryType.SELECT)
+                .columns().from("Passenger")
+                .build();
+        try {
+            List<Passenger> all = exe.collection(exe.executeSelect(selectQuery)).inflate(Passenger.class);
+            all.forEach(passenger -> System.out.println(passenger.getName()));
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Test
     public void updateQueryValueBinding(){
         SQLUpdateQuery updateQuery = new SQLQuery.Builder(QueryType.UPDATE)
@@ -78,14 +95,14 @@ public class SQLExecutorBatchTest {
     public void executeUpdate() {
         SQLSelectQuery selectQuery = new SQLQuery.Builder(QueryType.SELECT)
                 .columns().from("Passenger")
-                .where(new Where("name").isLike("%tan%"))
+                //.where(new Where("name").isLike("%tan%"))
                 .build();
         try {
             List<Row> rows = new ArrayList<>();
             List<Passenger> passengers = exe.collection(exe.executeSelect(selectQuery)).inflate(Passenger.class);
             passengers.forEach(passenger -> {
-                System.out.println(passenger.getName());
-                Row row = new Row().add("name", passenger.getName() + "_updated");
+                System.out.println("Before: " + passenger.getName());
+                Row row = new Row().add("name", getRandomName());
                 rows.add(row);
             });
             //
@@ -93,7 +110,9 @@ public class SQLExecutorBatchTest {
                     .set(new Property("name"))
                     .from(Passenger.tableName(Passenger.class)).build();
             //
-            exe.executeUpdate(100, updateQuery, rows);
+            Integer[] updated = exe.executeUpdate(100, updateQuery, rows);
+            System.out.println(updated.length > 0 ? "Successfully Updated "+ updated.length : "Failed To Update any.");
+            seeAll();
             //
         } catch (InstantiationException e) {
             e.printStackTrace();
@@ -108,13 +127,13 @@ public class SQLExecutorBatchTest {
     public void executeUpdateV2() {
         SQLSelectQuery selectQuery = new SQLQuery.Builder(QueryType.SELECT)
                 .columns().from("Passenger")
-                .where(new Where("name").isLike("%tan%"))
+                //.where(new Where("name").isLike("%tan%"))
                 .build();
         try {
             List<SQLUpdateQuery> queries = new ArrayList<>();
             List<Passenger> passengers = exe.collection(exe.executeSelect(selectQuery)).inflate(Passenger.class);
             passengers.forEach(passenger -> {
-                System.out.println(passenger.getName());
+                System.out.println("Before: " + passenger.getName());
                 //
                 SQLUpdateQuery updateQuery = new SQLQuery.Builder(QueryType.UPDATE)
                         .set(new Property("name", passenger.getName() + "_updated_v2"))
@@ -122,7 +141,9 @@ public class SQLExecutorBatchTest {
                 queries.add(updateQuery);
             });
             //
-            exe.executeUpdate(100, queries);
+            Integer[] updated = exe.executeUpdate(100, queries);
+            System.out.println(updated.length > 0 ? "Successfully Updated "+ updated.length : "Failed To Update any.");
+            seeAll();
             //
         } catch (InstantiationException e) {
             e.printStackTrace();
@@ -134,13 +155,13 @@ public class SQLExecutorBatchTest {
     }
 
     @Test
-    public void executeDelete() {
+    public void clearAll() {
         SQLDeleteQuery query = new SQLQuery.Builder(QueryType.DELETE)
                 .rowsFrom(Passenger.tableName(Passenger.class))
-                .where(new Where("name").isLike("%s_updated%s").or("name").isLike("%s_updated_v2%s"))
+                .where(new Where("name").notNull())
                 .build();
         try {
-            exe.executeDelete( query);
+            if(exe.executeDelete( query) > 0) System.out.println("successfully deleted");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -153,12 +174,14 @@ public class SQLExecutorBatchTest {
                 .values(new Property("name"), new Property("age"), new Property("sex"))
                 .build();
         List<Row> rows = new ArrayList<>();
-        for (int i = 0; i < 50; i++){
+        for (int i = 0; i < 15; i++){
             Row row = new Row().add("name",getRandomName()).add("age",getRandomAge()).add("sex","---");
             rows.add(row);
         }
         try {
-            exe.executeInsert(true, 100, insertQuery, rows);
+            Integer[] inserted = exe.executeInsert(true, 100, insertQuery, rows);
+            System.out.println(inserted.length > 0 ? "Successfully Inserted "+ inserted.length : "Failed To Update any.");
+            seeAll();
         } catch (SQLException e) {
             e.printStackTrace();
         }

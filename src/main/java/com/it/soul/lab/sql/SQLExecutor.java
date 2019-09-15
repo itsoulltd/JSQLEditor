@@ -245,7 +245,6 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 
     public String bindValueToQuery(SQLQuery query){
 	    StringBuffer buffer = new StringBuffer(query.toString());
-        System.out.println(buffer.toString());
         //
         if(query instanceof SQLUpdateQuery)
         	buffer = bindValueToQueryBuffer(buffer, ((SQLUpdateQuery)query).getRow());
@@ -1392,7 +1391,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
                                 }
 	            				break;
 	            			default:
-	            				stmt.setObject(index++, property.getValue());
+	            				if(property.getValue() != null) stmt.setObject(index++, property.getValue());
 	            				break;
             			}
             		}
