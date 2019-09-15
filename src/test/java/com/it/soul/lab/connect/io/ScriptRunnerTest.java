@@ -46,4 +46,11 @@ public class ScriptRunnerTest {
             }
         }
     }
+
+    //@Test
+    public void runScriptsV2(){
+        File file = new File("testDB.sql");
+        String[] cmds = runner.commands(runner.createStream(file));
+        runner.execute(cmds, connection);
+    }
 }
