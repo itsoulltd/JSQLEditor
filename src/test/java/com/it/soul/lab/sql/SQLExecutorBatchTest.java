@@ -154,7 +154,7 @@ public class SQLExecutorBatchTest {
         }
     }
 
-    @Test
+    //@Test
     public void clearAll() {
         SQLDeleteQuery query = new SQLQuery.Builder(QueryType.DELETE)
                 .rowsFrom(Passenger.tableName(Passenger.class))
