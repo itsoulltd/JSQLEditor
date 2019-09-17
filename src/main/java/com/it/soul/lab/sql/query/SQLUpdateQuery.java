@@ -139,5 +139,15 @@ public class SQLUpdateQuery extends SQLSelectQuery{
 		
 		return pqlBuffer.toString();
 	}
+
+    @Override
+    public String bindValueToString() {
+        StringBuffer buffer = new StringBuffer(toString());
+        if (getRow() != null)
+            buffer = bindValueToQueryBuffer(buffer, getRow());
+        if(getWhereProperties() != null)
+            buffer = bindValueToQueryBuffer(buffer, getWhereProperties());
+        return buffer.toString();
+    }
 	
 }

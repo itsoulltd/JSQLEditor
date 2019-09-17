@@ -1,5 +1,6 @@
 package com.it.soul.lab.sql;
 
+import com.it.soul.lab.sql.query.models.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -8,19 +9,11 @@ import com.it.soul.lab.jpql.query.JPQLSelectQuery;
 import com.it.soul.lab.jpql.query.JPQLUpdateQuery;
 import com.it.soul.lab.sql.query.SQLJoinQuery;
 import com.it.soul.lab.sql.query.SQLQuery;
-import com.it.soul.lab.sql.query.models.Logic;
-import com.it.soul.lab.sql.query.models.Operator;
 import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.SQLScalarQuery;
 import com.it.soul.lab.sql.query.SQLSelectQuery;
-import com.it.soul.lab.sql.query.models.AndExpression;
-import com.it.soul.lab.sql.query.models.Expression;
-import com.it.soul.lab.sql.query.models.ExpressionInterpreter;
-import com.it.soul.lab.sql.query.models.JoinExpression;
-import com.it.soul.lab.sql.query.models.OrExpression;
-import com.it.soul.lab.sql.query.models.Row;
-import com.it.soul.lab.sql.query.models.ScalarType;
-import com.it.soul.lab.sql.query.models.Property;
+
+import java.util.Arrays;
 
 public class QueryBuilderTest {
 	
@@ -330,5 +323,36 @@ public class QueryBuilderTest {
 				.on("table_name")
 				.build();
 	}
+
+	@Test
+    public void selectInTest(){
+        SQLSelectQuery query = new SQLQuery.Builder(QueryType.SELECT)
+                .columns()
+                .from("Customers")
+                .where(new Where("Country").isIn(Arrays.asList("Germany", "France", "UK")))
+                .build();
+        System.out.println(query.toString());
+
+        query = new SQLQuery.Builder(QueryType.SELECT)
+                .columns()
+                .from("Customers")
+                .where(new Where("Country").isIn(Arrays.asList("Germany")))
+                .build();
+        System.out.println(query.toString());
+
+        query = new SQLQuery.Builder(QueryType.SELECT)
+                .columns()
+                .from("Customers")
+                .where(new Where("Country").isIn(Arrays.asList()))
+                .build();
+        System.out.println(query.toString());
+
+        JPQLSelectQuery jpqlSelectQuery = new JPQLQuery.Builder(QueryType.SELECT)
+                .columns()
+                .from("Customers")
+                .where(new Where("Country").isIn(Arrays.asList("Germany", "France", "UK")))
+                .build();
+        System.out.println(jpqlSelectQuery.toString());
+    }
 	
 }

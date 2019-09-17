@@ -86,7 +86,7 @@ public class Expression implements ExpressionInterpreter{
 			return  String.valueOf(MARKER);
 		}
 	}
-	private boolean shouldInsertMarker(){
+	protected boolean shouldInsertMarker(){
 	    //return (getValueProperty().getValue() != null);
 	    return getType() != Operator.IS_NULL
                 &&
@@ -104,4 +104,16 @@ public class Expression implements ExpressionInterpreter{
 	public Expression[] resolveExpressions() {
 		return new Expression[] {this};
 	}
+
+    protected char getQuientifier() {
+        return quientifier;
+    }
+
+    protected String getExpressMarker() {
+        return expressMarker;
+    }
+
+    protected static char getMARKER() {
+        return MARKER;
+    }
 }

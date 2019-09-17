@@ -1,14 +1,10 @@
 package com.it.soul.lab.sql.query;
 
+import com.it.soul.lab.sql.query.models.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import com.it.soul.lab.sql.query.models.Expression;
-import com.it.soul.lab.sql.query.models.ExpressionInterpreter;
-import com.it.soul.lab.sql.query.models.Logic;
-import com.it.soul.lab.sql.query.models.Operator;
-import com.it.soul.lab.sql.query.models.Row;
 
 public class SQLSelectQuery extends SQLQuery{
 	
@@ -235,4 +231,13 @@ public class SQLSelectQuery extends SQLQuery{
 		pqlBuffer.append(" FROM "+ tableName + " " + QUIENTIFIER);
 		return pqlBuffer.toString();
 	}
+
+    @Override
+    public String bindValueToString() {
+        StringBuffer buffer = new StringBuffer(toString());
+        if(getWhereProperties() != null)
+            buffer = bindValueToQueryBuffer(buffer, getWhereProperties());
+        return buffer.toString();
+    }
+
 }

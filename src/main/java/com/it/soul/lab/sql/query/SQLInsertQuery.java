@@ -128,5 +128,12 @@ public class SQLInsertQuery extends SQLQuery{
 	public Row getRow() {
 		return row;
 	}
-	
+
+    @Override
+    public String bindValueToString() {
+        StringBuffer buffer = new StringBuffer(toString());
+        if (getRow() != null)
+            buffer = bindValueToQueryBuffer(buffer, getRow());
+        return buffer.toString();
+    }
 }

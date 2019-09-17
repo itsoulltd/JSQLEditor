@@ -243,40 +243,8 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
         return affectedRows.toArray(new Integer[]{});
     }
 
-    public String bindValueToQuery(SQLQuery query){
-	    StringBuffer buffer = new StringBuffer(query.toString());
-        //
-        if(query instanceof SQLUpdateQuery)
-        	buffer = bindValueToQueryBuffer(buffer, ((SQLUpdateQuery)query).getRow());
-        //
-        if(query instanceof SQLInsertQuery)
-            buffer = bindValueToQueryBuffer(buffer, ((SQLInsertQuery)query).getRow());
-        //
-        if(query.getWhereProperties() != null)
-            buffer = bindValueToQueryBuffer(buffer, query.getWhereProperties());
-        //
-	    return buffer.toString();
-    }
-
-    private StringBuffer bindValueToQueryBuffer(StringBuffer buffer, Row row){
-        String[] keySet = row.getKeys();
-        Map<String, Property> propertyMap = row.keyValueMap();
-        //
-        int index = 0; //Start Index;
-        for (String key : keySet) { //So that, order get preserved
-            Property entry = propertyMap.get(key);
-            if (entry.getValue() == null) continue;
-            index = buffer.indexOf("?", index);
-            if (!(index < 0)){ // index >= Math.min(fromIndex, length-of-string)
-                //Check for dataType:
-                if (entry.getType() == DataType.STRING
-                        || entry.getType() == DataType.OBJECT)
-                    buffer.replace(index, index+1,"'"+ entry.getValue().toString()+"'");
-                else
-                    buffer.replace(index, index+1, entry.getValue().toString());
-            }
-        }
-	    return buffer;
+    private String bindValueToQuery(SQLQuery query){
+	    return query.bindValueToString();
     }
 
     @Override
@@ -1390,6 +1358,23 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
                                     stmt.setNull(index++, java.sql.Types.ARRAY);
                                 }
 	            				break;
+                            case LIST:
+                                if (property.getValue() != null){
+                                    List items = (List) property.getValue();
+                                    if (items.size() > 0){
+                                        Object obj = items.get(0);
+                                        if (obj instanceof Integer){
+                                            stmt.setArray(index++, conn.createArrayOf("integer", items.toArray()));
+                                        }else if (obj instanceof Double){
+                                            stmt.setArray(index++, conn.createArrayOf("double", items.toArray()));
+                                        }else if (obj instanceof Float){
+                                            stmt.setArray(index++, conn.createArrayOf("float", items.toArray()));
+                                        }else {
+                                            stmt.setArray(index++, conn.createArrayOf("string", items.toArray()));
+                                        }
+                                    }
+                                }
+                                break;
 	            			default:
 	            				if(property.getValue() != null) stmt.setObject(index++, property.getValue());
 	            				else stmt.setNull(index++, Types.NULL);

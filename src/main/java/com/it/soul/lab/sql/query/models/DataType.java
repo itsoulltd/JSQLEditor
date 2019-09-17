@@ -4,6 +4,8 @@ import java.sql.Blob;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public enum DataType {
@@ -18,7 +20,9 @@ public enum DataType {
 	BLOB,
 	BYTEARRAY,
 	OBJECT,
-	UUID;
+	UUID,
+	LIST,
+    MAP;
 	
 	public static DataType getDataType(Object value) {
 		if (value == null) return DataType.OBJECT;
@@ -40,9 +44,13 @@ public enum DataType {
 			return DataType.BLOB;
 		}else if(value instanceof Byte[]) {
 			return DataType.BYTEARRAY;
-		}else if(value instanceof java.util.UUID) {
+		}else if(value instanceof UUID) {
 			return DataType.UUID;
-		}else {
+		}else if (value instanceof List) {
+		    return DataType.LIST;
+        }else if (value instanceof Map) {
+            return DataType.MAP;
+        }else {
 			return DataType.OBJECT;
 		}
 	}

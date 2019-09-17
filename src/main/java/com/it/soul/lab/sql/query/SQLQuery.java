@@ -4,13 +4,10 @@ package com.it.soul.lab.sql.query;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import com.it.soul.lab.sql.query.builder.AbstractQueryBuilder;
-import com.it.soul.lab.sql.query.models.Expression;
-import com.it.soul.lab.sql.query.models.ExpressionInterpreter;
-import com.it.soul.lab.sql.query.models.Logic;
-import com.it.soul.lab.sql.query.models.Operator;
-import com.it.soul.lab.sql.query.models.Row;
+import com.it.soul.lab.sql.query.models.*;
 
 public abstract class SQLQuery {
 	
@@ -113,6 +110,7 @@ public abstract class SQLQuery {
 	public String toString() {
 		return queryString().trim();
 	}
+	public String bindValueToString(){return queryString().trim();}
 	
 	private String tableName;
 	private String[] columns;
@@ -120,5 +118,37 @@ public abstract class SQLQuery {
 	private Logic logic = Logic.AND;
 	private List<Expression> whereParamExpressions;
 	private ExpressionInterpreter whereExpression;
+
+    protected StringBuffer bindValueToQueryBuffer(StringBuffer buffer, Row row){
+        String[] keySet = row.getKeys();
+        Map<String, Property> propertyMap = row.keyValueMap();
+        //
+        int index = 0; //Start Index;
+        for (String key : keySet) { //So that, order get preserved
+            Property entry = propertyMap.get(key);
+            if (entry.getValue() == null) continue;
+            index = buffer.indexOf("?", index);
+            if (!(index < 0)){ // index >= Math.min(fromIndex, length-of-string)
+                //Check for dataType:
+                if (entry.getType() == DataType.STRING
+                        || entry.getType() == DataType.OBJECT)
+                    buffer.replace(index, index+1,"'"+ entry.getValue().toString()+"'");
+                else if (entry.getType() == DataType.LIST){
+                    StringBuffer inner = new StringBuffer();
+                    ((List)entry.getValue()).forEach(o -> {
+                        if (o instanceof String){
+                            inner.append(",'"+o.toString()+"'");
+                        }else {
+                            inner.append(","+o.toString());
+                        }
+                    });
+                    buffer.replace(index, index+1, inner.toString().replaceFirst(",",""));
+                }
+                else
+                    buffer.replace(index, index+1, entry.getValue().toString());
+            }
+        }
+        return buffer;
+    }
 
 }

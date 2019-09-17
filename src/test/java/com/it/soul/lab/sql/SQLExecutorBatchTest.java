@@ -11,10 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class SQLExecutorBatchTest {
 
@@ -46,6 +43,7 @@ public class SQLExecutorBatchTest {
     public void tearDown() throws Exception {
         exe.close();
         exe = null;
+        //clearAll();
     }
 
     //@Test
@@ -72,7 +70,7 @@ public class SQLExecutorBatchTest {
                 .from("Passenger")
                 .where(new Where("uuid").notNull())
                 .build();
-        String buffer = exe.bindValueToQuery(updateQuery);
+        String buffer = updateQuery.bindValueToString();
         System.out.println(buffer);
         //
         updateQuery = new SQLQuery.Builder(QueryType.UPDATE)
@@ -80,14 +78,14 @@ public class SQLExecutorBatchTest {
                 .from("Passenger")
                 .where(new Where("uuid").isEqualTo(UUID.randomUUID().toString()))
                 .build();
-        buffer = exe.bindValueToQuery(updateQuery);
+        buffer = updateQuery.bindValueToString();
         System.out.println(buffer);
         //
         SQLInsertQuery insertQuery = new SQLQuery.Builder(QueryType.INSERT)
                 .into("Passenger")
                 .values(new Property("name", "Towhid"), new Property("age", 36), new Property("sex", "male"))
                 .build();
-        buffer = exe.bindValueToQuery(insertQuery);
+        buffer = insertQuery.bindValueToString();
         System.out.println(buffer);
     }
 
@@ -183,6 +181,45 @@ public class SQLExecutorBatchTest {
             System.out.println(inserted.length > 0 ? "Successfully Inserted "+ inserted.length : "Failed To Update any.");
             seeAll();
         } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test @SuppressWarnings("Duplicates")
+    public void inQueryTest(){
+        SQLSelectQuery query = new SQLQuery.Builder(QueryType.SELECT)
+                .columns()
+                .from("Person")
+                .where(new Where("name").isIn(Arrays.asList("Towhid", "tanvir", "UK")))
+                .build();
+        System.out.println(query.bindValueToString());
+
+        try {
+            List<Person> personList = exe.executeSelect(query.bindValueToString(), Person.class);
+            personList.forEach(person -> System.out.println(person.getAge()));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        }
+
+        query = new SQLQuery.Builder(QueryType.SELECT)
+                .columns()
+                .from("Person")
+                .where(new Where("age").isIn(Arrays.asList(18, 65, 90)))
+                .build();
+        System.out.println(query.bindValueToString());
+
+        try {
+            List<Person> personList = exe.executeSelect(query.bindValueToString(), Person.class);
+            personList.forEach(person -> System.out.println(person.getName_test()));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
             e.printStackTrace();
         }
     }

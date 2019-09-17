@@ -21,17 +21,6 @@ public class Where implements WhereClause {
 			this.key = key;
 		}
 		
-		public Predicate createExpression(Object value, Operator opt) {
-			ExpressionInterpreter exp = new Expression(new Property(key, value), opt);
-			if(expression == null) {
-				expression = exp;
-			}else {
-				if(logic == Logic.AND) { createAnd(exp);}
-				else {createOr(exp);}
-			}
-			return this;
-		}
-
 		@Override
 		public String interpret() {
 			return expression.interpret();
@@ -41,19 +30,39 @@ public class Where implements WhereClause {
 		public Expression[] resolveExpressions() {
 			return expression.resolveExpressions();
 		}
-		
+
+        private Predicate create(ExpressionInterpreter exp){
+            if(expression == null) {
+                expression = exp;
+            }else {
+                if(logic == Logic.AND) { createAnd(exp);}
+                else {createOr(exp);}
+            }
+            return this;
+        }
+
+        private Predicate createExpression(Object value, Operator opt) {
+            ExpressionInterpreter exp = new Expression(new Property(key, value), opt);
+            return create(exp);
+        }
+
 		private void createAnd(ExpressionInterpreter exp) {
 			expression = new AndExpression(expression, exp);
 		}
-		
+
 		private void createOr(ExpressionInterpreter exp) {
 			expression = new OrExpression(expression, exp);
 		}
-		
+
 		private void createNor() {
 			expression = new NotExpression(expression);
 		}
-		
+
+        private Predicate createIn(Object value, Operator opt){
+            ExpressionInterpreter exp = new InExpression(new Property(key, value), opt);
+            return create(exp);
+        }
+
 		@Override
 		public Predicate and(ExpressionInterpreter exp) {
 			createAnd(exp);
@@ -120,12 +129,12 @@ public class Where implements WhereClause {
 
 	@Override
 	public Predicate isIn(Object value) {
-		return getProxy().createExpression(value, Operator.IN);
+		return getProxy().createIn(value, Operator.IN);
 	}
 
 	@Override
 	public Predicate notIn(Object value) {
-		return getProxy().createExpression(value, Operator.NOT_IN);
+		return getProxy().createIn(value, Operator.NOT_IN);
 	}
 
 	@Override
