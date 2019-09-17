@@ -1392,6 +1392,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 	            				break;
 	            			default:
 	            				if(property.getValue() != null) stmt.setObject(index++, property.getValue());
+	            				else stmt.setNull(index++, Types.NULL);
 	            				break;
             			}
             		}
