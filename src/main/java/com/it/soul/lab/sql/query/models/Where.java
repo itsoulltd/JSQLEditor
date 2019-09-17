@@ -1,5 +1,7 @@
 package com.it.soul.lab.sql.query.models;
 
+import java.util.Arrays;
+
 public class Where implements WhereClause {
 	
 	public Where(String key) {
@@ -58,8 +60,8 @@ public class Where implements WhereClause {
 			expression = new NotExpression(expression);
 		}
 
-        private Predicate createIn(Object value, Operator opt){
-            ExpressionInterpreter exp = new InExpression(new Property(key, value), opt);
+        private Predicate createIn(Object[] value, Operator opt){
+            ExpressionInterpreter exp = new InExpression(new Property(key, Arrays.asList(value)), opt);
             return create(exp);
         }
 
@@ -128,12 +130,12 @@ public class Where implements WhereClause {
 	}
 
 	@Override
-	public Predicate isIn(Object value) {
+	public Predicate isIn(Object...value) {
 		return getProxy().createIn(value, Operator.IN);
 	}
 
 	@Override
-	public Predicate notIn(Object value) {
+	public Predicate notIn(Object...value) {
 		return getProxy().createIn(value, Operator.NOT_IN);
 	}
 

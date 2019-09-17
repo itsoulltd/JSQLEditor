@@ -7,8 +7,8 @@ public interface WhereClause {
 	Predicate isGreaterThenOrEqual(Object value);
 	Predicate isLessThen(Object value);
 	Predicate isLessThenOrEqual(Object value);
-	Predicate isIn(Object value);
-	Predicate notIn(Object value);
+	Predicate isIn(Object...value);
+	Predicate notIn(Object...value);
 	Predicate isLike(Object value);
 	Predicate notLike(Object value);
 	Predicate isNull();

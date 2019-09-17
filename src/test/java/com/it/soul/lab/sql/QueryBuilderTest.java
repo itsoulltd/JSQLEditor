@@ -329,7 +329,7 @@ public class QueryBuilderTest {
         SQLSelectQuery query = new SQLQuery.Builder(QueryType.SELECT)
                 .columns()
                 .from("Customers")
-                .where(new Where("Country").isIn(Arrays.asList("Germany", "France", "UK")))
+                .where(new Where("Country").isIn("Germany", "France", "UK"))
                 .build();
         System.out.println(query.toString());
 

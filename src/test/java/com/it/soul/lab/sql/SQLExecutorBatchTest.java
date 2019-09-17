@@ -190,7 +190,7 @@ public class SQLExecutorBatchTest {
         SQLSelectQuery query = new SQLQuery.Builder(QueryType.SELECT)
                 .columns()
                 .from("Person")
-                .where(new Where("name").isIn(Arrays.asList("Towhid", "tanvir", "UK")))
+                .where(new Where("name").isIn("Towhid", "tanvir", "UK"))
                 .build();
         System.out.println(query.bindValueToString());
 
@@ -208,7 +208,7 @@ public class SQLExecutorBatchTest {
         query = new SQLQuery.Builder(QueryType.SELECT)
                 .columns()
                 .from("Person")
-                .where(new Where("age").isIn(Arrays.asList(18, 65, 90)))
+                .where(new Where("age").isIn(18, 65, 90))
                 .build();
         System.out.println(query.bindValueToString());
 
