@@ -1,6 +1,9 @@
 package com.it.soul.lab.sql.query.models;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Where implements WhereClause {
 	
@@ -131,12 +134,28 @@ public class Where implements WhereClause {
 
 	@Override
 	public Predicate isIn(Object...value) {
-		return getProxy().createIn(value, Operator.IN);
+		if (value instanceof List[]){
+		    if (value.length > 0){
+		        List items = Arrays.stream(value)
+                        .map(obj -> ((List)obj).toArray())
+                        .collect(Collectors.toList());
+		        return getProxy().createIn(items.toArray(), Operator.IN);
+            }
+        }
+        return getProxy().createIn(value, Operator.IN);
 	}
 
 	@Override
 	public Predicate notIn(Object...value) {
-		return getProxy().createIn(value, Operator.NOT_IN);
+        if (value instanceof List[]){
+            if (value.length > 0){
+                List items = Arrays.stream(value)
+                        .map(obj -> ((List)obj).toArray())
+                        .collect(Collectors.toList());
+                return getProxy().createIn(items.toArray(), Operator.NOT_IN);
+            }
+        }
+        return getProxy().createIn(value, Operator.NOT_IN);
 	}
 
 	@Override
