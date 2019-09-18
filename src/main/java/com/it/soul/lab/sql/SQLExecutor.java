@@ -184,6 +184,32 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		return rowUpdated;
 	}
 
+    public Integer executeUpdate(String query) throws SQLException{
+        if(query == null
+                || !query.isEmpty()){
+            throw new SQLException("Query Should not be bull or empty!!!");
+        }
+        PreparedStatement stmt=null;
+        String queryStr = query;
+        return getRowUpdated( stmt, queryStr);
+    }
+
+    private int getRowUpdated(PreparedStatement stmt, String queryStr) throws SQLException {
+        int rowUpdated = 0;
+        try{
+            if(conn != null){
+                stmt = conn.prepareStatement(queryStr);
+                rowUpdated = stmt.executeUpdate();
+            }
+        }
+        catch(SQLException exp) { throw exp;}
+        catch (IllegalArgumentException e) { throw e;}
+        finally{
+            if(stmt != null) stmt.close();
+        }
+        return rowUpdated;
+    }
+
     @Override
     public Integer[] executeUpdate(int size, SQLUpdateQuery updateQuery, List<Row> rows) throws SQLException, IllegalArgumentException {
 
@@ -318,6 +344,17 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		}
 		return rowUpdated;
 	}
+
+    public Integer executeDelete(String deleteQuery)
+            throws SQLException{
+        if(deleteQuery == null || !deleteQuery.isEmpty()){
+            throw new SQLException("Query should not be null or empty!!!");
+        }
+        PreparedStatement stmt=null;
+        String query = deleteQuery;
+        int rowUpdated = getRowUpdated(stmt, query);
+        return rowUpdated;
+    }
 
     @Override
     public Integer executeDelete(int size, SQLDeleteQuery deleteQuery, List<Row> where) throws SQLException {
