@@ -134,27 +134,27 @@ public class Where implements WhereClause {
 
 	@Override
 	public Predicate isIn(Object...value) {
-		if (value instanceof List[]){
-		    if (value.length > 0){
-		        List items = Arrays.stream(value)
-                        .map(obj -> ((List)obj).toArray())
-                        .collect(Collectors.toList());
-		        return getProxy().createIn(items.toArray(), Operator.IN);
-            }
+        List filtered = new ArrayList();
+        if (value.length > 0){
+            filtered = (List) Arrays.stream(value)
+                    .filter(o -> o instanceof List)
+                    .flatMap(obj -> ((List)obj).stream())
+                    .collect(Collectors.toList());
         }
+        value = (filtered.size() > 0) ? filtered.toArray() : value;
         return getProxy().createIn(value, Operator.IN);
 	}
 
 	@Override
 	public Predicate notIn(Object...value) {
-        if (value instanceof List[]){
-            if (value.length > 0){
-                List items = Arrays.stream(value)
-                        .map(obj -> ((List)obj).toArray())
-                        .collect(Collectors.toList());
-                return getProxy().createIn(items.toArray(), Operator.NOT_IN);
-            }
+        List filtered = new ArrayList();
+        if (value.length > 0){
+            filtered = (List) Arrays.stream(value)
+                    .filter(o -> o instanceof List)
+                    .flatMap(obj -> ((List)obj).stream())
+                    .collect(Collectors.toList());
         }
+        value = (filtered.size() > 0) ? filtered.toArray() : value;
         return getProxy().createIn(value, Operator.NOT_IN);
 	}
 

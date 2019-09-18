@@ -331,14 +331,14 @@ public class QueryBuilderTest {
                 .from("Customers")
                 .where(new Where("Country").isIn("Germany", "France", "UK"))
                 .build();
-        System.out.println(query.toString());
+        System.out.println(query.bindValueToString());
 
         query = new SQLQuery.Builder(QueryType.SELECT)
                 .columns()
                 .from("Customers")
                 .where(new Where("Country").isIn(Arrays.asList("Germany")))
                 .build();
-        System.out.println(query.toString());
+        System.out.println(query.bindValueToString());
 
         query = new SQLQuery.Builder(QueryType.SELECT)
                 .columns()
