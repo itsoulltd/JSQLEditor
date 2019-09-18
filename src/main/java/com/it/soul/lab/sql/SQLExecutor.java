@@ -186,7 +186,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 
     public Integer executeUpdate(String query) throws SQLException{
         if(query == null
-                || !query.isEmpty()){
+                || query.isEmpty()){
             throw new SQLException("Query Should not be bull or empty!!!");
         }
         PreparedStatement stmt=null;
@@ -347,7 +347,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 
     public Integer executeDelete(String deleteQuery)
             throws SQLException{
-        if(deleteQuery == null || !deleteQuery.isEmpty()){
+        if(deleteQuery == null || deleteQuery.isEmpty()){
             throw new SQLException("Query should not be null or empty!!!");
         }
         PreparedStatement stmt=null;
