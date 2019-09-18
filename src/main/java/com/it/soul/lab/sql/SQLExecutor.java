@@ -222,12 +222,13 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
         PreparedStatement stmt = null;
         String query = updateQuery.toString();
 
+        boolean notBegin = conn.getAutoCommit();
         try{
             size = (size < 100) ? 100 : size;//Least should be 100
             if(conn != null){
                 //
                 List<int[]> batchUpdatedRowsCount = new ArrayList<int[]>();
-                begin();
+                if(notBegin) begin();
                 stmt = conn.prepareStatement(query);
                 int batchCount = 1;
                 for (int index = 0; index < rows.size(); index++) {
@@ -251,7 +252,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
                 if(rows.size() % size != 0)
                     batchUpdatedRowsCount.add(stmt.executeBatch());
                 //
-                end();
+                if(notBegin) end();
                 //
                 for (int[] rr  : batchUpdatedRowsCount) {
                     for(int i = 0; i < rr.length ; i++){
@@ -261,7 +262,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 
             }
         }catch(SQLException | IllegalArgumentException exp){
-            abort();
+            if(notBegin) abort();
             throw exp;
         }finally{
             clearBatch(stmt);
@@ -282,12 +283,13 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 
         List<Integer> affectedRows = new ArrayList<Integer>();
         Statement stmt = null;
+        boolean notBegin = conn.getAutoCommit();
         try{
             size = (size < 100) ? 100 : size;//Least should be 100
             if(conn != null){
                 //
                 List<int[]> batchUpdatedRowsCount = new ArrayList<int[]>();
-                begin();
+                if(notBegin) begin();
                 stmt = conn.createStatement();
                 int batchCount = 1;
                 for (int index = 0; index < queries.size(); index++) {
@@ -301,7 +303,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
                 if(queries.size() % size != 0)
                     batchUpdatedRowsCount.add(stmt.executeBatch());
                 //
-                end();
+                if(notBegin) end();
                 //
                 for (int[] rr  : batchUpdatedRowsCount) {
                     for(int i = 0; i < rr.length ; i++){
@@ -311,7 +313,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 
             }
         }catch(SQLException | IllegalArgumentException exp){
-            abort();
+            if(notBegin) abort();
             throw exp;
         }finally{
             clearBatch(stmt);
@@ -367,10 +369,11 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
         PreparedStatement stmt=null;
         String query = deleteQuery.toString();
         String[] whereKeySet = where.get(0).getKeys();
+        boolean notBegin = conn.getAutoCommit();
         try{
             size = (size < 100) ? 100 : size;//Least should be 100
             if(conn != null){
-                begin();
+                if(notBegin) begin();
                 int batchCount = 1;
                 stmt = conn.prepareStatement(query);
                 for (Row paramValue: where) {
@@ -383,10 +386,10 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
                 if(where.size() % size != 0)
                     stmt.executeBatch();
                 //
-                end();
+                if(notBegin) end();
             }
         }catch(SQLException | IllegalArgumentException exp){
-            abort();
+            if(notBegin) abort();
             throw exp;
         }finally{
             clearBatch(stmt);
@@ -474,11 +477,12 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
         //
         Object[] keySet = rows.get(0).getKeys();
         String query = insertQuery.toString();
+        boolean notBegin = conn.getAutoCommit();
         //
         try{
             size = (size < 100) ? 100 : size;//Least should be 100
             if(conn != null){
-                begin();
+                if(notBegin) begin();
                 stmt = autoId
                         ? conn.prepareStatement(query,Statement.RETURN_GENERATED_KEYS)
                         : conn.prepareStatement(query);
@@ -494,7 +498,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
                 if(rows.size() % size != 0)
                     batchUpdatedRowsCount.add(stmt.executeBatch());
                 //
-                end();
+                if(notBegin) end();
                 for (int[] rr  : batchUpdatedRowsCount) {
                     for(int i = 0; i < rr.length ; i++){
                         affectedRows.add(rr[i]);
@@ -503,7 +507,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
                 //
             }
         }catch(SQLException | IllegalArgumentException exp){
-            abort();
+            if(notBegin) abort();
             throw exp;
         }finally{
             clearBatch(stmt);
