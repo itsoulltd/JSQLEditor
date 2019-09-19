@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class JPQLExecutor extends AbstractExecutor implements QueryExecutor<JPQLSelectQuery, SQLInsertQuery,JPQLUpdateQuery, JPQLDeleteQuery, SQLScalarQuery>, QueryTransaction {
+public class JPQLExecutor extends AbstractExecutor implements QueryExecutor<JPQLSelectQuery, SQLInsertQuery,JPQLUpdateQuery, JPQLDeleteQuery, SQLScalarQuery> {
 
     private Logger log = Logger.getLogger(this.getClass().getSimpleName());
 

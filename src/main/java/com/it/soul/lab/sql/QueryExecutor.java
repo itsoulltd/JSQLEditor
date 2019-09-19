@@ -14,7 +14,7 @@ public interface QueryExecutor<S extends SQLQuery
         , I extends SQLQuery
         , U extends SQLQuery
         , D extends SQLQuery
-        , C extends SQLQuery> extends AutoCloseable {
+        , C extends SQLQuery> extends QueryTransaction {
 
     AbstractQueryBuilder createQueryBuilder(QueryType queryType);
     Object createBlob(String val) throws SQLException;

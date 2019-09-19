@@ -39,7 +39,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSelectQuery, CQLInsertQuery, CQLUpdateQuery, CQLDeleteQuery, SQLScalarQuery>, QueryTransaction {
+public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSelectQuery, CQLInsertQuery, CQLUpdateQuery, CQLDeleteQuery, SQLScalarQuery> {
 
     public static class Builder {
 

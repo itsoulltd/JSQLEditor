@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSelectQuery, SQLInsertQuery, SQLUpdateQuery, SQLDeleteQuery, SQLScalarQuery>, QueryTransaction{
+public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSelectQuery, SQLInsertQuery, SQLUpdateQuery, SQLDeleteQuery, SQLScalarQuery> {
 
 	public static class Builder {
 		private JDBConnection.Builder connectionBuilder;
