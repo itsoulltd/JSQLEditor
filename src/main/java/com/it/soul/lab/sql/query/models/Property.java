@@ -10,9 +10,9 @@ public class Property {
 
 	public static final String SQL_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	private String key = null;
-	private DataType type = null;
-	private Object value = null;
-	
+    private Object value = null;
+    private DataType type = DataType.NULL_OBJECT;
+
 	private Property(Object value){
 		this.value = value;
 		this.type = DataType.getDataType(value);
@@ -27,10 +27,16 @@ public class Property {
 		this(key, null);
 	}
 	
-	public Property(Property prop) {
-		this(prop.getKey(), prop.getValue());
-	}
-	
+    public Property(String key, Object value, DataType type){
+        this.key = key;
+        this.value = value;
+        this.type = (type == null) ? DataType.getDataType(value) : type;
+    }
+
+    public Property(Property prop) {
+        this(prop.getKey(), prop.getValue(), prop.getType());
+    }
+
 	@Override
 	public boolean equals(Object obj) {
 		

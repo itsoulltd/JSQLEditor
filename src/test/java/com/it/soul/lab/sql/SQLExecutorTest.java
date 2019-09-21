@@ -1,6 +1,11 @@
 package com.it.soul.lab.sql;
 
 import com.it.soul.lab.connect.DriverClass;
+import com.it.soul.lab.sql.query.*;
+import com.it.soul.lab.sql.query.models.DataType;
+import com.it.soul.lab.sql.query.models.Property;
+import com.it.soul.lab.sql.query.models.Row;
+import com.it.soul.lab.sql.query.models.Where;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,5 +45,39 @@ public class SQLExecutorTest {
             System.out.println(e.getMessage());
         }
 
+    }
+
+    @Test
+    public void insert() throws SQLException {
+        SQLInsertQuery query = new SQLQuery.Builder(QueryType.INSERT)
+                .into("Passenger")
+                .values(new Row()
+                        .add("name","MyName-A")
+                        .add(new Property("age", null, DataType.INT))
+                        .add("sex", null).getProperties().toArray(new Property[0]))
+                .build();
+        int res = exe.executeInsert(true, query);
+        Assert.assertTrue(res > 0);
+    }
+
+    @Test
+    public void update() throws SQLException {
+        SQLUpdateQuery query = new SQLQuery.Builder(QueryType.UPDATE)
+                .set(new Row().add("age",19).getProperties().toArray(new Property[0]))
+                .from("Passenger")
+                .where(new Where("sex").isNull())
+                .build();
+        int res = exe.executeUpdate(query);
+        Assert.assertTrue(res >= 0);
+    }
+
+    @Test
+    public void delete() throws SQLException {
+        SQLDeleteQuery query = new SQLQuery.Builder(QueryType.DELETE)
+                .rowsFrom("Passenger")
+                .where(new Where("sex").isNull())
+                .build();
+        int deleted = exe.executeDelete(query);
+        Assert.assertTrue(deleted >= 0);
     }
 }

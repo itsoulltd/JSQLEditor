@@ -23,10 +23,12 @@ public enum DataType {
 	OBJECT,
 	UUID,
 	LIST,
-    MAP;
+    MAP,
+    NULL_OBJECT,
+    NULL_SKIP;
 	
 	public static DataType getDataType(Object value) {
-		if (value == null) return DataType.OBJECT;
+		if (value == null) return DataType.NULL_OBJECT;
 		if(value instanceof Integer) {
 			return DataType.INT;
 		}else if(value instanceof Long) {

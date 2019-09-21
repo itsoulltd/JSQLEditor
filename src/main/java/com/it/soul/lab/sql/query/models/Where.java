@@ -170,11 +170,13 @@ public class Where implements WhereClause {
 
 	@Override
 	public Predicate isNull() {
-		return getProxy().createExpression(null, Operator.IS_NULL);
+		ExpressionInterpreter exp = new Expression(new Property(getProxy().key, null, DataType.NULL_SKIP), Operator.IS_NULL);
+		return getProxy().create(exp);
 	}
 
 	@Override
 	public Predicate notNull() {
-		return getProxy().createExpression(null, Operator.NOT_NULL);
+		ExpressionInterpreter exp = new Expression(new Property(getProxy().key, null, DataType.NULL_SKIP), Operator.NOT_NULL);
+		return getProxy().create(exp);
 	}
 }

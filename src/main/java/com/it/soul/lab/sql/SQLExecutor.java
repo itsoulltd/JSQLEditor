@@ -1328,6 +1328,8 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
             		for (Object param : params) {
             			
             			Property property = paramValues.get(param.toString());
+            			if (property.getType() == DataType.NULL_SKIP)
+            			    continue;
 
             			switch (property.getType()) {
 	            			case STRING:
