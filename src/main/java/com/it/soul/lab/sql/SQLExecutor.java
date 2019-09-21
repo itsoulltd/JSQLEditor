@@ -1331,7 +1331,9 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 
             			switch (property.getType()) {
 	            			case STRING:
-	            				stmt.setString(index++, (property.getValue() != null) ? property.getValue().toString().trim() : null);
+	            				stmt.setString(index++, (property.getValue() != null)
+                                        ? property.getValue().toString().trim()
+                                        : null);
 	            				break;
 	            			case INT:
 	            				if(property.getValue() != null){
@@ -1340,6 +1342,13 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 	            					stmt.setNull(index++, java.sql.Types.INTEGER);
 	            				}
 	            				break;
+                            case LONG:
+                                if(property.getValue() != null){
+                                    stmt.setLong(index++, (Long)property.getValue());
+                                }else{
+                                    stmt.setNull(index++, Types.BIGINT);
+                                }
+                                break;
 	            			case BOOL:
 	            				if(property.getValue() != null){
                                     stmt.setBoolean(index++, (Boolean)property.getValue());
@@ -1402,23 +1411,39 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
                             case LIST:
                                 if (property.getValue() != null){
                                     List items = (List) property.getValue();
-                                    if (items.size() > 0){
-                                        Object obj = items.get(0);
-                                        if (obj instanceof Integer){
-                                            stmt.setArray(index++, conn.createArrayOf("integer", items.toArray()));
-                                        }else if (obj instanceof Double){
-                                            stmt.setArray(index++, conn.createArrayOf("double", items.toArray()));
-                                        }else if (obj instanceof Float){
-                                            stmt.setArray(index++, conn.createArrayOf("float", items.toArray()));
-                                        }else {
-                                            stmt.setArray(index++, conn.createArrayOf("string", items.toArray()));
-                                        }
+                                    Object obj = (items.size() > 0) ? items.get(0) : "";
+                                    if (obj instanceof Integer){
+                                        stmt.setArray(index++, conn.createArrayOf("integer", items.toArray(new Integer[0])));
                                     }
+                                    else if (obj instanceof Double){
+                                        stmt.setArray(index++, conn.createArrayOf("double", items.toArray(new Double[0])));
+                                    }
+                                    else if (obj instanceof Float){
+                                        stmt.setArray(index++, conn.createArrayOf("float", items.toArray(new Float[0])));
+                                    }
+                                    else if (obj instanceof Long){
+                                        stmt.setArray(index++, conn.createArrayOf("long", items.toArray(new Long[0])));
+                                    }
+                                    else if((obj instanceof Timestamp)
+                                            || (obj instanceof Time)
+                                            || obj instanceof Date){
+                                        stmt.setArray(index++, conn.createArrayOf("timestamp", items.toArray()));
+                                    }
+                                    else if(obj instanceof String) {
+                                        stmt.setArray(index++, conn.createArrayOf("string", items.toArray(new String[0])));
+                                    }
+                                    else {
+                                        stmt.setArray(index++, conn.createArrayOf("object", items.toArray()));
+                                    }
+                                }else{
+                                    stmt.setNull(index++, Types.ARRAY);
                                 }
                                 break;
 	            			default:
-	            				if(property.getValue() != null) stmt.setObject(index++, property.getValue());
-	            				else stmt.setNull(index++, Types.NULL);
+	            				if(property.getValue() != null)
+	            				    stmt.setObject(index++, property.getValue());
+	            				else
+	            				    stmt.setNull(index++, Types.NULL);
 	            				break;
             			}
             		}

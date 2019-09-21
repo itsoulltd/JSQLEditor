@@ -10,6 +10,7 @@ import java.util.UUID;
 
 public enum DataType {
 	INT,
+	LONG,
 	FLOAT,
 	DOUBLE,
 	BOOL,
@@ -28,7 +29,9 @@ public enum DataType {
 		if (value == null) return DataType.OBJECT;
 		if(value instanceof Integer) {
 			return DataType.INT;
-		}else if(value instanceof Double) {
+		}else if(value instanceof Long) {
+            return DataType.LONG;
+        }else if(value instanceof Double) {
 			return DataType.DOUBLE;
 		}else if(value instanceof Float) {
 			return DataType.FLOAT;
