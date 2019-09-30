@@ -25,7 +25,8 @@ public enum DataType {
 	LIST,
     MAP,
     NULL_OBJECT,
-    NULL_SKIP;
+    NULL_SKIP,
+	JSON;
 	
 	public static DataType getDataType(Object value) {
 		if (value == null) return DataType.NULL_OBJECT;
@@ -40,7 +41,7 @@ public enum DataType {
 		}else if(value instanceof Boolean) {
 			return DataType.BOOL;
 		}else if(value instanceof String) {
-			return DataType.STRING;
+		    return checkJsonType((String) value);
 		}else if(value instanceof Date || value instanceof java.util.Date) {
 			return DataType.SQLDATE;
 		}else if(value instanceof Timestamp || value instanceof Time) {
@@ -59,4 +60,12 @@ public enum DataType {
 			return DataType.OBJECT;
 		}
 	}
+
+	private static DataType checkJsonType(String value){
+        if ((value).startsWith("{")
+                || (value).startsWith("[")){
+            return DataType.JSON;
+        }
+        return DataType.STRING;
+    }
 }
