@@ -21,7 +21,10 @@ public class SQLExecutorTest {
     @Before
     public void setUp() throws Exception {
         exe = new SQLExecutor.Builder(DriverClass.MYSQL)
-                .database("testDB").credential("root", password).build();
+                .database("testDB")
+                .credential("root", password)
+                .query("?autoReconnect=true&failOverReadOnly=false&maxReconnects=10")
+                .build();
     }
 
     @After
