@@ -34,6 +34,10 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 			connectionBuilder.credential(name, password);
 			return this;
 		}
+		public Builder query(String query){
+			connectionBuilder.query(query);
+			return this;
+		}
 		public SQLExecutor build() throws Exception {
 			Connection conn = connectionBuilder.build();
 			return new SQLExecutor(conn);

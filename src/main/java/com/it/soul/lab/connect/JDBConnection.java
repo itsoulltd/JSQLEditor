@@ -13,6 +13,7 @@ public class JDBConnection implements Serializable{
 		private StringBuffer hostStr = new StringBuffer();
 		private String dbName;
 		private DriverClass driver;
+		private String linkQuery;
 		public Builder(String connectionURL){
 			dbConnection = new JDBConnection();
 			dbConnection.serverUrl = connectionURL;
@@ -50,6 +51,12 @@ public class JDBConnection implements Serializable{
 			dbConnection.password = password;
 			return this;
 		}
+		public JDBConnectionBuilder query(String query) {
+		    if (linkQuery != null && !linkQuery.isEmpty()) return this;
+		    if (query != null && !query.trim().startsWith("?")) query = "?" + query.trim();
+		    linkQuery = query;
+			return this;
+		}
 		public Connection build() throws SQLException{
 			if(dbConnection.serverUrl == null) {
 				String hostName = hostStr.toString();
@@ -59,7 +66,10 @@ public class JDBConnection implements Serializable{
 				if(dbName == null || dbName.isEmpty()) {
 					throw new SQLException("Database Name is empty.");
 				}
-				dbConnection.serverUrl = driver.urlSchema() + hostStr.toString() + dbName;
+                if (linkQuery != null && !linkQuery.isEmpty())
+                    dbConnection.serverUrl = driver.urlSchema() + hostStr.toString() + dbName + linkQuery;
+				else
+				    dbConnection.serverUrl = driver.urlSchema() + hostStr.toString() + dbName;
 			}
 			if(dbConnection.user == null || dbConnection.user.isEmpty()) {
 				throw new SQLException("Username is missing.");
