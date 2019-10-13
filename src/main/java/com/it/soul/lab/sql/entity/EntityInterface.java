@@ -8,9 +8,9 @@ import java.util.Map;
 
 public interface EntityInterface {
 	String tableName();
-	Boolean update(QueryExecutor exe, String...keys) throws SQLException, Exception;
-	Boolean insert(QueryExecutor exe, String...keys) throws SQLException, Exception;
-	Boolean delete(QueryExecutor exe) throws SQLException, Exception;
+    Boolean insert(QueryExecutor exe, String...keys) throws SQLException;
+    Boolean update(QueryExecutor exe, String...keys) throws SQLException;
+	Boolean delete(QueryExecutor exe) throws SQLException;
 	Field getDeclaredField(String fieldName, boolean inherit) throws NoSuchFieldException;
     Field[] getDeclaredFields(boolean inherit);
 	Map<String, Object> marshallingToMap(boolean inherit);
