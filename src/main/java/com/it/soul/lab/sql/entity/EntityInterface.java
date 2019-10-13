@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.Map;
 
 public interface EntityInterface {
+	String tableName();
 	Boolean update(QueryExecutor exe, String...keys) throws SQLException, Exception;
 	Boolean insert(QueryExecutor exe, String...keys) throws SQLException, Exception;
 	Boolean delete(QueryExecutor exe) throws SQLException, Exception;

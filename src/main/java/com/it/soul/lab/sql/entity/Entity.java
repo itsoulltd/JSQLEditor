@@ -434,7 +434,13 @@ public abstract class Entity implements EntityInterface{
 		int deletedId = exe.executeDelete(query);
 		return deletedId == 1;
 	}
-	///////////////////////////////////////Class API///////////////////////////////////////
+
+    @Override
+    public String tableName() {
+        return Entity.tableName(this.getClass());
+    }
+
+    ///////////////////////////////////////Class API///////////////////////////////////////
 	protected static <T extends Entity> boolean shouldAcceptAllAsProperty(Class<T> type) {
 		if(type.isAnnotationPresent(TableName.class)) {
             TableName tableName = type.getAnnotation(TableName.class);
@@ -489,17 +495,17 @@ public abstract class Entity implements EntityInterface{
 	public static <T extends Entity> String tableName(Class<T> type) {
 		if (type.isAnnotationPresent(TableName.class)){
 			TableName tableName = type.getAnnotation(TableName.class);
-			String name = (tableName.value().trim().length() == 0) ? type.getSimpleName() : tableName.value().trim();
+			String name = (tableName.value().trim().isEmpty()) ? type.getSimpleName() : tableName.value().trim();
 			return name;
 		}else if (type.isAnnotationPresent(Table.class)){
 			Table tableName = type.getAnnotation(Table.class);
-			String name = (tableName.name().trim().length() == 0) ? type.getSimpleName() : tableName.name().trim();
+			String name = (tableName.name().trim().isEmpty()) ? type.getSimpleName() : tableName.name().trim();
 			return name;
 		}else {
 			return type.getSimpleName();
 		}
 	}
-	public static <T extends Entity> List<T> read(Class<T>  type, QueryExecutor exe, Property...match) throws SQLException, Exception{
+	public static <T extends Entity> List<T> read(Class<T>  type, QueryExecutor exe, Property...match) throws Exception{
 		ExpressionInterpreter and = null;
 		ExpressionInterpreter lhr = null;
 		for (int i = 0; i < match.length; i++) {
@@ -514,7 +520,7 @@ public abstract class Entity implements EntityInterface{
 		}
 		return T.read(type, exe, and);
 	}
-	public static <T extends Entity> List<T> read(Class<T>  type, QueryExecutor exe, ExpressionInterpreter expression) throws SQLException, Exception{
+	public static <T extends Entity> List<T> read(Class<T>  type, QueryExecutor exe, ExpressionInterpreter expression) throws Exception{
 		String name = Entity.tableName(type);
 		SQLSelectQuery query = null;
 		if(expression != null) {
