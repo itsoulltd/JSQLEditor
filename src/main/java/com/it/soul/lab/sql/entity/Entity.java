@@ -468,7 +468,7 @@ public abstract class Entity implements EntityInterface{
 	public static <T extends Entity> Map<String, String> mapColumnsToProperties(Class<T> type) {
 
 		boolean acceptAll = Entity.shouldAcceptAllAsProperty(type);
-		//if (acceptAll) {return null;}
+		if (acceptAll) {return null;}
 		
 		Map<String, String> result = new HashMap<>();
 		for (Field field : Entity.getDeclaredFields(type, true)) {
