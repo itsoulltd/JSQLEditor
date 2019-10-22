@@ -53,7 +53,7 @@ public class SQLExecutorBatchTest {
                 .build();
         try {
             List<Passenger> all = exe.collection(exe.executeSelect(selectQuery)).inflate(Passenger.class);
-            all.forEach(passenger -> System.out.println(passenger.getName()));
+            //all.forEach(passenger -> System.out.println(passenger.getName()));
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -99,7 +99,7 @@ public class SQLExecutorBatchTest {
             List<Row> rows = new ArrayList<>();
             List<Passenger> passengers = exe.collection(exe.executeSelect(selectQuery)).inflate(Passenger.class);
             passengers.forEach(passenger -> {
-                System.out.println("Before: " + passenger.getName());
+                //System.out.println("Before: " + passenger.getName());
                 Row row = new Row().add("name", getRandomName());
                 rows.add(row);
             });
@@ -131,7 +131,7 @@ public class SQLExecutorBatchTest {
             List<SQLUpdateQuery> queries = new ArrayList<>();
             List<Passenger> passengers = exe.collection(exe.executeSelect(selectQuery)).inflate(Passenger.class);
             passengers.forEach(passenger -> {
-                System.out.println("Before: " + passenger.getName());
+                //System.out.println("Before: " + passenger.getName());
                 //
                 SQLUpdateQuery updateQuery = new SQLQuery.Builder(QueryType.UPDATE)
                         .set(new Property("name", passenger.getName() + "_updated_v2"))
@@ -214,7 +214,7 @@ public class SQLExecutorBatchTest {
 
         try {
             List<Person> personList = exe.executeSelect(query.bindValueToString(), Person.class);
-            personList.forEach(person -> System.out.println(person.getName_test()));
+            //personList.forEach(person -> System.out.println(person.getName_test()));
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {

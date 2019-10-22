@@ -43,7 +43,7 @@ public class JPersonTest {
         person.insert(executor);
         //Read
         List<JPerson> readed = Entity.read(JPerson.class, executor);
-        if (readed != null) readed.forEach(rperson -> System.out.println(rperson.marshallingToMap(false)));
+        //if (readed != null) readed.forEach(rperson -> System.out.println(rperson.marshallingToMap(false)));
         //
     }
 

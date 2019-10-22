@@ -95,7 +95,7 @@ public class JPassengerTest{
         if (updatedUid != null && !updatedUid.isEmpty()) {
             Predicate likeWise = new Where("uuid").isLike(updatedUid);
             List<JPassenger> retrieved = Entity.read(JPassenger.class, executor, likeWise);
-            if (retrieved != null) retrieved.forEach(passenger -> System.out.println(passenger.marshallingToMap(false)));
+            //if (retrieved != null) retrieved.forEach(passenger -> System.out.println(passenger.marshallingToMap(false)));
         }
     }
     
@@ -115,7 +115,7 @@ public class JPassengerTest{
                         jPassenger.setSex(Sex.Female.name());
                     }
                     jPassenger.update(executor);
-                    System.out.println("Updated: " + jPassenger.marshallingToMap(false));
+                    //System.out.println("Updated: " + jPassenger.marshallingToMap(false));
                 } catch (SQLException e) {
                 }
             });
@@ -142,7 +142,7 @@ public class JPassengerTest{
         if (goingToDeleteId != null && !goingToDeleteId.isEmpty()) {
             Predicate likeWise = new Where("uuid").isLike(goingToDeleteId);
             List<JPassenger> retrieved = Entity.read(JPassenger.class, executor, likeWise);
-            if (retrieved == null || retrieved.size() <= 0) System.out.println(goingToDeleteId + " has been successfully deleted.");
+            //if (retrieved == null || retrieved.size() <= 0) System.out.println(goingToDeleteId + " has been successfully deleted.");
         }
     }
 
@@ -152,17 +152,17 @@ public class JPassengerTest{
         Predicate where = new Where("sex").isEqualTo("Male")
                 .and("age").isGreaterThenOrEqual(30);
         List<JPassenger> retrieved = Entity.read(JPassenger.class, executor, where);
-        if (retrieved != null)
-            retrieved.forEach(passenger -> System.out.println(passenger.marshallingToMap(false)));
+        /*if (retrieved != null)
+            retrieved.forEach(passenger -> System.out.println(passenger.marshallingToMap(false)));*/
     }
 
-    @Test
+    /*@Test
     public void passengerReadAllTest() throws Exception {
         //Read All
         List<JPassenger> retrieved = Entity.read(JPassenger.class, executor);
         if (retrieved != null)
             retrieved.forEach(passenger -> System.out.println(passenger.marshallingToMap(false)));
-    }
+    }*/
 
     @Test
     public void notNullQueryTest() throws Exception {
@@ -170,8 +170,8 @@ public class JPassengerTest{
         Predicate notNullQuery = new Where("sex").notNull()
                 .and("name").notNull();
         List<JPassenger> notNull = Entity.read(JPassenger.class, executor, notNullQuery);
-        if (notNull != null)
-            notNull.forEach(jPassenger -> System.out.println(jPassenger.getName() + "#" + jPassenger.getSex()));
+        /*if (notNull != null)
+            notNull.forEach(jPassenger -> System.out.println(jPassenger.getName() + "#" + jPassenger.getSex()));*/
     }
 
     //@Test
