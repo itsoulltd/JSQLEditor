@@ -126,9 +126,11 @@ public abstract class Entity implements EntityInterface{
         boolean acceptAll = shouldAcceptAllAsProperty();
         Field[] fields = getDeclaredFields(true);
         for (Field field : fields) {
-            if(acceptAll == false && isFieldAnnotatedWith(field) == false) {
+            if(acceptAll == false && hasColumnAnnotationPresent(field) == false) {
                 continue;
             }
+            if (field.isAnnotationPresent(Ignore.class))
+                continue;
             Property prop = getProperty(field.getName(), exe, skipPrimary);
             if(prop == null) {continue;}
             result.add(prop);
@@ -136,7 +138,7 @@ public abstract class Entity implements EntityInterface{
         return result;
     }
 
-    protected boolean isFieldAnnotatedWith(Field field) {
+    protected boolean hasColumnAnnotationPresent(Field field) {
         boolean isAnnotated = field.isAnnotationPresent(Column.class)
                 || field.isAnnotationPresent(PrimaryKey.class)
 				|| field.isAnnotationPresent(javax.persistence.Column.class);
@@ -466,7 +468,7 @@ public abstract class Entity implements EntityInterface{
 	public static <T extends Entity> Map<String, String> mapColumnsToProperties(Class<T> type) {
 
 		boolean acceptAll = Entity.shouldAcceptAllAsProperty(type);
-		if (acceptAll) {return null;}
+		//if (acceptAll) {return null;}
 		
 		Map<String, String> result = new HashMap<>();
 		for (Field field : Entity.getDeclaredFields(type, true)) {
@@ -476,6 +478,8 @@ public abstract class Entity implements EntityInterface{
 					&& field.isAnnotationPresent(PrimaryKey.class) == false) {
 				continue;
 			}
+            if (field.isAnnotationPresent(Ignore.class))
+                continue;
 			if (field.isAnnotationPresent(Column.class)){
 				Column column = field.getAnnotation(Column.class);
 				String columnName = (column.name().trim().isEmpty() == false) ? column.name().trim() : field.getName();

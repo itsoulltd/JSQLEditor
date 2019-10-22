@@ -16,8 +16,8 @@ import java.util.*;
 public abstract class CQLEntity extends Entity {
 
     @Override
-    protected boolean isFieldAnnotatedWith(Field field) {
-        return super.isFieldAnnotatedWith(field) || field.isAnnotationPresent(ClusteringKey.class);
+    protected boolean hasColumnAnnotationPresent(Field field) {
+        return super.hasColumnAnnotationPresent(field) || field.isAnnotationPresent(ClusteringKey.class);
     }
 
     @Override
