@@ -48,7 +48,15 @@ public class SQLSelectQuery extends SQLQuery{
 		}
 	}
 
-	@SuppressWarnings("Duplicates")
+	public Integer getLimit(){
+	    return this.limit;
+    }
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    @SuppressWarnings("Duplicates")
 	public void setOrderBy(List<String> columns, Operator opt) {
 		this.orderByList = columns;
 		if (columns != null && columns.size() > 0) {
