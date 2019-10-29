@@ -69,18 +69,19 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 	public void close(){
 		try {
 			int count = getStatementHolder().size();
-			Boolean isAllCloed = true;
+			Boolean isAllClosed = true;
 			if(count > 0){
 				for (Statement iterable_element : getStatementHolder()) {
 					try{
 						iterable_element.close();
 					}catch (SQLException e){
-						isAllCloed = false;
+						isAllClosed = false;
 					}
 				}
 			}
 			getStatementHolder().clear();
-			System.out.println("Retain Statement count was "+ count + ". All has been Closed : "+ (isAllCloed ? "YES":"NO"));
+			System.out.println("Retained Statements count was " + count
+                    + ". \n All statements has been Closed : " + (isAllClosed ? "YES":"NO"));
 			closeConnections(conn);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -91,8 +92,10 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 			throws SQLException{
 		if(conn != null && !conn.isClosed()){
 			try{
-				if(!conn.getAutoCommit())
+				if(!conn.getAutoCommit()) {
 					conn.commit();
+                    System.out.println("Executor-Connection Has been committed.");
+				}
 			}catch(SQLException exp){
 				if(!conn.getAutoCommit())
 					conn.rollback();
@@ -100,12 +103,13 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 			}
 			finally{
 				try {
-					if(conn != null && !conn.isClosed())
-						conn.close();
+					if(conn != null && !conn.isClosed()) {
+					    conn.close();
+                        System.out.println("Executor-Connection Has been Closed.");
+                    }
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
-				System.out.println("Executor Has Closed.");
 			}
 		}
 	}
