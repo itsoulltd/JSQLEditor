@@ -33,6 +33,13 @@ public class ORMService<T> extends AbstractService<T> implements ORMServiceProto
 		super(manager, type);
 	}
 
+    /**
+     * This constructor is handi when we want to use Spring-Repository Pattern and also use our
+     * existing source base.
+     * @param manager
+     * @param type
+     * @param skipTransaction
+     */
     public ORMService(EntityManager manager, Class<T> type, boolean skipTransaction){
         this(manager, type);
         this.skipTransaction = skipTransaction;
