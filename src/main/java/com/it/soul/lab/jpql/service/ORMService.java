@@ -27,10 +27,16 @@ public class ORMService<T> extends AbstractService<T> implements ORMServiceProto
 	private static final String _TAG = "GenericServiceImpl";
 	@SuppressWarnings("unused")
 	private static final String _MESSAGE = "GenericServiceImpl not available now!";
+	private boolean skipTransaction = false;
 	
 	public ORMService(EntityManager manager, Class<T> type){
 		super(manager, type);
 	}
+
+    public ORMService(EntityManager manager, Class<T> type, boolean skipTransaction){
+        this(manager, type);
+        this.skipTransaction = skipTransaction;
+    }
 	
 	@Override
 	public Collection<T> read() throws Exception {
@@ -210,11 +216,11 @@ public class ORMService<T> extends AbstractService<T> implements ORMServiceProto
 		if(getEntityManager() == null || !getEntityManager().isOpen()){return null;}
 		if(item != null){
 			try{
-				getEntityManager().getTransaction().begin(); 
+				if(!skipTransaction) getEntityManager().getTransaction().begin();
 				getEntityManager().persist(item);
-				getEntityManager().getTransaction().commit();
+                if(!skipTransaction) getEntityManager().getTransaction().commit();
 			}catch (Exception e) {
-				getEntityManager().getTransaction().rollback();
+                if(!skipTransaction) getEntityManager().getTransaction().rollback();
 				throw e;
 			}
 		}
@@ -228,11 +234,11 @@ public class ORMService<T> extends AbstractService<T> implements ORMServiceProto
 		if(getEntityManager() == null || !getEntityManager().isOpen()){return result;}
 		if(item != null){
 			try{
-				getEntityManager().getTransaction().begin();
+                if(!skipTransaction) getEntityManager().getTransaction().begin();
 				result = getEntityManager().merge(item);
-				getEntityManager().getTransaction().commit();
+                if(!skipTransaction) getEntityManager().getTransaction().commit();
 			}catch(Exception e){
-				getEntityManager().getTransaction().rollback();
+                if(!skipTransaction) getEntityManager().getTransaction().rollback();
 				throw e;
 			}
 		}
@@ -247,13 +253,13 @@ public class ORMService<T> extends AbstractService<T> implements ORMServiceProto
 		if(item != null){
 			try{
 				if(getEntityManager().contains(item)){
-					getEntityManager().getTransaction().begin();
+                    if(!skipTransaction) getEntityManager().getTransaction().begin();
 					getEntityManager().remove(item);
-					getEntityManager().getTransaction().commit();
+                    if(!skipTransaction) getEntityManager().getTransaction().commit();
 					result = true;
 				}
 			}catch(Exception e){
-				getEntityManager().getTransaction().rollback();
+                if(!skipTransaction) getEntityManager().getTransaction().rollback();
 				throw e;
 			}
 		}
@@ -268,14 +274,14 @@ public class ORMService<T> extends AbstractService<T> implements ORMServiceProto
 		try {
 			if (items != null && items.size() > 0) {
 				//TODO Optimize implementation for large number of items
-				getEntityManager().getTransaction().begin();
+                if(!skipTransaction) getEntityManager().getTransaction().begin();
 				for (Object _item : items) {
 					getEntityManager().persist(_item);
 				}
-				getEntityManager().getTransaction().commit();
+                if(!skipTransaction) getEntityManager().getTransaction().commit();
 			}
 		} catch (Exception e) {
-			getEntityManager().getTransaction().rollback();
+            if(!skipTransaction) getEntityManager().getTransaction().rollback();
 			throw e;
 		}
 		return items;
@@ -291,15 +297,14 @@ public class ORMService<T> extends AbstractService<T> implements ORMServiceProto
 			if (items != null && items.size() > 0) {
 				result = new ArrayList<T>();
 				//TODO Optimize implementation for large number of items
-				getEntityManager().getTransaction().begin();
+                if(!skipTransaction) getEntityManager().getTransaction().begin();
 				for (T _item : items) {
 					result.add(getEntityManager().merge(_item));
 				}
-				getEntityManager().getTransaction().commit();
+                if(!skipTransaction) getEntityManager().getTransaction().commit();
 			}
 		} catch (Exception e) {
-			getEntityManager().getTransaction().rollback();
-			result = null;
+            if(!skipTransaction) getEntityManager().getTransaction().rollback();
 			throw e;
 		}
 		return result;
@@ -314,16 +319,16 @@ public class ORMService<T> extends AbstractService<T> implements ORMServiceProto
 		try {
 			if (items != null && items.size() > 0) {
 				//TODO Optimize implementation for large number of items
-				getEntityManager().getTransaction().begin();
+                if(!skipTransaction) getEntityManager().getTransaction().begin();
 				for (Object _item : items) {
 					if(getEntityManager().contains(_item))
 						getEntityManager().remove(_item);
 				}
-				getEntityManager().getTransaction().commit();
+                if(!skipTransaction) getEntityManager().getTransaction().commit();
 				result = true;
 			}
 		} catch (Exception e) {
-			getEntityManager().getTransaction().rollback();
+            if(!skipTransaction) getEntityManager().getTransaction().rollback();
 			throw e;
 		}
 		return result;
@@ -336,7 +341,7 @@ public class ORMService<T> extends AbstractService<T> implements ORMServiceProto
 		if(getEntityManager() == null || !getEntityManager().isOpen()){return null;}
 		try {
 			if (items != null && items.size() > 0) {
-				getEntityManager().getTransaction().begin();
+                if(!skipTransaction) getEntityManager().getTransaction().begin();
 				int counter = 1;
 				for (Object _item : items) {
 					getEntityManager().persist(_item);
@@ -346,10 +351,10 @@ public class ORMService<T> extends AbstractService<T> implements ORMServiceProto
 						getEntityManager().clear();
 					}
 				}
-				getEntityManager().getTransaction().commit();
+                if(!skipTransaction) getEntityManager().getTransaction().commit();
 			}
 		} catch (Exception e) {
-			getEntityManager().getTransaction().rollback();
+            if(!skipTransaction) getEntityManager().getTransaction().rollback();
 			throw e;
 		}
 		return items;
@@ -364,7 +369,7 @@ public class ORMService<T> extends AbstractService<T> implements ORMServiceProto
 		try {
 			if (items != null && items.size() > 0) {
 				result = new ArrayList<T>();
-				getEntityManager().getTransaction().begin();
+                if(!skipTransaction) getEntityManager().getTransaction().begin();
 				int counter = 1;
 				for (T _item : items) {
 					result.add(getEntityManager().merge(_item));
@@ -374,11 +379,10 @@ public class ORMService<T> extends AbstractService<T> implements ORMServiceProto
 						getEntityManager().clear();
 					}
 				}
-				getEntityManager().getTransaction().commit();
+                if(!skipTransaction) getEntityManager().getTransaction().commit();
 			}
 		} catch (Exception e) {
-			getEntityManager().getTransaction().rollback();
-			result = null;
+            if(!skipTransaction) getEntityManager().getTransaction().rollback();
 			throw e;
 		}
 		return result;
