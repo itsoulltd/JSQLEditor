@@ -171,7 +171,8 @@ public class JPQLExecutor extends AbstractExecutor implements QueryExecutor<JPQL
 
     @Override
     public <T> List<T> executeSelect(String query, Class<T> type, Map<String, String> mappingKeys) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
-        TypedQuery<T> typedQuery = getEntityManager().createQuery(query, type);
+        //TypedQuery<T> typedQuery = getEntityManager().createQuery(query, type);
+        Query typedQuery = getEntityManager().createNativeQuery(query, type);
         return typedQuery.getResultList();
     }
 
