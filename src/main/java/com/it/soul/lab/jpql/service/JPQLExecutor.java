@@ -32,6 +32,7 @@ public class JPQLExecutor extends AbstractExecutor implements QueryExecutor<JPQL
     private Logger log = Logger.getLogger(this.getClass().getSimpleName());
 
     private EntityManager entityManager = null;
+    private boolean skipTransaction = false;
 
     public EntityManager getEntityManager() {
         return entityManager;
@@ -39,6 +40,11 @@ public class JPQLExecutor extends AbstractExecutor implements QueryExecutor<JPQL
 
     public JPQLExecutor(EntityManager manager) {
         this.entityManager = manager;
+    }
+
+    public JPQLExecutor(EntityManager entityManager, boolean skipTransaction) {
+        this(entityManager);
+        this.skipTransaction = skipTransaction;
     }
 
     @Override
@@ -183,22 +189,22 @@ public class JPQLExecutor extends AbstractExecutor implements QueryExecutor<JPQL
     }
 
     protected boolean isTransactionActive(){
-        return getEntityManager().getTransaction().isActive();
+        return (skipTransaction) ? true : getEntityManager().getTransaction().isActive();
     }
 
     @Override
     public void begin() throws SQLException {
-        getEntityManager().getTransaction().begin();
+        if(!skipTransaction) getEntityManager().getTransaction().begin();
     }
 
     @Override
     public void end() throws SQLException {
-        getEntityManager().getTransaction().commit();
+        if(!skipTransaction) getEntityManager().getTransaction().commit();
     }
 
     @Override
     public void abort() throws SQLException {
-        getEntityManager().getTransaction().rollback();
+        if(!skipTransaction) getEntityManager().getTransaction().rollback();
     }
 
     @Override
