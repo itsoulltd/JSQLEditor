@@ -10,6 +10,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -17,6 +19,7 @@ import javax.sql.DataSource;
 
 public class JDBConnectionPool implements Serializable{
 
+	private static Logger LOG = Logger.getLogger(JDBConnectionPool.class.getSimpleName());
 	private static final long serialVersionUID = 8229833245259862179L;
 	private static Object _lock = new Object();
 	private static JDBConnectionPool _sharedInstance = null;
@@ -49,7 +52,7 @@ public class JDBConnectionPool implements Serializable{
 				DataSource source = (DataSource) initCtx.lookup(JNDILookUp);
 				addDataSource(JNDILookUp, source);
 			} catch (NamingException e) {
-				e.printStackTrace();
+				LOG.log(Level.WARNING, e.getMessage(), e);
 			}
 		}else{
 			throw new IllegalArgumentException("Jndi Look Up string must not null!!!");
@@ -78,7 +81,7 @@ public class JDBConnectionPool implements Serializable{
 				return _sharedInstance;
 			}
 		}
-		System.out.println("Please Call configureConnectionPool at least once.");
+		LOG.info("Please Call configureConnectionPool at least once.");
 		return null;
 	}
 
@@ -136,7 +139,7 @@ public class JDBConnectionPool implements Serializable{
 				try{
 					_sharedInstance = new JDBConnectionPool(JNDILookUp);
 				}catch(Exception e){
-					e.printStackTrace();
+                    LOG.log(Level.WARNING, e.getMessage(), e);
 				}
 			}else{
 				if(JNDILookUp != null && !JNDILookUp.trim().equals("")){
@@ -152,7 +155,7 @@ public class JDBConnectionPool implements Serializable{
 				try{
 					_sharedInstance = new JDBConnectionPool();
 				}catch(Exception e){
-					e.printStackTrace();
+                    LOG.log(Level.WARNING, e.getMessage(), e);
 				}
 			}
 			if (key != null && !key.isEmpty()){
@@ -227,7 +230,7 @@ public class JDBConnectionPool implements Serializable{
 				if(!conn.getAutoCommit())
 					conn.rollback();
 			} catch (SQLException e) {
-				e.printStackTrace();
+                LOG.log(Level.WARNING, e.getMessage(), e);
 			}
 			sqe.printStackTrace();
 		}
@@ -236,7 +239,7 @@ public class JDBConnectionPool implements Serializable{
 				if(conn != null && !conn.isClosed())
 					conn.close();
 			} catch (SQLException e) {
-				e.printStackTrace();
+                LOG.log(Level.WARNING, e.getMessage(), e);
 			}
 			JDBConnectionPool.decreasePoolCount();
 		}

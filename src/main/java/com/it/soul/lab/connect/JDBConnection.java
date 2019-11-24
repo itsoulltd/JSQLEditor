@@ -5,6 +5,8 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class JDBConnection implements Serializable{
 
@@ -82,6 +84,7 @@ public class JDBConnection implements Serializable{
 		}
 	}
 
+	private static Logger LOG = Logger.getLogger(JDBConnection.class.getSimpleName());
 	private static final long serialVersionUID = -6801905544609003454L;
 	private String driver = null;
 	private String serverUrl = null;
@@ -92,9 +95,9 @@ public class JDBConnection implements Serializable{
 
 	private void printMetaInfos(DatabaseMetaData dma) throws Exception{
 		//checkForWarning(conn.getWarnings());
-		System.out.println("\nConnected To "+dma.getURL());
-		System.out.println("Driver  "+dma.getDriverName());
-		System.out.println("driver Version  "+dma.getDriverVersion());
+		LOG.info("\nConnected To "+dma.getURL());
+		LOG.info("Driver  "+dma.getDriverName());
+		LOG.info("driver Version  "+dma.getDriverVersion());
 	}
 
 	private Connection getConnection() throws Exception{
@@ -153,7 +156,7 @@ public class JDBConnection implements Serializable{
 					if(connection != null && !connection.isClosed())
 						connection.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+                    LOG.log(Level.WARNING, e.getMessage(), e);
 				}
 	        }
 		}

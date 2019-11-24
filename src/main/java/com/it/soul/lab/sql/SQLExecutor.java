@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSelectQuery, SQLInsertQuery, SQLUpdateQuery, SQLDeleteQuery, SQLScalarQuery> {
 
@@ -44,6 +46,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		}
 	}
 
+	private Logger LOG = Logger.getLogger(this.getClass().getSimpleName());
 	private Connection conn = null;
 
 	public SQLExecutor(Connection conn){ this.conn = conn; }
@@ -80,11 +83,11 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 				}
 			}
 			getStatementHolder().clear();
-			System.out.println("Retained Statements count was " + count
+			LOG.info("Retained Statements count was " + count
                     + ". \n All statements has been Closed : " + (isAllClosed ? "YES":"NO"));
 			closeConnections(conn);
 		} catch (SQLException e) {
-			e.printStackTrace();
+            LOG.log(Level.WARNING, e.getMessage(), e);
 		}
 	}
 	
@@ -94,7 +97,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 			try{
 				if(!conn.getAutoCommit()) {
 					conn.commit();
-                    System.out.println("Executor-Connection Has been committed.");
+                    LOG.info("Executor-Connection Has been committed.");
 				}
 			}catch(SQLException exp){
 				if(!conn.getAutoCommit())
@@ -105,10 +108,10 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 				try {
 					if(conn != null && !conn.isClosed()) {
 					    conn.close();
-                        System.out.println("Executor-Connection Has been Closed.");
+                        LOG.info("Executor-Connection Has been Closed.");
                     }
 				} catch (SQLException e) {
-					e.printStackTrace();
+                    LOG.log(Level.WARNING, e.getMessage(), e);
 				}
 			}
 		}
@@ -139,7 +142,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 	 * @param o
 	 */
 	public void displayCollection(Object o){
-		System.out.println(toString(o));
+		LOG.info(toString(o));
 	}
 
 /////////////////////////////////////QueryExecutor-Interface///////////////
@@ -528,7 +531,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
             try {
                 stmt.clearBatch();
             } catch (Exception e) {
-                e.printStackTrace();
+                LOG.log(Level.WARNING, e.getMessage(), e);
             }
             stmt.close();
         }
@@ -701,11 +704,11 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 				buffer.append('\n');
 				more=rst.next();
 			}
-		}catch(SQLException exp){
-			exp.getStackTrace();
+		}catch(SQLException e){
+            LOG.log(Level.WARNING, e.getMessage(), e);
 		}
 
-		System.out.println(buffer.toString());
+		LOG.info(buffer.toString());
 	}
 	
 	
@@ -729,7 +732,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
                 if(conn != null){
                     stmt = conn.prepareStatement(query);
                     int rowUpdate = stmt.executeUpdate();
-                    System.out.println("rows effected " + (rowUpdate == 0 ? "NO" : "YES"));
+                    LOG.info("rows effected " + (rowUpdate == 0 ? "NO" : "YES"));
                 }            
             }catch(SQLException exp){
                 throw exp;
@@ -867,9 +870,9 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 				if(row.size() > 0)
 					result.add(row);
 			}
-		}catch(SQLException exp){
+		}catch(SQLException e){
 			result = null;
-			exp.getStackTrace();
+            LOG.log(Level.WARNING, e.getMessage(), e);
 		}
 		return result;
 	}
@@ -901,9 +904,9 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 				if(row.size() > 0)
 					result.add(row);
 			}
-		}catch(SQLException exp){
+		}catch(SQLException e){
 			result = null;
-			exp.getStackTrace();
+            LOG.log(Level.WARNING, e.getMessage(), e);
 		}
 		return result;
 	}
@@ -955,10 +958,9 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 				}
 				result.add(row);
 			}
-		}catch(SQLException exp){
-			
+		}catch(SQLException e){
 			result = null;
-			exp.getStackTrace();
+            LOG.log(Level.WARNING, e.getMessage(), e);
 		}
 		
 		return result;
@@ -997,10 +999,9 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 				if(row.size() > 0)
 					result.add(row);
 			}
-		}catch(SQLException exp){
-			
+		}catch(SQLException e){
 			result = null;
-			exp.getStackTrace();
+            LOG.log(Level.WARNING, e.getMessage(), e);
 		}
 		
 		return result;
@@ -1043,9 +1044,9 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 				}
 				result.add(row);
 			}
-		}catch(SQLException exp){
+		}catch(SQLException e){
 			result = null;
-			exp.getStackTrace();
+            LOG.log(Level.WARNING, e.getMessage(), e);
 		}
 		
 		return result;
@@ -1082,10 +1083,9 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 					result.put(indexColValue,row);
 				
 			}
-		}catch(SQLException exp){
-			
+		}catch(SQLException e){
 			result = null;
-			exp.getStackTrace();
+            LOG.log(Level.WARNING, e.getMessage(), e);
 		}
 		
 		return result;
@@ -1135,10 +1135,9 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 					result.put(indexColValue,row);
 				
 			}
-		}catch(SQLException exp){
-			
+		}catch(SQLException e){
 			result = null;
-			exp.getStackTrace();
+            LOG.log(Level.WARNING, e.getMessage(), e);
 		}
 		
 		return result;
@@ -1193,9 +1192,9 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 					result.put(indexColValue,row);
 				
 			}
-		}catch(SQLException exp){
+		}catch(SQLException e){
 			result = null;
-			exp.getStackTrace();
+            LOG.log(Level.WARNING, e.getMessage(), e);
 		}
 		
 		return result;
@@ -1239,9 +1238,9 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
                     }//end while
                 }
             }//
-        }catch(SQLException exp){
+        }catch(SQLException e){
             result = null;
-            exp.getStackTrace();
+            LOG.log(Level.WARNING, e.getMessage(), e);
         }
         return result;
     }
@@ -1268,9 +1267,9 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 				Property prop = new Property(key,value);
 				result.add(prop);
 			}
-		}catch(SQLException exp){
+		}catch(SQLException e){
 			result = null;
-			exp.getStackTrace();
+            LOG.log(Level.WARNING, e.getMessage(), e);
 		}
 		return result;
 	}
@@ -1301,9 +1300,9 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 				Property prop = new Property(key, value);
 				result.add(prop);
 			}
-		}catch(SQLException exp){
+		}catch(SQLException e){
 			result = null;
-			exp.getStackTrace();
+            LOG.log(Level.WARNING, e.getMessage(), e);
 		}
 		return result;
 	}

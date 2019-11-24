@@ -5,12 +5,15 @@ import com.it.soul.lab.sql.query.models.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuilder
         , WhereExpressionBuilder, InsertBuilder, ScalarExpressionBuilder, GroupByBuilder
         , HavingBuilder, JoinBuilder, JoinOnBuilder
         , IndexBuilder{
 
+	private Logger LOG = Logger.getLogger(this.getClass().getSimpleName());
 	private QueryType tempType = QueryType.SELECT;
 	private SQLQuery tempQuery;
 
@@ -122,7 +125,7 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 			try{
 				((SQLInsertQuery)tempQuery).setRowProperties(Arrays.asList(properties));
 			}catch(IllegalArgumentException are){
-				System.out.println(are.getMessage());
+				LOG.log(Level.WARNING, are.getMessage(), are);
 			}
 		}
 		return this;
@@ -133,7 +136,7 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 			try{
 				((SQLUpdateQuery)tempQuery).setRowProperties(Arrays.asList(properties));
 			}catch(IllegalArgumentException are){
-				System.out.println(are.getMessage());
+				LOG.log(Level.WARNING,are.getMessage(), are);
 			}
 		}
 		return this;

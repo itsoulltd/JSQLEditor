@@ -36,6 +36,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -85,15 +87,16 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
     private CQLExecutor(Cluster cluster, String keyspace) {
 
         Metadata metadata = cluster.getMetadata();
-        System.out.printf("Connected to cluster: %s\n", metadata.getClusterName());
+        LOG.info(String.format("Connected to cluster: %s\n", metadata.getClusterName()));
 
         for (Host host: metadata.getAllHosts()) {
-            System.out.printf("Datacenter: %s; Host: %s; Rack: %s\n", host.getDatacenter(), host.getAddress(), host.getRack());
+            LOG.info(String.format("Datacenter: %s; Host: %s; Rack: %s\n", host.getDatacenter(), host.getAddress(), host.getRack()));
         }
         //
         setupSession(cluster, keyspace);
     }
 
+    private Logger LOG = Logger.getLogger(this.getClass().getSimpleName());
     private Session _session;
 
     protected Session getSession(){
@@ -125,9 +128,9 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
                     //Blocking...wait until close:
                     cSession.closeAsync().get();
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    LOG.log(Level.WARNING, e.getMessage(), e);
                 } catch (ExecutionException e) {
-                    e.printStackTrace();
+                    LOG.log(Level.WARNING, e.getMessage(), e);
                 }
             }
             //
@@ -327,7 +330,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         try{
             statement = createSelectStatementFrom(cqlSelectQuery);
         }catch (Exception e) {
-            System.out.println(e.getMessage());
+            LOG.log(Level.WARNING,e.getMessage(), e);
             consumer.accept(null);
             return;
         }
@@ -354,10 +357,10 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
                             List<T> results = table.inflate(aClass, CQLEntity.mapColumnsToProperties(aClass));
                             consumer.accept(results);
                         } catch (InstantiationException e) {
-                            System.out.println(e.getMessage());
+                            LOG.log(Level.WARNING,e.getMessage(), e);
                             consumer.accept(null);
                         } catch (IllegalAccessException e) {
-                            System.out.println(e.getMessage());
+                            LOG.log(Level.WARNING,e.getMessage(), e);
                             consumer.accept(null);
                         }
                         //
@@ -365,7 +368,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
 
                     @Override
                     public void onFailure(Throwable throwable) {
-                        System.out.println(throwable.getMessage());
+                        LOG.log(Level.WARNING,throwable.getMessage(), throwable);
                         consumer.accept(null);
                     }
                 }, executionPool);
@@ -530,7 +533,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
                 buffer.append(";");
             }
         } catch (NoSuchFieldException e) {
-            e.printStackTrace();
+            LOG.log(Level.WARNING, e.getMessage(), e);
         }
         //
         if (buffer.length() <= 0) return false;
