@@ -2,6 +2,8 @@ package com.it.soul.lab.cql;
 
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.policies.DCAwareRoundRobinPolicy;
+import com.datastax.driver.core.policies.ReconnectionPolicy;
+import com.datastax.driver.core.policies.RetryPolicy;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.it.soul.lab.cql.entity.CQLEntity;
@@ -79,6 +81,16 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
 
         public Builder configureLoadBalancer(String localDataCenter){
             clBuilder.withLoadBalancingPolicy(DCAwareRoundRobinPolicy.builder().withLocalDc(localDataCenter).build());
+            return this;
+        }
+
+        public Builder configureReconnectionPolicy(ReconnectionPolicy policy){
+            clBuilder.withReconnectionPolicy(policy);
+            return this;
+        }
+
+        public Builder configureRetryPolicy(RetryPolicy policy){
+            clBuilder.withRetryPolicy(policy);
             return this;
         }
 
