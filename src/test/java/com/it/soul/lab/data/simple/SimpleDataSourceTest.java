@@ -9,7 +9,7 @@ import java.util.List;
 
 public class SimpleDataSourceTest {
 
-    SimpleDataSource<String, Person> dataSource;
+    SimpleDataSource<String, Object> dataSource;
 
     @Before
     public void setUp() throws Exception {
@@ -102,21 +102,27 @@ public class SimpleDataSourceTest {
         for (Object p : readAll) {
             System.out.println(p.toString());
         }
-        System.out.println("==========================4-1=======================");
-        readAll = dataSource.readSynch(4, 1);
-        for (Object p : readAll) {
-            System.out.println(p.toString());
-        }
-        System.out.println("==========================4-2=======================");
-        readAll = dataSource.readSynch(4, 2);
-        for (Object p : readAll) {
-            System.out.println(p.toString());
-        }
-        System.out.println("==========================4-3=======================");
-        readAll = dataSource.readSynch(4, 3);
-        for (Object p : readAll) {
-            System.out.println(p.toString());
-        }
+        //System.out.println("==========================4-1=======================");
+        dataSource.readAsynch(4, 1, (items) -> {
+            System.out.println("==========================4-1=======================");
+            for (Object p : items) {
+                System.out.println(p.toString());
+            }
+        });
+        //System.out.println("==========================4-2=======================");
+        dataSource.readAsynch(4, 2, (items) -> {
+            System.out.println("==========================4-2=======================");
+            for (Object p : items) {
+                System.out.println(p.toString());
+            }
+        });
+        //System.out.println("==========================4-3=======================");
+        dataSource.readAsynch(4, 3, (items) -> {
+            System.out.println("==========================4-3=======================");
+            for (Object p : items) {
+                System.out.println(p.toString());
+            }
+        });
     }
 
 }
