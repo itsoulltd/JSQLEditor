@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Consumer;
 
 public abstract class Entity implements EntityInterface{
 	public Entity() {
@@ -453,6 +454,7 @@ public abstract class Entity implements EntityInterface{
         }
         return false;
 	}
+
     protected final static <T extends Entity> Field[] getDeclaredFields(Class<T> type, boolean inherit){
         Field[] fields = new Field[0];
         try {
@@ -465,6 +467,7 @@ public abstract class Entity implements EntityInterface{
         }
         return fields;
     }
+
 	public static <T extends Entity> Map<String, String> mapColumnsToProperties(Class<T> type) {
 
 		boolean acceptAll = Entity.shouldAcceptAllAsProperty(type);
@@ -496,6 +499,7 @@ public abstract class Entity implements EntityInterface{
 		}
 		return result;
 	}
+
 	public static <T extends Entity> String tableName(Class<T> type) {
 		if (type.isAnnotationPresent(TableName.class)){
 			TableName tableName = type.getAnnotation(TableName.class);
@@ -509,7 +513,11 @@ public abstract class Entity implements EntityInterface{
 			return type.getSimpleName();
 		}
 	}
-	public static <T extends Entity> List<T> read(Class<T>  type, QueryExecutor exe, Property...match) throws Exception{
+
+	public static <T extends Entity> List<T> read(Class<T>  type
+			, QueryExecutor exe
+			, Property...match)
+			throws Exception{
 		ExpressionInterpreter and = null;
 		ExpressionInterpreter lhr = null;
 		for (int i = 0; i < match.length; i++) {
@@ -524,7 +532,11 @@ public abstract class Entity implements EntityInterface{
 		}
 		return T.read(type, exe, and);
 	}
-	public static <T extends Entity> List<T> read(Class<T>  type, QueryExecutor exe, ExpressionInterpreter expression) throws Exception{
+
+	public static <T extends Entity> List<T> read(Class<T>  type
+			, QueryExecutor exe
+			, ExpressionInterpreter expression)
+			throws Exception{
 		String name = Entity.tableName(type);
 		SQLSelectQuery query = null;
 		if(expression != null) {
@@ -538,5 +550,70 @@ public abstract class Entity implements EntityInterface{
 					.from(name).build();
 		}
 		return exe.executeSelect(query, type, Entity.mapColumnsToProperties(type));
+	}
+
+	public static <T extends Entity> void read(Class<T> aClass
+			, QueryExecutor executor
+			, int pageSize
+			, ExpressionInterpreter expression
+			, Consumer<List<T>> consumer){
+		//
+		try {
+			List<SQLSelectQuery> queries = createSelectQueries(aClass, executor, pageSize, expression);
+			for (SQLSelectQuery query : queries) {
+				try {
+					List<T> items = executor.executeSelect(query, aClass, Entity.mapColumnsToProperties(aClass));
+					if (consumer != null){
+						consumer.accept(items);
+					}
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				} catch (InstantiationException e) {
+					e.printStackTrace();
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static List<SQLSelectQuery> createSelectQueries(Class<? extends Entity> aClass
+			, QueryExecutor executor
+			, int pageSize
+			, ExpressionInterpreter expression)
+			throws SQLException {
+		//Creating Paged SelectQueries
+		List<SQLSelectQuery> queries = new ArrayList<>();
+		SQLScalarQuery countQuery = executor.createQueryBuilder(QueryType.COUNT)
+				.columns()
+				.on(Entity.tableName(aClass))
+				.build();
+
+		int rowCount = executor.getScalarValue(countQuery);
+		int loopCount = (rowCount / pageSize) + 1;
+		int offset = 0;
+		int index = 0;
+		while (index < loopCount){
+			SQLSelectQuery query;
+			if (expression != null){
+				query = executor.createQueryBuilder(QueryType.SELECT)
+						.columns()
+						.from(Entity.tableName(aClass))
+						.where(expression)
+						.addLimit(pageSize, offset).build();
+			}else {
+				query = executor.createQueryBuilder(QueryType.SELECT)
+						.columns()
+						.from(Entity.tableName(aClass))
+						.addLimit(pageSize, offset).build();
+			}
+			//Add Query:
+			if(query != null)
+				queries.add(query);
+			//
+			offset += pageSize;
+			index++;
+		}
+		return queries;
 	}
 }
