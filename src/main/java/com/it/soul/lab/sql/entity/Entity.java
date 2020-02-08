@@ -558,14 +558,13 @@ public abstract class Entity implements EntityInterface{
 			, ExpressionInterpreter expression
 			, Consumer<List<T>> consumer){
 		//
+		if (consumer == null) return;
 		try {
 			List<SQLSelectQuery> queries = createSelectQueries(aClass, executor, pageSize, expression);
 			for (SQLSelectQuery query : queries) {
 				try {
 					List<T> items = executor.executeSelect(query, aClass, Entity.mapColumnsToProperties(aClass));
-					if (consumer != null){
-						consumer.accept(items);
-					}
+					consumer.accept(items);
 				} catch (IllegalAccessException e) {
 					e.printStackTrace();
 				} catch (InstantiationException e) {
