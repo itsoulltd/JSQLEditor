@@ -88,10 +88,12 @@ public class Property {
 	}
 	@Override
 	public String toString() {
-		if(this.value == null) {return "";}
-		if(this.value != null && this.type != null && this.type == DataType.SQLDATE) {
-			return getDateString(this.value);
-		}
-		return this.value.toString();
+		String value = (getValue() != null) ? getValue().toString() : null;
+		if (getValue() != null
+                && getType() == DataType.SQLDATE)
+		    value = getDateString(getValue());
+		//
+		return String.format("{\"key\":\"%s\",\"value\":\"%s\",\"type\":\"%s\"}"
+                                , getKey(), value, getType().name());
 	}
 }
