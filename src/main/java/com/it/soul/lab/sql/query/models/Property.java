@@ -69,6 +69,9 @@ public class Property {
 	public void setType(DataType type) {
 		this.type = type;
 	}
+	public void updateType() {
+		this.type = DataType.getDataType(getValue());
+	}
 
 	private String getDateString(Object date) {
 		String result = null;
