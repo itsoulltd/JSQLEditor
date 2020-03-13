@@ -1,8 +1,11 @@
 package com.it.soul.lab.sql.query.models;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Objects;
+import java.util.UUID;
 
-public class Property {
+public class Property implements Comparable<Property>{
 	
 	public Property() {
 		super();
@@ -39,23 +42,25 @@ public class Property {
 
 	@Override
 	public boolean equals(Object obj) {
-		
 		if(obj instanceof Property){
-			boolean isSame = false;
-			Property compareble = (Property)obj;
-			if(this.getKey() == compareble.getKey()){
-				isSame = true;
-			}
-			return isSame;
-		}else{
-			return false;
+			Property comparable = (Property)obj;
+			if (getValue() == null || comparable.getValue() == null) return false;
+			return Objects.equals(getValue(), comparable.getValue());
 		}
+		return false;
 	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getKey(), getValue());
+	}
+
 	public Object getValue() {
 		return value;
 	}
 	public void setValue(Object value) {
 		this.value = value;
+		updateType();
 	}
 	public String getKey() {
 		return key;
@@ -99,4 +104,46 @@ public class Property {
 		return String.format("{\"key\":\"%s\",\"value\":\"%s\",\"type\":\"%s\"}"
                                 , getKey(), value, getType().name());
 	}
+
+	@Override
+	public int compareTo(Property o) {
+		if (o == null || getValue() == null) return 0;
+		if (getType() != o.getType()) return 0;
+		int result = 0;
+		String value = getValue().toString();
+		String oValue = o.getValue().toString();
+		switch (getType()){
+			case INT:
+				result = Integer.valueOf(value).compareTo(Integer.valueOf(oValue));
+				break;
+			case LONG:
+				result = Long.valueOf(value).compareTo(Long.valueOf(oValue));
+				break;
+			case FLOAT:
+				result = Float.valueOf(value).compareTo(Float.valueOf(oValue));
+				break;
+			case BOOL:
+				result = Boolean.valueOf(value).compareTo(Boolean.valueOf(oValue));
+				break;
+			case DOUBLE:
+				result = Double.valueOf(value).compareTo(Double.valueOf(oValue));
+				break;
+			case UUID:
+				result = UUID.fromString(value).compareTo(UUID.fromString(oValue));
+				break;
+			case SQLDATE:
+			case SQLTIMESTAMP:
+				SimpleDateFormat format = new SimpleDateFormat(Property.SQL_DATETIME_FORMAT);
+				try {
+					result = format.parse(value).compareTo(format.parse(oValue));
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+				break;
+			default:
+				result = 0;
+		}
+		return result;
+	}
+
 }
