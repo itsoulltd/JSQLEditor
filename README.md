@@ -461,16 +461,12 @@
 
 ### Questions?
 -------------
-##### Send your query to us: contact@itsoulltd.com
-##### http://www.itsoulltd.com/
+##### Send your query to us: m.towhid.islam@gmail.com
+##### http://www.deliman.com.bd/
 
 ### Author
 ----
 #### Towhidul Islam (m.towhid.islam@gmail.com)
-
-### License
-----
-#### JSQLEditor is available under the MIT license.
  
  
  
