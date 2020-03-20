@@ -22,7 +22,7 @@ import com.it.soul.lab.sql.query.models.DataType;
 );
  */
 
-@TableName(value = "Person", acceptAll = false)
+@TableName(value = "Person")
 public class Person extends Entity {
 
 	@PrimaryKey(name = "uuid", auto = false)
@@ -45,13 +45,13 @@ public class Person extends Entity {
 	@Column(defaultValue="2010-06-21 21:01:01", type=DataType.SQLTIMESTAMP, parseFormat="yyyy-MM-dd HH:mm:ss")
 	private Timestamp createDate;
 	
-	private Float height;
+	private Float height = 0.10f;
 	
-	@Column(defaultValue="2010-06-21" , type=DataType.SQLDATE, parseFormat="yyyy-MM-dd")
+	//@Column(defaultValue="2010-06-21" , type=DataType.SQLDATE, parseFormat="yyyy-MM-dd")
 	private Date dobDate;
 	
-	@Column(defaultValue="21:01:01" , type=DataType.SQLTIMESTAMP, parseFormat="HH:mm:ss")
-	private Timestamp createTime;
+	//@Column(defaultValue="21:01:01" , type=DataType.SQLTIMESTAMP, parseFormat="HH:mm:ss")
+	private Timestamp createTime = new Timestamp(new java.util.Date().getTime());
 	
 	public Person() {
 		super();

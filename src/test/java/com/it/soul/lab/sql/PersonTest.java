@@ -91,20 +91,13 @@ public class PersonTest {
 	public void testInsert() {
 		Person person = new Person();
 		person.setUuid_idx(UUID.randomUUID().toString());
-		//person.setName(getRandomName());
+		person.setName_test(getRandomName());
 		person.setAge(getRandomAge());
-		//person.setActive(true);
+		person.setActive(true);
 		person.setSalary(89200.00);
 		
-		//person.setDob(new Date(Calendar.getInstance().getTimeInMillis()));
-		person.setDob(null);
-		
+		person.setDob(new Date(new java.util.Date().getTime()));
 		person.setCreateDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
-		
-		person.setDobDate(new Date(Calendar.getInstance().getTimeInMillis()));
-		
-		//person.setCreateTime(null);
-		person.setCreateTime(new Timestamp(Calendar.getInstance().getTimeInMillis()));
 		
 		try {
 			Boolean res = person.insert(exe);
@@ -180,6 +173,44 @@ public class PersonTest {
 		
 		Property salaryProp = person.getPropertyTest("salary", exe, false);
 		Assert.assertTrue(salaryProp.getKey().equalsIgnoreCase("salary"));
+	}
+
+	//@Test
+	public void readAsynch(){
+		System.out.println("Test: PageSize: 3 RowCount: 5");
+		Person.read(Person.class, exe, 3, 5, null, (persons) -> {
+			System.out.println("Read Count: " + persons.size());
+		});
+		//
+		System.out.println("Test: PageSize: 2 RowCount: 7");
+		Person.read(Person.class, exe, 2, 7, null, (persons) -> {
+			System.out.println("Read Count: " + persons.size());
+		});
+		//
+		System.out.println("Test: PageSize: 3 RowCount: 2");
+		Person.read(Person.class, exe, 3, 2, null, (persons) -> {
+			System.out.println("Read Count: " + persons.size());
+		});
+		//
+		System.out.println("Test: PageSize: 5 RowCount: 1");
+		Person.read(Person.class, exe, 5, 1, null, (persons) -> {
+			System.out.println("Read Count: " + persons.size());
+		});
+		//
+		System.out.println("Test: PageSize: 5 RowCount: 4");
+		Person.read(Person.class, exe, 5, 4, null, (persons) -> {
+			System.out.println("Read Count: " + persons.size());
+		});
+		//
+		System.out.println("Test: PageSize: 50 RowCount: 400");
+		Person.read(Person.class, exe, 50, 400, null, (persons) -> {
+			System.out.println("Read Count: " + persons.size());
+		});
+		//
+		System.out.println("Test: PageSize: 7 RowCount: ALL");
+		Person.read(Person.class, exe, 7, null, (persons) -> {
+			System.out.println("Read Count: " + persons.size());
+		});
 	}
 
 }
