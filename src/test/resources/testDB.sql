@@ -21,6 +21,6 @@ CREATE TABLE IF NOT EXISTS Person
   dob        datetime     null,
   height     float        null,
   createDate timestamp    null,
-  dobDate    date         null,
-  createTime time         null
+  dobDate    datetime     null,
+  createTime timestamp    null
 );

@@ -7,9 +7,8 @@ import com.it.soul.lab.sql.query.models.*;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Table;
 import java.lang.reflect.Field;
+import java.sql.*;
 import java.sql.Date;
-import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Consumer;
@@ -17,6 +16,23 @@ import java.util.function.Consumer;
 public abstract class Entity implements EntityInterface{
 	public Entity() {
 		super();
+	}
+
+	protected List<Property> getProperties(QueryExecutor exe, boolean skipPrimary) {
+		List<Property> result = new ArrayList<>();
+		boolean acceptAll = shouldAcceptAllAsProperty();
+		Field[] fields = getDeclaredFields(true);
+		for (Field field : fields) {
+			if(acceptAll == false && hasColumnAnnotationPresent(field) == false) {
+				continue;
+			}
+			if (field.isAnnotationPresent(Ignore.class))
+				continue;
+			Property prop = getProperty(field.getName(), exe, skipPrimary);
+			if(prop == null) {continue;}
+			result.add(prop);
+		}
+		return result;
 	}
 
 	/**
@@ -32,12 +48,14 @@ public abstract class Entity implements EntityInterface{
 			Field field = getDeclaredField(fieldName, true);
 			if(field.isAnnotationPresent(PrimaryKey.class)) {
 				if (skipPrimary) {return null;}
-				if (((PrimaryKey)field.getAnnotation(PrimaryKey.class)).auto() == true
+				if ((field.getAnnotation(PrimaryKey.class)).auto() == true
 						 && skipPrimary != false) {return null;}
 			}
 			field.setAccessible(true);
-			String actualKey = getPropertyKey(field);
 			Object value = getFieldValue(field, exe);
+			//Here, we are skipping null value too.
+			if (value == null) return null;
+			String actualKey = getPropertyKey(field);
 			result = new Property(actualKey, value);
 			field.setAccessible(false);
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException | SQLException e) {
@@ -105,39 +123,55 @@ public abstract class Entity implements EntityInterface{
         return value;
     }
 
-    private java.util.Date parseDate(String val, DataType type, String format){
-        try {
-            SimpleDateFormat formatter = new SimpleDateFormat((format != null && format.trim().isEmpty() == false)
-                    ? format
-                    : Property.SQL_DATETIME_FORMAT);
-            java.util.Date date = formatter.parse(val);
-            if(type == DataType.SQLTIMESTAMP) {
-                return new Timestamp(date.getTime());
-            }else {
-                return new Date(date.getTime());
-            }
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+	private java.util.Date parseDate(String val, DataType type, String format){
+		try {
+			SimpleDateFormat formatter = new SimpleDateFormat((format != null && format.trim().isEmpty() == false)
+					? format
+					: Property.SQL_DATETIME_FORMAT);
+			java.util.Date date = formatter.parse(val);
+			if(type == DataType.SQLTIMESTAMP) {
+				return new Timestamp(date.getTime());
+			}else {
+				return new Date(date.getTime());
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
-    protected List<Property> getProperties(QueryExecutor exe, boolean skipPrimary) {
-        List<Property> result = new ArrayList<>();
-        boolean acceptAll = shouldAcceptAllAsProperty();
-        Field[] fields = getDeclaredFields(true);
-        for (Field field : fields) {
-            if(acceptAll == false && hasColumnAnnotationPresent(field) == false) {
-                continue;
-            }
-            if (field.isAnnotationPresent(Ignore.class))
-                continue;
-            Property prop = getProperty(field.getName(), exe, skipPrimary);
-            if(prop == null) {continue;}
-            result.add(prop);
-        }
-        return result;
-    }
+	private DataType getFieldDataType(Field field) {
+		if (field.isAnnotationPresent(Column.class)){
+			Column annotation = field.getAnnotation(Column.class);
+			DataType type = annotation.type();
+			return type;
+		}else{
+			Class type = field.getType();
+			if (Integer.class.isAssignableFrom(type)){
+				return DataType.INT;
+			}else if (Boolean.class.isAssignableFrom(type)){
+				return DataType.BOOL;
+			}else if (Float.class.isAssignableFrom(type)){
+				return DataType.FLOAT;
+			}else if (Double.class.isAssignableFrom(type)){
+				return DataType.DOUBLE;
+			}else if (String.class.isAssignableFrom(type)){
+				return DataType.STRING;
+			}else if (java.util.Date.class.isAssignableFrom(type) ||
+					java.sql.Date.class.isAssignableFrom(type)){
+				return DataType.SQLDATE;
+			}else if (Time.class.isAssignableFrom(type) ||
+					Timestamp.class.isAssignableFrom(type)){
+				return DataType.SQLTIMESTAMP;
+			}else if (Long.class.isAssignableFrom(type)){
+				return DataType.LONG;
+			}else if (Blob.class.isAssignableFrom(type)){
+				return DataType.BLOB;
+			}else{
+				return DataType.OBJECT;
+			}
+		}
+	}
 
     protected boolean hasColumnAnnotationPresent(Field field) {
         boolean isAnnotated = field.isAnnotationPresent(Column.class)
