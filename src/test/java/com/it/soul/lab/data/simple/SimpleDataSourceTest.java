@@ -62,7 +62,7 @@ public class SimpleDataSourceTest {
     public void readTest(){
 
         System.out.println("===========================0-(datasource.size())======================");
-        int maxItem = Long.valueOf(dataSource.size()).intValue();
+        int maxItem = dataSource.size();
         Object[] readAll = dataSource.readSynch(0, maxItem);
         for (Object p : readAll) {
             System.out.println(p.toString());

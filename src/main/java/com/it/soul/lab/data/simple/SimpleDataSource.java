@@ -32,8 +32,8 @@ public class SimpleDataSource<Key, Value> implements DataSource<Key, Value> {
     }
 
     @Override
-    public void remove(Key key) {
-        getInMemoryStorage().remove(key);
+    public Value remove(Key key) {
+        return getInMemoryStorage().remove(key);
     }
 
     @Override
@@ -47,14 +47,19 @@ public class SimpleDataSource<Key, Value> implements DataSource<Key, Value> {
     }
 
     @Override
-    public long size() {
+    public int size() {
         return getInMemoryStorage().size();
+    }
+
+    @Override
+    public Value read(Key key) {
+        return getInMemoryStorage().get(key);
     }
 
     @Override
     public Value[] readSynch(int offset, int pageSize) {
         //In-Memory-Pagination:
-        long size = size();
+        int size = size();
         int maxItemCount = Math.abs(offset) + Math.abs(pageSize);
         if (maxItemCount <= size){
             List<Value> items = Arrays.asList((Value[]) getInMemoryStorage().values().toArray(new Object[0]));
