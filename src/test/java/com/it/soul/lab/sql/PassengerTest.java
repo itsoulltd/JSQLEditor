@@ -96,8 +96,8 @@ public class PassengerTest {
 		Property prop = passenger.getPropertyTest("id", exe, true);
 		Assert.assertTrue(prop == null);
 		
-		prop = passenger.getPropertyTest("id", exe, false);
-		Assert.assertTrue(prop != null);
+		//prop = passenger.getPropertyTest("id", exe, false);
+		//Assert.assertTrue(prop != null);
 	}
 
 	//@Test
