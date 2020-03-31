@@ -163,8 +163,8 @@ public class PersonTest {
 		Property prop = person.getPropertyTest("uuid_idx", exe, true);
 		Assert.assertTrue(prop == null);
 		
-		prop = person.getPropertyTest("uuid_idx", exe, false);
-		Assert.assertTrue(prop != null);
+		//prop = person.getPropertyTest("uuid_idx", exe, false);
+		//Assert.assertTrue(prop != null);
 		
 		//prop = person.getPropertyTest("", exe, true);
 		//Assert.assertTrue(prop == null);
