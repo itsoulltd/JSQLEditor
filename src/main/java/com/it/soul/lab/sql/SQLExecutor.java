@@ -1360,9 +1360,10 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
                                 break;
 	            			case BOOL:
 	            				if(property.getValue() != null){
-                                    stmt.setBoolean(index++, (Boolean)property.getValue());
+	            					boolean res = Boolean.valueOf(property.getValue().toString()) ? true : false;
+                                    stmt.setBoolean(index++, res);
                                 }else{
-                                    stmt.setNull(index++, java.sql.Types.BOOLEAN);
+                                    stmt.setBoolean(index++, false);
                                 }
 	            				break;
 	            			case FLOAT:

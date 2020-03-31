@@ -93,12 +93,13 @@ public class PersonTest {
 		person.setUuid_idx(UUID.randomUUID().toString());
 		person.setName_test(getRandomName());
 		person.setAge(getRandomAge());
-		person.setActive(true);
+		//setting null will set the default value from @Column()
+		// or set true/false as desired value:
+		person.setActive(null);
+		//
 		person.setSalary(89200.00);
-		
 		person.setDob(new Date(new java.util.Date().getTime()));
-		person.setCreateDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
-		
+		//
 		try {
 			Boolean res = person.insert(exe);
 			Assert.assertTrue("Inserted", res);

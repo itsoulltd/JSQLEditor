@@ -34,7 +34,7 @@ public class Person extends Entity {
 	@Column(defaultValue="34", type = DataType.INT)
 	private Integer age;
 	
-	@Column(defaultValue="true", type = DataType.BOOL)
+	@Column(defaultValue="false", type = DataType.BOOL)
 	private Boolean active;
 	
 	@Column(defaultValue="0.00", type = DataType.DOUBLE)
