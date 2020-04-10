@@ -1,9 +1,6 @@
 ## JSQLEditor
 
 ### SetUp
-
-       [![Release](https://jitpack.io/v/User/Repo.svg)]
-       (https://jitpack.io/#User/Repo)
        
        Step 1. Add the JitPack repository to your build file
         <repositories>
