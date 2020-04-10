@@ -1,5 +1,5 @@
 ## JSQLEditor
-
+[![](https://jitpack.io/v/itsoulltd/JSQLEditor.svg)](https://jitpack.io/#itsoulltd/JSQLEditor)
 ### SetUp
        
        Step 1. Add the JitPack repository to your build file
