@@ -157,10 +157,16 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 	}
 	@Override
 	public LimitBuilder orderBy(String... columns) {
-		if(tempQuery instanceof SQLSelectQuery) {
-			((SQLSelectQuery)tempQuery).setOrderBy(Arrays.asList(columns), Operator.ASC);
-		}else if(tempQuery instanceof SQLJoinQuery) {
-			((SQLJoinQuery)tempQuery).setOrderBy(Arrays.asList(columns), Operator.ASC);
+		return orderBy(Operator.ASC, columns);
+	}
+	@Override
+	public LimitBuilder orderBy(Operator order, String...columns){
+    	if (order == Operator.DESC || order == Operator.ASC) {
+			if (tempQuery instanceof SQLSelectQuery) {
+				((SQLSelectQuery) tempQuery).setOrderBy(Arrays.asList(columns), order);
+			} else if (tempQuery instanceof SQLJoinQuery) {
+				((SQLJoinQuery) tempQuery).setOrderBy(Arrays.asList(columns), order);
+			}
 		}
 		return this;
 	}

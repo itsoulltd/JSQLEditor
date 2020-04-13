@@ -64,7 +64,7 @@ public class SQLSelectQuery extends SQLQuery{
 			int count = 0;
 			for(String col : columns) {
 				if(col.trim().equals("")){continue;}
-				if(count++ != 0){pqlBuffer.append(", ");}
+				if(count++ != 0){orderBuffer.append(", ");}
 				if(quientifierEnabled()) {orderBuffer.append(getQuientifier() + "." + col);}
 				else {orderBuffer.append(col);}
 			}
@@ -83,7 +83,7 @@ public class SQLSelectQuery extends SQLQuery{
 			int count = 0;
 			for(String col : columns) {
 				if(col.trim().equals("")){continue;}
-				if(count++ != 0){pqlBuffer.append(", ");}
+				if(count++ != 0){groupBuffer.append(", ");}
 				if(quientifierEnabled()){groupBuffer.append(getQuientifier() + "." + col);}
 				else {groupBuffer.append(col);}
 			}

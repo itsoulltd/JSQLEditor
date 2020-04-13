@@ -223,11 +223,11 @@ public class QueryBuilderTest {
 				.columns("name","age")
 				.from("Passenger")
 				.where(Logic.OR, "id", "age")
-				.orderBy("id")
+				.orderBy(Operator.DESC,"id", "name")
 				.addLimit(-1, 0)
 				.build();
 
-		Assert.assertEquals("SELECT name, age FROM Passenger WHERE id = ? OR age = ? ORDER BY id ASC", qu7.toString());
+		Assert.assertEquals("SELECT name, age FROM Passenger WHERE id = ? OR age = ? ORDER BY id, name DESC", qu7.toString());
 		
 		SQLQuery qu9 = new SQLQuery.Builder(QueryType.SELECT)
 				.columns("name","age")
@@ -240,10 +240,18 @@ public class QueryBuilderTest {
 		SQLQuery qu10 = new SQLQuery.Builder(QueryType.SELECT)
 				.columns("name","age")
 				.from("Passenger")
-				.orderBy("id")
+				.orderBy(Operator.ASC, "id", "name")
 				.build();
 
-		Assert.assertEquals("SELECT name, age FROM Passenger  ORDER BY id ASC", qu10.toString());
+		Assert.assertEquals("SELECT name, age FROM Passenger  ORDER BY id, name ASC", qu10.toString());
+
+		SQLQuery qu11 = new SQLQuery.Builder(QueryType.SELECT)
+				.columns("name","age")
+				.from("Passenger")
+				.orderBy(Operator.EQUAL, "id", "name")
+				.build();
+
+		Assert.assertEquals("SELECT name, age FROM Passenger", qu11.toString());
 		
 	}
 	
@@ -261,12 +269,12 @@ public class QueryBuilderTest {
 		SQLQuery qu12 = new SQLQuery.Builder(QueryType.SELECT)
 				.columns("name",ScalarType.COUNT.toAlias("age"))
 				.from("Passenger")
-				.groupBy("name")
+				.groupBy("name", "age")
 				.having(new Expression(new Property(ScalarType.COUNT.toString("age"), ""), Operator.GREATER_THAN))
 				.orderBy(ScalarType.COUNT.toString("age"))
 				.build();
 
-		Assert.assertEquals("SELECT name, COUNT(age) AS count_age FROM Passenger  GROUP BY name HAVING COUNT(age) > ? ORDER BY COUNT(age) ASC", qu12.toString());
+		Assert.assertEquals("SELECT name, COUNT(age) AS count_age FROM Passenger  GROUP BY name, age HAVING COUNT(age) > ? ORDER BY COUNT(age) ASC", qu12.toString());
 		
 	}
 	
