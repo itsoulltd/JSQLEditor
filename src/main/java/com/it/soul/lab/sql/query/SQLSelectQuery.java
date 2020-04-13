@@ -67,9 +67,9 @@ public class SQLSelectQuery extends SQLQuery{
 				if(count++ != 0){orderBuffer.append(", ");}
 				if(quientifierEnabled()) {orderBuffer.append(getQuientifier() + "." + col);}
 				else {orderBuffer.append(col);}
+				if (opt != null) {orderBuffer.append(" " + opt.toString());}
 			}
 			if (count > 0) {
-				if (opt != null) {orderBuffer.append(" " + opt.toString());}
 				pqlBuffer.append(orderBuffer.toString());
 			}
 		}

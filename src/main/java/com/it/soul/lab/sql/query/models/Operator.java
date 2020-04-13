@@ -1,6 +1,7 @@
 package com.it.soul.lab.sql.query.models;
 
 public enum Operator {
+	NONE,
 	EQUAL,
 	NOTEQUAL,
 	GREATER_THAN,
@@ -17,7 +18,6 @@ public enum Operator {
 	NOT_NULL;
 
 	public String toString(){
-
 		String eq = "=";
 		switch (this) {
 		case NOTEQUAL:
@@ -59,10 +59,18 @@ public enum Operator {
 		case NOT_NULL:
 			eq = "IS NOT NULL";
 			break;
+		case NONE:
+			eq = "";
+			break;
 		default:
 			break;
 		}
 		return eq;
+	}
+
+	public String toString(String column){
+		String result = column + " " + this.toString();
+		return result;
 	}
 
 }

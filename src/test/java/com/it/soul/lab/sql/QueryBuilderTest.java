@@ -1,5 +1,6 @@
 package com.it.soul.lab.sql;
 
+import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.query.models.*;
 import org.junit.Assert;
 import org.junit.Test;
@@ -227,7 +228,7 @@ public class QueryBuilderTest {
 				.addLimit(-1, 0)
 				.build();
 
-		Assert.assertEquals("SELECT name, age FROM Passenger WHERE id = ? OR age = ? ORDER BY id, name DESC", qu7.toString());
+		Assert.assertEquals("SELECT name, age FROM Passenger WHERE id = ? OR age = ? ORDER BY id DESC, name DESC", qu7.toString());
 		
 		SQLQuery qu9 = new SQLQuery.Builder(QueryType.SELECT)
 				.columns("name","age")
@@ -241,9 +242,10 @@ public class QueryBuilderTest {
 				.columns("name","age")
 				.from("Passenger")
 				.orderBy(Operator.ASC, "id", "name")
+				.addLimit(10, 5)
 				.build();
 
-		Assert.assertEquals("SELECT name, age FROM Passenger  ORDER BY id, name ASC", qu10.toString());
+		Assert.assertEquals("SELECT name, age FROM Passenger  ORDER BY id ASC, name ASC LIMIT 10 OFFSET 5", qu10.toString());
 
 		SQLQuery qu11 = new SQLQuery.Builder(QueryType.SELECT)
 				.columns("name","age")
@@ -251,7 +253,43 @@ public class QueryBuilderTest {
 				.orderBy(Operator.EQUAL, "id", "name")
 				.build();
 
-		Assert.assertEquals("SELECT name, age FROM Passenger", qu11.toString());
+		Assert.assertEquals("SELECT name, age FROM Passenger  ORDER BY id, name", qu11.toString());
+
+		SQLQuery qu12 = new SQLQuery.Builder(QueryType.SELECT)
+				.columns("name","age")
+				.from("Passenger")
+				.orderBy(Operator.NONE, Operator.ASC.toString("id"), Operator.DESC.toString("name"))
+				.addLimit(10, 5)
+				.build();
+
+		Assert.assertEquals("SELECT name, age FROM Passenger  ORDER BY id ASC, name DESC LIMIT 10 OFFSET 5", qu12.toString());
+
+		SQLQuery qu13 = new SQLQuery.Builder(QueryType.SELECT)
+				.columns("name","age")
+				.from("Passenger")
+				.orderBy("id", Operator.DESC.toString("name"))
+				.addLimit(10, 5)
+				.build();
+
+		Assert.assertEquals("SELECT name, age FROM Passenger  ORDER BY id ASC, name DESC LIMIT 10 OFFSET 5", qu13.toString());
+
+		SQLQuery qu14 = new SQLQuery.Builder(QueryType.SELECT)
+				.columns("name","age", "sex")
+				.from("Passenger")
+				.orderBy("id", Operator.DESC.toString("name"), Operator.ASC.toString("sex"))
+				.addLimit(10, 5)
+				.build();
+
+		Assert.assertEquals("SELECT name, age, sex FROM Passenger  ORDER BY id ASC, name DESC, sex ASC LIMIT 10 OFFSET 5", qu14.toString());
+
+		SQLQuery qu15 = new SQLQuery.Builder(QueryType.SELECT)
+				.columns("name","age", "sex")
+				.from(Entity.tableName(Passenger.class))
+				.orderBy("id", "name desc", "age asc", Operator.DESC.toString("sex"))
+				.addLimit(10, 5)
+				.build();
+
+		Assert.assertEquals("SELECT name, age, sex FROM Passenger  ORDER BY id ASC, name desc, age asc, sex DESC LIMIT 10 OFFSET 5", qu15.toString());
 		
 	}
 	

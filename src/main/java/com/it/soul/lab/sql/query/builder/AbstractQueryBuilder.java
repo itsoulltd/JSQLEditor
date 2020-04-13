@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuilder
         , WhereExpressionBuilder, InsertBuilder, ScalarExpressionBuilder, GroupByBuilder
@@ -161,12 +163,24 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 	}
 	@Override
 	public LimitBuilder orderBy(Operator order, String...columns){
+    	List<String> colAsList = null;
     	if (order == Operator.DESC || order == Operator.ASC) {
-			if (tempQuery instanceof SQLSelectQuery) {
-				((SQLSelectQuery) tempQuery).setOrderBy(Arrays.asList(columns), order);
-			} else if (tempQuery instanceof SQLJoinQuery) {
-				((SQLJoinQuery) tempQuery).setOrderBy(Arrays.asList(columns), order);
-			}
+			colAsList = Arrays.asList(columns)
+					.stream()
+					.flatMap(col -> {
+						if (col.toUpperCase().endsWith("ASC") || col.toUpperCase().endsWith("DESC"))
+							return Stream.of(col);
+						else
+							return Stream.of(order.toString(col));
+					})
+					.collect(Collectors.toList());
+		}
+    	//
+    	colAsList = (colAsList == null) ? Arrays.asList(columns) : colAsList;
+		if (tempQuery instanceof SQLSelectQuery) {
+			((SQLSelectQuery) tempQuery).setOrderBy(colAsList, null);
+		} else if (tempQuery instanceof SQLJoinQuery) {
+			((SQLJoinQuery) tempQuery).setOrderBy(colAsList, null);
 		}
 		return this;
 	}
