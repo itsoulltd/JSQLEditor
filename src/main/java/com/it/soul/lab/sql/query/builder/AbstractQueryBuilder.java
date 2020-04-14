@@ -167,11 +167,11 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
     	if (order == Operator.DESC || order == Operator.ASC) {
 			colAsList = Arrays.asList(columns)
 					.stream()
-					.flatMap(col -> {
+					.map(col -> {
 						if (col.toUpperCase().endsWith("ASC") || col.toUpperCase().endsWith("DESC"))
-							return Stream.of(col);
+							return col;
 						else
-							return Stream.of(order.toString(col));
+							return order.toString(col);
 					})
 					.collect(Collectors.toList());
 		}
