@@ -4,7 +4,6 @@
              xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
         http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
     <persistence-unit name="testDB" transaction-type="RESOURCE_LOCAL">
-        <!-- <provider>org.hibernate.ejb.HibernatePersistence</provider> -->
         <properties>
             <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver"/>
             <property name="hibernate.connection.username" value="root"/>
@@ -18,6 +17,22 @@
             <!--<property name="hibernate.hbm2ddl.auto" value="create"/>-->
             <!-- update will create if not exist, if exist and there are any changes in entity, then update the table structure -->
             <property name="hibernate.hbm2ddl.auto" value="update"/>
+        </properties>
+    </persistence-unit>
+    <persistence-unit name="testH2DB" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <properties>
+            <!-- Configuring JDBC properties -->
+            <property name="hibernate.connection.url" value="jdbc:h2:mem:testH2DB;DB_CLOSE_DELAY=-1"/>
+            <property name="hibernate.connection.driver_class" value="org.h2.Driver"/>
+            <!-- -->
+            <!--<property name="hibernate.connection.username" value="sa"/>
+            <property name="hibernate.connection.password" value="sa"/>-->
+            <!-- Hibernate properties -->
+            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+            <property name="hibernate.format_sql" value="false"/>
+            <property name="hibernate.show_sql" value="true"/>
         </properties>
     </persistence-unit>
 </persistence>
