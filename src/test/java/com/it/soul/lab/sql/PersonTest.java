@@ -33,7 +33,7 @@ public class PersonTest {
 	public void before(){
 		
 		try {
-			Connection conn = new JDBConnection.Builder(DriverClass.MYSQL)
+			Connection conn = new JDBConnection.Builder(DriverClass.H2_EMBEDDED)
 										.database("testDB")
 										.credential("root",password)
 										.build();
@@ -63,7 +63,7 @@ public class PersonTest {
 		exe.close();
 	}
 
-	@Test
+	//@Test
 	public void testUpdate() {
 		Person person = new Person();
 		person.setUuid_idx(UUID.randomUUID().toString());
@@ -87,7 +87,7 @@ public class PersonTest {
 		}
 	}
 
-	@Test
+	//@Test
 	public void testInsert() {
 		Person person = new Person();
 		person.setUuid_idx(UUID.randomUUID().toString());
@@ -108,7 +108,7 @@ public class PersonTest {
 		}
 	}
 
-	@Test
+	//@Test
 	public void testDelete() {
 		Person person = new Person();
 		person.setUuid_idx(UUID.randomUUID().toString());
@@ -155,7 +155,7 @@ public class PersonTest {
 		}
 	}
 	
-	@Test
+	//@Test
 	public void getPropertyTest() {
 		Person person = new Person();
 		

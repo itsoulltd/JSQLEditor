@@ -43,13 +43,13 @@ public class CQLExecutorTest {
         } catch (Exception e) {}
     }
 
-    @Test
+    //@Test
     public void versionTest(){
         String version = cqlExecutor.version();
         System.out.println("Cassandra: " + version);
     }
 
-    @Test
+    //@Test
     public void cassandraCRUDTest(){
         try {
             //Creating a Table from CQLEntity @TableName description.
@@ -110,7 +110,7 @@ public class CQLExecutorTest {
         Assert.assertTrue(true);
     }
 
-    @Test
+    //@Test
     public void fetchTest(){
         try{
             //Cassandra force to have all PartitionKey in where clause and they must have to be in sequence as they appear in table schema.
@@ -130,7 +130,7 @@ public class CQLExecutorTest {
         Assert.assertTrue(true);
     }
 
-    @Test
+    //@Test
     public void tableAlterTest(){
         //try {
             //cqlExecutor.alterTable(OrderEvent.class, AlterAction.ALTER, new Property("<non-primary-key>", DataType-as-value));
@@ -151,7 +151,7 @@ public class CQLExecutorTest {
         Assert.assertTrue(true);
     }
 
-    @Test
+    //@Test
     public void indexTest(){
         try {
             boolean droped = cqlExecutor.dropTable(OrderEvent.class);

@@ -18,7 +18,7 @@ public class SQLExecutorTest {
     private SQLExecutor exe;
     String password = "root";
 
-    @Before
+    //@Before
     public void setUp() throws Exception {
         exe = new SQLExecutor.Builder(DriverClass.MYSQL)
                 .database("testDB")
@@ -27,13 +27,13 @@ public class SQLExecutorTest {
                 .build();
     }
 
-    @After
+    //@After
     public void tearDown() throws Exception {
         exe.close();
         exe = null;
     }
 
-    @Test
+    //@Test
     public void useTest(){
         try {
             //exe.useDatabase("testDB");
@@ -50,7 +50,7 @@ public class SQLExecutorTest {
 
     }
 
-    @Test
+    //@Test
     public void insert() throws SQLException {
         SQLInsertQuery query = new SQLQuery.Builder(QueryType.INSERT)
                 .into("Passenger")
@@ -63,7 +63,7 @@ public class SQLExecutorTest {
         Assert.assertTrue(res > 0);
     }
 
-    @Test
+    //@Test
     public void update() throws SQLException {
         SQLUpdateQuery query = new SQLQuery.Builder(QueryType.UPDATE)
                 .set(new Row().add("age",19).getProperties().toArray(new Property[0]))
@@ -74,7 +74,7 @@ public class SQLExecutorTest {
         Assert.assertTrue(res >= 0);
     }
 
-    @Test
+    //@Test
     public void delete() throws SQLException {
         SQLDeleteQuery query = new SQLQuery.Builder(QueryType.DELETE)
                 .rowsFrom("Passenger")
