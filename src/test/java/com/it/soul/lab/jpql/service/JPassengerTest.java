@@ -28,7 +28,7 @@ public class JPassengerTest{
 
     @Before
     public void before(){
-        ORMController controller = new ORMController("testDB");
+        ORMController controller = new ORMController("testH2DB");
         executor = new JPQLExecutor(controller.getEntityManager());
     }
 

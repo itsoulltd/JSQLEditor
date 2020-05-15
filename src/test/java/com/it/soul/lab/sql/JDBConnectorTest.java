@@ -9,125 +9,84 @@ import com.it.soul.lab.connect.JDBConnection;
 import com.it.soul.lab.connect.DriverClass;
 
 public class JDBConnectorTest {
-
-	String password = "root";
-
-	@Test
-	public void testConnUrl() {
-		Connection conn = null;
-		try {
-			conn = new JDBConnection.Builder("jdbc:mysql://localhost:3306/testDB")
-					.credential("root",password)
-					.build();
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		Assert.assertTrue(conn != null);
-		System.out.println("----------------------");
-	}
-	
-	@Test
-	public void testDriver() {
-		Connection conn = null;
-		try {
-			conn = new JDBConnection.Builder(DriverClass.MYSQL)
-					.database("testDB")
-					.credential("root",password)
-					.build();
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		Assert.assertTrue(conn != null);
-		System.out.println("----------------------");
-	}
-	
-	@Test
-	public void testConnUrlDetail() {
-		Connection conn = null;
-		try {
-			conn = new JDBConnection.Builder("jdbc:mysql://localhost:3306/testDB")
-					.host("dasda", "asdasd") //Has no impact
-					.database("asdasd") //Has no impact
-					.credential("root",password)
-					.build();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		Assert.assertTrue(conn != null);
-		System.out.println("----------------------");
-	}
-	
-	@Test
-	public void testDriverBadDetail() {
-		Connection conn = null;
-		try {
-			conn = new JDBConnection.Builder(DriverClass.MYSQL)
-					.host("fghjk", "asdasd") //Have to be provided in correct form
-					.database("qwewe") //Have to be provided in correct form
-					.credential("root",password)
-					.build();
-			
-		} catch (Exception e) {
-			System.out.println("SQLException:"+e.getMessage());
-		}
-		
-		try {
-			conn = new JDBConnection.Builder(DriverClass.MYSQL)
-					.credential("root", password)
-					.database("asdasd").build();
-		}catch(Exception e) {
-			System.out.println("SQLException:"+e.getMessage());
-		}
-
-		try {
-			conn = new JDBConnection.Builder(DriverClass.MYSQL)
-					.database("fdaf").build();
-		} catch (Exception e) {
-			System.out.println("SQLException:"+e.getMessage());
-		}
-
-		try {
-			conn = new JDBConnection.Builder(DriverClass.MYSQL)
-					.credential("root", password).build();
-		} catch (Exception e) {
-			System.out.println("SQLException:"+e.getMessage());
-		}
-
-		try {
-			conn = new JDBConnection.Builder(DriverClass.MYSQL)
-					.credential("root", "")
-					.database("testDB").build();
-		} catch (Exception e) {
-			System.out.println("SQLException:"+e.getMessage());
-		}
-
-		try {
-			conn = new JDBConnection.Builder(DriverClass.MYSQL)
-					.credential(null, password)
-					.database("testDB").build();
-		} catch (Exception e) {
-			System.out.println("SQLException:"+e.getMessage());
-		}
-		
-		
-		Assert.assertTrue(conn == null);
-		System.out.println("----------------------");
-	}
 	
 	@Test
 	public void testDriverWellDetail() {
 		Connection conn = null;
 		try {
-			//-host(name:"",port:"") is optional: for localhost, pass it as null,null; 
-			//means host name will be generated based on 
+			//-host(name:"",port:"") is optional: for localhost, pass it as null,null;
+			//means host name will be generated based on
 			//jdbc:<datasource>://localhost:<default-port>/<database-name> for the DriverClass;
-			conn = new JDBConnection.Builder(DriverClass.MYSQL)
+			//Replace with: DriverClass.MYSQL
+			conn = new JDBConnection.Builder(DriverClass.H2_EMBEDDED)
 					.host("localhost", "3306")
 					.database("testDB")
-					.credential("root",password)
+					.credential("root","root@123")
 					.build();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Assert.assertTrue(conn != null);
+		System.out.println("----------------------");
+	}
+
+	@Test
+	public void testDriver() {
+		Connection conn = null;
+		try {
+			conn = new JDBConnection.Builder(DriverClass.H2_EMBEDDED)
+					.database("testDB")
+					.credential("root", "root@123")
+					.build();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Assert.assertTrue(conn != null);
+		System.out.println("----------------------");
+	}
+
+	@Test
+	public void testConnUrlH2() {
+		Connection conn = null;
+		try {
+			conn = new JDBConnection.Builder("jdbc:h2:mem:testH2DB;DB_CLOSE_DELAY=-1")
+					.credential("sa","")
+					.build();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Assert.assertTrue(conn != null);
+		System.out.println("----------------------");
+	}
+
+	@Test
+	public void testConnUrlH2A() {
+		Connection conn = null;
+		try {
+			conn = new JDBConnection.Builder(DriverClass.H2_EMBEDDED)
+					.database("testH2DB")
+					.credential("sa","")
+					.query("DB_CLOSE_DELAY=-1")
+					.build();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Assert.assertTrue(conn != null);
+		System.out.println("----------------------");
+	}
+
+	//If there are a MYSQL Server Running into localhost:
+	//@Test
+	public void testConnUrl() {
+		Connection conn = null;
+		try {
+			conn = new JDBConnection.Builder("jdbc:mysql://localhost:3306/testDB")
+					.credential("root","root@123")
+					.build();
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
