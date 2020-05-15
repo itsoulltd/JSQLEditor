@@ -1,6 +1,7 @@
 package com.it.soul.lab.sql;
 
 import com.it.soul.lab.connect.DriverClass;
+import com.it.soul.lab.connect.io.ScriptRunner;
 import com.it.soul.lab.sql.query.*;
 import com.it.soul.lab.sql.query.models.DataType;
 import com.it.soul.lab.sql.query.models.Property;
@@ -11,6 +12,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.sql.SQLException;
 
 public class SQLExecutorTest {
@@ -18,22 +20,30 @@ public class SQLExecutorTest {
     private SQLExecutor exe;
     String password = "root";
 
-    //@Before
+    @Before
     public void setUp() throws Exception {
-        exe = new SQLExecutor.Builder(DriverClass.MYSQL)
-                .database("testDB")
-                .credential("root", password)
-                .query("?autoReconnect=true&failOverReadOnly=false&maxReconnects=10")
-                .build();
+        exe = new SQLExecutor.Builder(DriverClass.H2_EMBEDDED)
+                .database("testH2DB")
+                .credential("sa", "").build();
+        //
+        ScriptRunner runner = new ScriptRunner();
+        File file = new File("testDB.sql");
+        String[] cmds = runner.commands(runner.createStream(file));
+        for (String cmd:cmds) {
+            try {
+                exe.executeDDLQuery(cmd);
+            } catch (SQLException throwables) {}
+        }
+        //
     }
 
-    //@After
+    @After
     public void tearDown() throws Exception {
         exe.close();
         exe = null;
     }
 
-    //@Test
+    @Test
     public void useTest(){
         try {
             //exe.useDatabase("testDB");
@@ -50,7 +60,7 @@ public class SQLExecutorTest {
 
     }
 
-    //@Test
+    @Test
     public void insert() throws SQLException {
         SQLInsertQuery query = new SQLQuery.Builder(QueryType.INSERT)
                 .into("Passenger")
@@ -63,7 +73,7 @@ public class SQLExecutorTest {
         Assert.assertTrue(res > 0);
     }
 
-    //@Test
+    @Test
     public void update() throws SQLException {
         SQLUpdateQuery query = new SQLQuery.Builder(QueryType.UPDATE)
                 .set(new Row().add("age",19).getProperties().toArray(new Property[0]))
@@ -74,7 +84,7 @@ public class SQLExecutorTest {
         Assert.assertTrue(res >= 0);
     }
 
-    //@Test
+    @Test
     public void delete() throws SQLException {
         SQLDeleteQuery query = new SQLQuery.Builder(QueryType.DELETE)
                 .rowsFrom("Passenger")

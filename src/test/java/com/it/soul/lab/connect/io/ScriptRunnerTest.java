@@ -20,9 +20,9 @@ public class ScriptRunnerTest {
 
     @Before
     public void setUp() throws Exception {
-        connection = new JDBConnection.Builder(DriverClass.MYSQL)
-                .database("testDB")
-                .credential("root", "root").build();
+        connection = new JDBConnection.Builder(DriverClass.H2_EMBEDDED)
+                .database("testH2DB")
+                .credential("sa", "").build();
         runner = new ScriptRunner();
     }
 
@@ -33,7 +33,7 @@ public class ScriptRunnerTest {
             connection.close();
     }
 
-    //@Test
+    @Test
     public void runScripts(){
         File file = new File("src/test/resources/testDB.sql");
         if (file.isFile()){
@@ -47,7 +47,7 @@ public class ScriptRunnerTest {
         }
     }
 
-    //@Test
+    @Test
     public void runScriptsV2(){
         File file = new File("testDB.sql");
         String[] cmds = runner.commands(runner.createStream(file));

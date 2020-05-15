@@ -1,11 +1,14 @@
 package com.it.soul.lab.sql;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+import com.it.soul.lab.connect.DriverClass;
+import com.it.soul.lab.connect.io.ScriptRunner;
 import com.it.soul.lab.sql.query.models.*;
 import org.junit.After;
 import org.junit.Assert;
@@ -25,13 +28,22 @@ public class QueryExecutionTest {
 	
 	SQLExecutor exe;
 	
-	//@Before
+	@Before
 	public void before(){
 		try {
-			Connection conn = new JDBConnection.Builder("jdbc:mysql://localhost:3306/testDB")
-										.credential("root","root@123")
-										.build();
-			exe = new SQLExecutor(conn);
+			exe = new SQLExecutor.Builder(DriverClass.H2_EMBEDDED)
+					.database("testH2DB")
+					.credential("sa", "").build();
+			//
+			ScriptRunner runner = new ScriptRunner();
+			File file = new File("testDB.sql");
+			String[] cmds = runner.commands(runner.createStream(file));
+			for (String cmd:cmds) {
+				try {
+					exe.executeDDLQuery(cmd);
+				} catch (SQLException throwables) {}
+			}
+			//
 		} catch (SQLException e) {
 			exe.close();
 			e.printStackTrace();
@@ -40,12 +52,12 @@ public class QueryExecutionTest {
 		}
 	}
 	
-	//@After
+	@After
 	public void after(){
 		exe.close();
 	}
 	
-	//@Test
+	@Test
 	public void testSelectAll(){
 		
 		try{
@@ -62,7 +74,7 @@ public class QueryExecutionTest {
 		
 	}
 
-	//@Test
+	@Test
 	public void testSelect() {
 
 		//Explicit way:
@@ -86,7 +98,7 @@ public class QueryExecutionTest {
 		} 
 	}
 	
-	//@Test
+	@Test
 	public void testInsert(){
 		//Insert into
 		SQLInsertQuery iQuery2 = (SQLInsertQuery) new SQLQuery.Builder(QueryType.INSERT)
@@ -102,7 +114,7 @@ public class QueryExecutionTest {
 		
 	}
 	
-	//@Test
+	@Test
 	public void updateTest(){
 		
 		try {
@@ -132,30 +144,29 @@ public class QueryExecutionTest {
 		}
 	}
 	
-	//@Test
+	@Test
 	public void deleteTest(){
 
 		try {
 			SQLScalarQuery max = (SQLScalarQuery) new SQLQuery.Builder(QueryType.MAX).columns("id").on("Passenger").build();
 			int autoId = exe.getScalarValue(max);
-			Assert.assertTrue("Get Max value", autoId > 0);
+			if (autoId > 0){
+				Expression compareWith = new Expression("id", Operator.EQUAL).setPropertyValue(autoId, DataType.INT);
 
-			Expression compareWith = new Expression("id", Operator.EQUAL).setPropertyValue(autoId, DataType.INT);
+				SQLDeleteQuery dquery = (SQLDeleteQuery) new SQLQuery.Builder(QueryType.DELETE)
+						.rowsFrom("Passenger")
+						.where(compareWith)
+						.build();
 
-			SQLDeleteQuery dquery = (SQLDeleteQuery) new SQLQuery.Builder(QueryType.DELETE)
-														.rowsFrom("Passenger")
-														.where(compareWith)
-														.build();
-			
-			int deletedId = exe.executeDelete(dquery);
-			Assert.assertTrue("Delete Successfull", true);
-
+				int deletedId = exe.executeDelete(dquery);
+				Assert.assertTrue("Delete Successfull", true);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	//@Test
+	@Test
 	public void GroupByHaving() {
 		
 		try {

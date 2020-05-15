@@ -1,5 +1,6 @@
 package com.it.soul.lab.sql;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import com.it.soul.lab.connect.io.ScriptRunner;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,11 +35,19 @@ public class PersonTest {
 	public void before(){
 		
 		try {
-			Connection conn = new JDBConnection.Builder(DriverClass.H2_EMBEDDED)
-										.database("testDB")
-										.credential("root",password)
-										.build();
-			exe = new SQLExecutor(conn);
+			exe = new SQLExecutor.Builder(DriverClass.H2_EMBEDDED)
+					.database("testH2DB")
+					.credential("sa", "").build();
+			//
+			ScriptRunner runner = new ScriptRunner();
+			File file = new File("testDB.sql");
+			String[] cmds = runner.commands(runner.createStream(file));
+			for (String cmd:cmds) {
+				try {
+					exe.executeDDLQuery(cmd);
+				} catch (SQLException throwables) {}
+			}
+			//
 		} catch (SQLException e) {
 			exe.close();
 			e.printStackTrace();
@@ -63,7 +73,7 @@ public class PersonTest {
 		exe.close();
 	}
 
-	//@Test
+	@Test
 	public void testUpdate() {
 		Person person = new Person();
 		person.setUuid_idx(UUID.randomUUID().toString());
@@ -87,7 +97,7 @@ public class PersonTest {
 		}
 	}
 
-	//@Test
+	@Test
 	public void testInsert() {
 		Person person = new Person();
 		person.setUuid_idx(UUID.randomUUID().toString());
@@ -108,7 +118,7 @@ public class PersonTest {
 		}
 	}
 
-	//@Test
+	@Test
 	public void testDelete() {
 		Person person = new Person();
 		person.setUuid_idx(UUID.randomUUID().toString());
@@ -155,7 +165,7 @@ public class PersonTest {
 		}
 	}
 	
-	//@Test
+	@Test
 	public void getPropertyTest() {
 		Person person = new Person();
 		
@@ -176,7 +186,7 @@ public class PersonTest {
 		Assert.assertTrue(salaryProp.getKey().equalsIgnoreCase("salary"));
 	}
 
-	//@Test
+	@Test
 	public void readAsynch(){
 		System.out.println("Test: PageSize: 3 RowCount: 5");
 		Person.read(Person.class, exe, 3, 5, null, (persons) -> {

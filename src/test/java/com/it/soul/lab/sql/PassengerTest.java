@@ -1,9 +1,11 @@
 package com.it.soul.lab.sql;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Random;
 
+import com.it.soul.lab.connect.io.ScriptRunner;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -18,17 +20,24 @@ public class PassengerTest {
 	SQLExecutor exe;
 	String[] names = new String[]{"Sohana","Towhid","Tanvir","Sumaiya","Tusin"};
 	Integer[] ages = new Integer[] {15, 18, 28, 26, 32, 34, 25, 67};
-	String password = "root";
 
 	@Before @SuppressWarnings("Duplicates")
 	public void before(){
 		
 		try {
-			Connection conn = new JDBConnection.Builder(DriverClass.H2_EMBEDDED)
-					.database("testDB")
-					.credential("root",password)
-					.build();
-			exe = new SQLExecutor(conn);
+			exe = new SQLExecutor.Builder(DriverClass.H2_EMBEDDED)
+					.database("testH2DB")
+					.credential("sa", "").build();
+			//
+			ScriptRunner runner = new ScriptRunner();
+			File file = new File("testDB.sql");
+			String[] cmds = runner.commands(runner.createStream(file));
+			for (String cmd:cmds) {
+				try {
+					exe.executeDDLQuery(cmd);
+				} catch (SQLException throwables) {}
+			}
+			//
 		} catch (SQLException e) {
 			exe.close();
 			e.printStackTrace();
@@ -54,7 +63,7 @@ public class PassengerTest {
 		exe.close();
 	}
 	
-	//@Test
+	@Test
 	public void testUpdate() {
 		Passenger passenger = new Passenger();
 		passenger.setName(getRandomName());
@@ -75,7 +84,7 @@ public class PassengerTest {
 		}
 	}
 	
-	//@Test
+	@Test
 	public void testDelete() {
 		Passenger passenger = new Passenger();
 		passenger.setName(getRandomName());
@@ -89,7 +98,7 @@ public class PassengerTest {
 		}
 	}
 	
-	//@Test
+	@Test
 	public void getPropertyTest() {
 		Passenger passenger = new Passenger();
 		
@@ -101,7 +110,7 @@ public class PassengerTest {
 		//Assert.assertTrue(prop != null);
 	}
 
-	//@Test
+	@Test
 	public void transactionTest(){
 		//
         int rand = (new Random()).nextInt(2);

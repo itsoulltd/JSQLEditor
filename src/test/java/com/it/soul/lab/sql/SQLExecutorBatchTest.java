@@ -1,6 +1,8 @@
 package com.it.soul.lab.sql;
 
 import com.it.soul.lab.connect.DriverClass;
+import com.it.soul.lab.connect.JDBConnection;
+import com.it.soul.lab.connect.io.ScriptRunner;
 import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.query.*;
 import com.it.soul.lab.sql.query.models.Property;
@@ -10,13 +12,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 
 public class SQLExecutorBatchTest {
 
     private SQLExecutor exe;
-    String password = "root";
 
     String[] names = new String[]{"Sohana","Towhid","Tanvir","Sumaiya","Tusin"};
     Integer[] ages = new Integer[] {15, 18, 28, 26, 32, 34, 25, 67};
@@ -33,21 +36,31 @@ public class SQLExecutorBatchTest {
         return ages[index];
     }
 
-    //@Before
+    @Before
     public void setUp() throws Exception {
         exe = new SQLExecutor.Builder(DriverClass.H2_EMBEDDED)
                 .database("testH2DB")
                 .credential("sa", "").build();
+        //
+        ScriptRunner runner = new ScriptRunner();
+        File file = new File("testDB.sql");
+        String[] cmds = runner.commands(runner.createStream(file));
+        for (String cmd:cmds) {
+            try {
+                exe.executeDDLQuery(cmd);
+            } catch (SQLException throwables) {}
+        }
+        //
     }
 
-    //@After
+    @After
     public void tearDown() throws Exception {
         exe.close();
         exe = null;
         //clearAll();
     }
 
-    //@Test
+    @Test
     public void seeAll(){
         SQLSelectQuery selectQuery = new SQLQuery.Builder(QueryType.SELECT)
                 .columns().from("Passenger")
@@ -64,7 +77,7 @@ public class SQLExecutorBatchTest {
         }
     }
 
-    //@Test
+    @Test
     public void updateQueryValueBinding(){
         SQLUpdateQuery updateQuery = new SQLQuery.Builder(QueryType.UPDATE)
                 .set(new Property("name", "Towhid"), new Property("age", 36), new Property("sex", "male"))
@@ -90,7 +103,7 @@ public class SQLExecutorBatchTest {
         System.out.println(buffer);
     }
 
-    //@Test
+    @Test
     public void executeUpdate() {
         SQLSelectQuery selectQuery = new SQLQuery.Builder(QueryType.SELECT)
                 .columns().from("Passenger")
@@ -122,7 +135,7 @@ public class SQLExecutorBatchTest {
         }
     }
 
-    //@Test
+    @Test
     public void executeUpdateV2() {
         SQLSelectQuery selectQuery = new SQLQuery.Builder(QueryType.SELECT)
                 .columns().from("Passenger")
@@ -153,7 +166,7 @@ public class SQLExecutorBatchTest {
         }
     }
 
-    //@Test
+    @Test
     public void clearAll() {
         SQLDeleteQuery query = new SQLQuery.Builder(QueryType.DELETE)
                 .rowsFrom(Passenger.tableName(Passenger.class))
@@ -166,7 +179,7 @@ public class SQLExecutorBatchTest {
         }
     }
 
-    //@Test
+    @Test
     public void executeInsert() {
         SQLInsertQuery insertQuery = new SQLQuery.Builder(QueryType.INSERT)
                 .into(Passenger.tableName(Passenger.class))
@@ -186,7 +199,7 @@ public class SQLExecutorBatchTest {
         }
     }
 
-    //@Test @SuppressWarnings("Duplicates")
+    @Test @SuppressWarnings("Duplicates")
     public void inQueryTest(){
         SQLSelectQuery query = new SQLQuery.Builder(QueryType.SELECT)
                 .columns()
