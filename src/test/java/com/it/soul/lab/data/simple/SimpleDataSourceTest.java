@@ -4,9 +4,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class SimpleDataSourceTest {
 
     SimpleDataSource<String, Object> dataSource;
@@ -102,21 +99,21 @@ public class SimpleDataSourceTest {
         for (Object p : readAll) {
             System.out.println(p.toString());
         }
-        //System.out.println("==========================4-1=======================");
+        System.out.println("==========================(Asynch)===================");
         dataSource.readAsynch(4, 1, (items) -> {
             System.out.println("==========================4-1=======================");
             for (Object p : items) {
                 System.out.println(p.toString());
             }
         });
-        //System.out.println("==========================4-2=======================");
+        //
         dataSource.readAsynch(4, 2, (items) -> {
             System.out.println("==========================4-2=======================");
             for (Object p : items) {
                 System.out.println(p.toString());
             }
         });
-        //System.out.println("==========================4-3=======================");
+        //
         dataSource.readAsynch(4, 3, (items) -> {
             System.out.println("==========================4-3=======================");
             for (Object p : items) {

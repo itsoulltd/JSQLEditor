@@ -2,13 +2,13 @@ package com.it.soul.lab.data.simple;
 
 import com.it.soul.lab.data.base.DataSource;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class SimpleDataSource<Key, Value> implements DataSource<Key, Value> {
 
@@ -62,8 +62,11 @@ public class SimpleDataSource<Key, Value> implements DataSource<Key, Value> {
         int size = size();
         int maxItemCount = Math.abs(offset) + Math.abs(pageSize);
         if (maxItemCount <= size){
-            List<Value> items = Arrays.asList((Value[]) getInMemoryStorage().values().toArray(new Object[0]));
-            return (Value[]) items.subList(Math.abs(offset), maxItemCount).toArray(new Object[0]);
+            List<Value> items = getInMemoryStorage().values()
+                    .stream()
+                    .collect(Collectors.toList())
+                    .subList(Math.abs(offset), maxItemCount);
+            return (Value[]) items.toArray();
         }else {
             return (Value[]) new Object[0];
         }
