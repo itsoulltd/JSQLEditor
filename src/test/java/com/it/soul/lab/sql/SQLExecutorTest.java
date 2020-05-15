@@ -18,7 +18,6 @@ import java.sql.SQLException;
 public class SQLExecutorTest {
 
     private SQLExecutor exe;
-    String password = "root";
 
     @Before
     public void setUp() throws Exception {
