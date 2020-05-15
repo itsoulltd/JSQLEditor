@@ -7,15 +7,18 @@ public class PropertyTest {
 
     @Test
     public void compareTest(){
+
+        //Property.getValue() is null:
         Property property = new Property();
         Property property1 = new Property();
         System.out.println(property1.compareTo(property));
-        Assert.assertTrue(property1.compareTo(property) == 0);
+        Assert.assertTrue(property1.compareTo(property) == -1);
 
+        //Property.getType() miss-match:
         property.setValue(12);
-        property1.setValue(12);
+        property1.setValue(12.0);
         System.out.println(property1.compareTo(property));
-        Assert.assertTrue(property1.compareTo(property) == 0);
+        Assert.assertTrue(property1.compareTo(property) == -1);
 
         property.setValue(12);
         property1.setValue(13);

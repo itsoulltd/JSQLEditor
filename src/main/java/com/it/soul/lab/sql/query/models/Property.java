@@ -107,9 +107,9 @@ public class Property implements Comparable<Property>{
 
 	@Override
 	public int compareTo(Property o) {
-		if (o == null || getValue() == null) return 0;
-		if (getType() != o.getType()) return 0;
-		int result = 0;
+		if (o == null || getValue() == null) return -1;
+		if (getType() != o.getType()) return -1;
+		int result = -1;
 		String value = getValue().toString();
 		String oValue = o.getValue().toString();
 		switch (getType()){
@@ -140,8 +140,9 @@ public class Property implements Comparable<Property>{
 					e.printStackTrace();
 				}
 				break;
-			default:
-				result = 0;
+			case STRING:
+			case TEXT:
+				result = value.compareTo(oValue);
 		}
 		return result;
 	}
