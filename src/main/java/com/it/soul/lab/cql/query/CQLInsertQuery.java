@@ -3,7 +3,6 @@ package com.it.soul.lab.cql.query;
 import com.it.soul.lab.sql.query.SQLInsertQuery;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 
 public class CQLInsertQuery extends SQLInsertQuery {
 
@@ -14,7 +13,7 @@ public class CQLInsertQuery extends SQLInsertQuery {
         return super.toString() + " " + timeBuffer.toString();
     }
 
-    public void usingTTL(long seconds){
+    public void usingTTL(long seconds) {
 
         //to prevent multiple call of this method.
         if (timeBuffer.length() > 0 && timeBuffer.toString().startsWith("USING TTL")) return;

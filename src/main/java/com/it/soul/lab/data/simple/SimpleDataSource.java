@@ -2,20 +2,17 @@ package com.it.soul.lab.data.simple;
 
 import com.it.soul.lab.data.base.DataSource;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public class SimpleDataSource<Key, Value> implements DataSource<Key, Value> {
 
     private Map<Key, Value> inMemoryStorage;
 
     protected Map<Key, Value> getInMemoryStorage() {
-        if (inMemoryStorage == null){
+        if (inMemoryStorage == null) {
             inMemoryStorage = new ConcurrentHashMap<>();
         }
         return inMemoryStorage;
@@ -61,27 +58,16 @@ public class SimpleDataSource<Key, Value> implements DataSource<Key, Value> {
         //In-Memory-Pagination:
         int size = size();
         int maxItemCount = Math.abs(offset) + Math.abs(pageSize);
-        if (maxItemCount <= size){
-            List<Value> items = getInMemoryStorage().values()
-                    .stream()
-                    .collect(Collectors.toList())
-                    .subList(Math.abs(offset), maxItemCount);
+        if (maxItemCount <= size) {
+            List<Value> allItems = (List<Value>) getInMemoryStorage().values();
+            List<Value> items = new ArrayList<>();
+            int end = Math.abs(offset) + maxItemCount;
+            for (int i = Math.abs(offset); i < end; i++) {
+                items.add(allItems.get(i));
+            }
             return (Value[]) items.toArray();
-        }else {
+        } else {
             return (Value[]) new Object[0];
         }
     }
-
-    private Executor serviceExe = Executors.newSingleThreadExecutor();
-
-    @Override
-    public void readAsynch(int offset, int pageSize, Consumer<Value[]> consumer) {
-        serviceExe.execute(() -> {
-            if (consumer != null){
-                Value[] items = readSynch(offset, pageSize);
-                consumer.accept(items);
-            }
-        });
-    }
-
 }

@@ -4,16 +4,13 @@ import com.datastax.driver.core.*;
 import com.datastax.driver.core.policies.DCAwareRoundRobinPolicy;
 import com.datastax.driver.core.policies.ReconnectionPolicy;
 import com.datastax.driver.core.policies.RetryPolicy;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.it.soul.lab.cql.entity.CQLEntity;
 import com.it.soul.lab.cql.entity.CQLIndex;
 import com.it.soul.lab.cql.entity.ClusteringKey;
-import com.it.soul.lab.cql.query.*;
 import com.it.soul.lab.cql.query.ReplicationStrategy;
+import com.it.soul.lab.cql.query.*;
 import com.it.soul.lab.sql.AbstractExecutor;
 import com.it.soul.lab.sql.QueryExecutor;
-import com.it.soul.lab.sql.QueryTransaction;
 import com.it.soul.lab.sql.entity.Column;
 import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.entity.PrimaryKey;
@@ -37,11 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSelectQuery, CQLInsertQuery, CQLUpdateQuery, CQLDeleteQuery, SQLScalarQuery> {
 
@@ -54,42 +48,42 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
             clBuilder = Cluster.builder();
         }
 
-        public <T extends QueryExecutor> T build(){
+        public <T extends QueryExecutor> T build() {
             return (T) new CQLExecutor(clBuilder.build(), keySpace);
         }
 
-        public Builder connectTo(Integer port, String...points){
+        public Builder connectTo(Integer port, String... points) {
             clBuilder.addContactPoints(points)
                     .withPort(port);
             return this;
         }
 
-        public Builder useKeyspace(String keyspace){
+        public Builder useKeyspace(String keyspace) {
             this.keySpace = keyspace;
             return this;
         }
 
-        public Builder authProvider(String username, String password){
+        public Builder authProvider(String username, String password) {
             clBuilder.withAuthProvider(new PlainTextAuthProvider(username, password));
             return this;
         }
 
-        public Builder authProvider(AuthProvider provider){
+        public Builder authProvider(AuthProvider provider) {
             clBuilder.withAuthProvider(provider);
             return this;
         }
 
-        public Builder configureLoadBalancer(String localDataCenter){
+        public Builder configureLoadBalancer(String localDataCenter) {
             clBuilder.withLoadBalancingPolicy(DCAwareRoundRobinPolicy.builder().withLocalDc(localDataCenter).build());
             return this;
         }
 
-        public Builder configureReconnectionPolicy(ReconnectionPolicy policy){
+        public Builder configureReconnectionPolicy(ReconnectionPolicy policy) {
             clBuilder.withReconnectionPolicy(policy);
             return this;
         }
 
-        public Builder configureRetryPolicy(RetryPolicy policy){
+        public Builder configureRetryPolicy(RetryPolicy policy) {
             clBuilder.withRetryPolicy(policy);
             return this;
         }
@@ -101,7 +95,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         Metadata metadata = cluster.getMetadata();
         LOG.info(String.format("Connected to cluster: %s\n", metadata.getClusterName()));
 
-        for (Host host: metadata.getAllHosts()) {
+        for (Host host : metadata.getAllHosts()) {
             LOG.info(String.format("Datacenter: %s; Host: %s; Rack: %s\n", host.getDatacenter(), host.getAddress(), host.getRack()));
         }
         //
@@ -111,31 +105,31 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
     private Logger LOG = Logger.getLogger(this.getClass().getSimpleName());
     private Session _session;
 
-    protected Session getSession(){
+    protected Session getSession() {
         assert _session != null : "Invalid Cassandra Session : CQLExecutor";
         return _session;
     }
 
-    protected void setupSession(Cluster cluster, String keyspace){
+    protected void setupSession(Cluster cluster, String keyspace) {
         if (keyspace == null) keyspace = "";
         //Check keyspace exist or not.
         KeyspaceMetadata keyspaceMetadata = cluster.getMetadata().getKeyspace(keyspace);
-        if (keyspaceMetadata != null){
+        if (keyspaceMetadata != null) {
             keyspace = validateKeyspace(keyspace);
             _session = cluster.connect(keyspace);
-        }else {
+        } else {
             _session = cluster.connect();
         }
         //TODO: WHAT IS THIS:
         //_session = cluster.newSession();
     }
 
-    public void reconnectSession(String keyspace){
+    public void reconnectSession(String keyspace) {
         Cluster _cluster = getSession().getCluster();
-        if (_cluster.isClosed() == false){
+        if (_cluster.isClosed() == false) {
             //FIXME: asynchronous in future.
             Session cSession = getSession();
-            if (cSession.isClosed() == false){
+            if (cSession.isClosed() == false) {
                 try {
                     //Blocking...wait until close:
                     cSession.closeAsync().get();
@@ -150,11 +144,11 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         }
     }
 
-    public void switchKeyspace(String keyspace){
-        if (getSession().isClosed() == false){
+    public void switchKeyspace(String keyspace) {
+        if (getSession().isClosed() == false) {
             keyspace = validateKeyspace(keyspace);
             getSession().execute("USE " + keyspace + ";");
-        }else{
+        } else {
             reconnectSession(keyspace);
         }
     }
@@ -170,7 +164,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
             Statement statement = createUpdateStatement(cqlUpdateQuery);
             getSession().execute(statement);
             return 1;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new SQLException(e.getMessage());
         }
     }
@@ -181,12 +175,12 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         List<Object> properties = new ArrayList<>();
         //
         Row row = cqlUpdateQuery.getRow();
-        for (Property prop : row.getProperties()){
+        for (Property prop : row.getProperties()) {
             properties.add(prop.getValue());
         }
         //
         Row whereRow = cqlUpdateQuery.getWhereProperties();
-        for (Property prop : whereRow.getProperties()){
+        for (Property prop : whereRow.getProperties()) {
             properties.add(prop.getValue());
         }
         //
@@ -206,11 +200,11 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
 
     @Override
     public Integer executeDelete(CQLDeleteQuery cqlDeleteQuery) throws SQLException {
-        try{
+        try {
             Statement statement = createSelectStatementFrom(cqlDeleteQuery);
             getSession().execute(statement);
             return 1;
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new SQLException(e.getMessage());
         }
     }
@@ -221,21 +215,21 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
     }
 
     public Integer executeInsert(boolean autoId, String s) throws SQLException, IllegalArgumentException {
-        try{
+        try {
             getSession().execute(s);
             return 1;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new SQLException(e.getMessage());
         }
     }
 
     @Override
     public Integer executeInsert(boolean autoId, CQLInsertQuery cqlInsertQuery) throws SQLException, IllegalArgumentException {
-        try{
+        try {
             Statement statement = createInsertStatement(cqlInsertQuery);
             getSession().execute(statement);
             return 1;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new SQLException(e.getMessage());
         }
     }
@@ -254,7 +248,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         //
         Row row = cqlInsertQuery.getRow();
         List<Object> properties = new ArrayList<>();
-        for (Property prop : row.getProperties()){
+        for (Property prop : row.getProperties()) {
             properties.add(prop.getValue());
         }
         Object[] values = properties.toArray(new Object[0]);
@@ -291,12 +285,12 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         //Java-7 <= ...
         List<Row> rows = new ArrayList<>();
         Iterator<com.datastax.driver.core.Row> iterator = set.iterator();
-        while (iterator.hasNext()){
+        while (iterator.hasNext()) {
             com.datastax.driver.core.Row row = iterator.next();
             ColumnDefinitions def = row.getColumnDefinitions();
             Row nRow = new Row();
             //FIXME:
-            for (ColumnDefinitions.Definition definition : def.asList()){
+            for (ColumnDefinitions.Definition definition : def.asList()) {
                 nRow.add(definition.getName(), row.getObject(definition.getName()));
             }
             rows.add(nRow);
@@ -329,7 +323,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
             Table table = new Table();
             table.setRows(rows);
             return table.inflate(aClass, map);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new SQLException(e.getMessage());
         }
     }
@@ -337,12 +331,12 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
     private final ExecutorService executionPool = Executors
             .newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-    public <T extends Entity> void executeSelect(CQLSelectQuery cqlSelectQuery, Class<T> aClass, Consumer<List<T>> consumer)  {
+    /*public <T extends Entity> void executeSelect(CQLSelectQuery cqlSelectQuery, Class<T> aClass, Consumer<List<T>> consumer) {
         Statement statement = null;
-        try{
+        try {
             statement = createSelectStatementFrom(cqlSelectQuery);
-        }catch (Exception e) {
-            LOG.log(Level.WARNING,e.getMessage(), e);
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, e.getMessage(), e);
             consumer.accept(null);
             return;
         }
@@ -356,7 +350,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
                                 .map(row -> {
                                     ColumnDefinitions def = row.getColumnDefinitions();
                                     Row nRow = new Row();
-                                    for (ColumnDefinitions.Definition definition : def.asList()){
+                                    for (ColumnDefinitions.Definition definition : def.asList()) {
                                         nRow.add(definition.getName(), row.getObject(definition.getName()));
                                     }
                                     return nRow;
@@ -369,10 +363,10 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
                             List<T> results = table.inflate(aClass, CQLEntity.mapColumnsToProperties(aClass));
                             consumer.accept(results);
                         } catch (InstantiationException e) {
-                            LOG.log(Level.WARNING,e.getMessage(), e);
+                            LOG.log(Level.WARNING, e.getMessage(), e);
                             consumer.accept(null);
                         } catch (IllegalAccessException e) {
-                            LOG.log(Level.WARNING,e.getMessage(), e);
+                            LOG.log(Level.WARNING, e.getMessage(), e);
                             consumer.accept(null);
                         }
                         //
@@ -380,12 +374,12 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
 
                     @Override
                     public void onFailure(Throwable throwable) {
-                        LOG.log(Level.WARNING,throwable.getMessage(), throwable);
+                        LOG.log(Level.WARNING, throwable.getMessage(), throwable);
                         consumer.accept(null);
                     }
                 }, executionPool);
         //
-    }
+    }*/
 
     protected Statement createSelectStatementFrom(SQLSelectQuery cqlSelectQuery) {
         //Order of keys in statements
@@ -393,7 +387,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         PreparedStatement smt = StatementPool.createIfNotExist(query, getSession());
         Row row = cqlSelectQuery.getWhereProperties();
         List<Object> properties = new ArrayList<>();
-        for (Property prop : row.getProperties()){
+        for (Property prop : row.getProperties()) {
             properties.add(prop.getValue());
         }
         Object[] values = properties.toArray(new Object[0]);
@@ -407,13 +401,13 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
 
     @Override
     public <T> List<T> executeSelect(String s, Class<T> aClass, Map<String, String> map) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
-        try{
+        try {
             ResultSet set = getSession().execute(s);
             List<Row> rows = createRowsFrom(set);
             Table table = new Table();
             table.setRows(rows);
             return table.inflate(aClass, map);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new SQLException(e.getMessage());
         }
     }
@@ -446,30 +440,30 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         try {
             if (!getSession().getCluster().isClosed())
                 getSession().getCluster().close();
-        }catch (Exception e){
+        } catch (Exception e) {
             throw e;
         }
     }
 
     @Override
     public Boolean executeDDLQuery(String query) throws SQLException {
-        if(query == null
-                || query.length() <=0
+        if (query == null
+                || query.length() <= 0
                 || !query.trim().toLowerCase().startsWith("create")
                 || !query.trim().toLowerCase().startsWith("drop")
-                || !query.trim().toLowerCase().startsWith("alter")){
+                || !query.trim().toLowerCase().startsWith("alter")) {
             throw new SQLException("Bad Formated Query : " + query);
         }
-        try{
+        try {
             ResultSet set = getSession().execute(query);
             boolean isCreated = set.wasApplied();
             return isCreated;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new SQLException(e.getMessage());
         }
     }
 
-    protected String validateKeyspace(String provided){
+    protected String validateKeyspace(String provided) {
         return provided.trim().replace(' ', '_').toLowerCase();
     }
 
@@ -480,10 +474,10 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         if (keyspace.equalsIgnoreCase(getSession().getLoggedKeyspace())) return true;
 
         String query = String.format("CREATE KEYSPACE IF NOT EXISTS %s WITH replication = {'class': '%s', 'replication_factor' : %d}", keyspace, strategy.name(), replicationFactor);
-        try{
+        try {
             ResultSet set = getSession().execute(query);
             return set.wasApplied();
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new SQLException(e.getMessage());
         }
     }
@@ -495,10 +489,10 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
             keyspace = validateKeyspace(keyspace);
 
         String query = String.format("DROP KEYSPACE IF EXISTS %s;", keyspace);
-        try{
+        try {
             ResultSet set = getSession().execute(query);
             return set.wasApplied();
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new SQLException(e.getMessage());
         }
     }
@@ -511,34 +505,34 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         StringBuffer buffer = new StringBuffer();
         try {
             Field column = tableType.getDeclaredField(entityFieldName);
-            if (!column.isAnnotationPresent(ClusteringKey.class)){
+            if (!column.isAnnotationPresent(ClusteringKey.class)) {
                 return false;
             }
             //
-            if (column.isAnnotationPresent(ClusteringKey.class)){
+            if (column.isAnnotationPresent(ClusteringKey.class)) {
                 String annotatedName = entityFieldName;
-                if (column.isAnnotationPresent(ClusteringKey.class)){
+                if (column.isAnnotationPresent(ClusteringKey.class)) {
                     annotatedName = column.getAnnotation(ClusteringKey.class).name();
                 }/*else if (column.isAnnotationPresent(PrimaryKey.class)){
                     //Not Supported yet (till 3.11.x)
                     annotatedName = column.getAnnotation(PrimaryKey.class).name();
                 }*/
-                if (!annotatedName.trim().isEmpty()){
+                if (!annotatedName.trim().isEmpty()) {
                     entityFieldName = annotatedName;
                 }
             }
-            if (column.isAnnotationPresent(CQLIndex.class)){
+            if (column.isAnnotationPresent(CQLIndex.class)) {
                 CQLIndex index = column.getAnnotation(CQLIndex.class);
                 String indexName = index.name().trim().isEmpty() ? entityFieldName : index.name().trim();
-                if (index.custom()){
+                if (index.custom()) {
                     buffer.append(String.format("CREATE CUSTOM INDEX IF NOT EXISTS %s_%s ON %s (%s) ", index.prefix().trim(), indexName, tableNameStr, entityFieldName));
-                }else{
+                } else {
                     buffer.append(String.format("CREATE INDEX IF NOT EXISTS %s_%s ON %s (%s) ", index.prefix().trim(), indexName, tableNameStr, entityFieldName));
                 }
                 //FIXME: Checks for legacy: < 3.4.x => here!
-                if (!index.using().trim().isEmpty()){
+                if (!index.using().trim().isEmpty()) {
                     buffer.append("USING '" + index.using().trim() + "' ");
-                    if (!index.options().trim().isEmpty()){
+                    if (!index.options().trim().isEmpty()) {
                         buffer.append("WITH OPTIONS = {" + index.options() + "}");
                     }
                 }
@@ -550,10 +544,10 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         //
         if (buffer.length() <= 0) return false;
         String query = buffer.toString();
-        try{
+        try {
             ResultSet set = getSession().execute(query);
             return set.wasApplied();
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new SQLException(e.getMessage());
         }
     }
@@ -561,10 +555,10 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
     public boolean dropIndex(String onColumn) throws SQLException {
         String keyspace = getSession().getLoggedKeyspace();
         String query = String.format("DROP INDEX IF EXISTS %s.%s_idx;", keyspace, onColumn);
-        try{
+        try {
             ResultSet set = getSession().execute(query);
             return set.wasApplied();
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new SQLException(e.getMessage());
         }
     }
@@ -575,10 +569,10 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
 
         String keyspace = getSession().getLoggedKeyspace();
         String query = String.format("DROP TABLE IF EXISTS %s.%s;", keyspace, tableNameStr);
-        try{
+        try {
             ResultSet set = getSession().execute(query);
             return set.wasApplied();
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new SQLException(e.getMessage());
         }
     }
@@ -589,19 +583,19 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
 
         String keyspace = getSession().getLoggedKeyspace();
         String query = String.format("Truncate %s.%s;", keyspace, tableNameStr);
-        try{
+        try {
             ResultSet set = getSession().execute(query);
             return set.wasApplied();
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new SQLException(e.getMessage());
         }
     }
 
-    protected  <T extends Entity> String getTableName(Class<T> tableType) {
+    protected <T extends Entity> String getTableName(Class<T> tableType) {
         return CQLEntity.tableName(tableType);
     }
 
-    public <T extends Entity> boolean alterTable(Class<T> tableType, AlterAction action, Property...properties) throws SQLException {
+    public <T extends Entity> boolean alterTable(Class<T> tableType, AlterAction action, Property... properties) throws SQLException {
 
         String name = getTableName(tableType);
         if (name == null) return false;
@@ -610,7 +604,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
 
         String head = "ALTER TABLE " + keyspace + "." + name;
 
-        if (action == AlterAction.ALTER){
+        if (action == AlterAction.ALTER) {
             Property prop = properties[0];
             //buffer.append(prop.getKey() + " TYPE " + getCompatibleDataType(prop.getType().name()) + ";");
             String add = head + " ADD " + prop.getKey() + " " + getCompatibleDataType(prop.getType().name(), null) + ";";
@@ -619,38 +613,35 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
                 ResultSet set = getSession().execute(drop);
                 set = getSession().execute(add);
                 return set.wasApplied();
-            }catch (Exception e){
+            } catch (Exception e) {
                 throw new SQLException(e.getMessage());
             }
-        }else{
+        } else {
 
             StringBuffer buffer = new StringBuffer(" " + action.name() + " ");
 
             for (Property prop : properties) {
-                if (action == AlterAction.ADD){
+                if (action == AlterAction.ADD) {
                     buffer.append(prop.getKey() + " " + getCompatibleDataType(prop.getType().name(), null) + ",");
-                }
-                else if (action == AlterAction.RENAME){
+                } else if (action == AlterAction.RENAME) {
                     //ONLY Applicable to PrimaryKey:
                     buffer.append(prop.getKey() + " TO " + prop.getValue().toString() + ";");
                     break;
-                }
-                else if (action == AlterAction.DROP){
+                } else if (action == AlterAction.DROP) {
                     buffer.append(prop.getKey() + ",");
-                }
-                else if (action == AlterAction.WITH){
+                } else if (action == AlterAction.WITH) {
                     //Not Supported.
                 }
             }
 
             if (action == AlterAction.ADD || action == AlterAction.DROP)
-                buffer.replace(buffer.length()-1, buffer.length(), ";");
+                buffer.replace(buffer.length() - 1, buffer.length(), ";");
 
             String query = head + buffer.toString();
             try {
                 ResultSet set = getSession().execute(query);
                 return set.wasApplied();
-            }catch (Exception e){
+            } catch (Exception e) {
                 throw new SQLException(e.getMessage());
             }
         }
@@ -672,35 +663,33 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
 
         Field[] fields = tableType.getDeclaredFields();
         for (Field field : fields) {
-            if(field.isAnnotationPresent(PrimaryKey.class)) {
+            if (field.isAnnotationPresent(PrimaryKey.class)) {
                 PrimaryKey pm = field.getAnnotation(PrimaryKey.class);
                 String fieldName = pm.name().trim();
                 columnBuf.append(fieldName + " " + getDataType(field) + ",");
                 primaryComposit.append(fieldName + ",");
-            }
-            else if(field.isAnnotationPresent(ClusteringKey.class)) {
+            } else if (field.isAnnotationPresent(ClusteringKey.class)) {
                 ClusteringKey cl = field.getAnnotation(ClusteringKey.class);
                 String fieldName = cl.name().trim();
                 columnBuf.append(fieldName + " " + getDataType(field) + ",");
                 clusterComposit.append(fieldName + ",");
                 clusterBuf.append(fieldName + " " + cl.order().name() + ",");
-            }
-            else{
+            } else {
                 String fieldName = field.getName();
-                if (field.isAnnotationPresent(Column.class)){
+                if (field.isAnnotationPresent(Column.class)) {
                     Column col = field.getAnnotation(Column.class);
-                    if(col.name().trim().isEmpty() == false) fieldName = col.name().trim();
+                    if (col.name().trim().isEmpty() == false) fieldName = col.name().trim();
                 }
                 columnBuf.append(fieldName + " " + getDataType(field) + ",");
             }
         }
         //
-        primaryComposit.replace(primaryComposit.length()-1, primaryComposit.length(),")");
+        primaryComposit.replace(primaryComposit.length() - 1, primaryComposit.length(), ")");
         if (clusterComposit.toString().trim().length() > 0) {
             clusterComposit.replace(clusterComposit.length() - 1, clusterComposit.length(), ")");
-            primaryBuf.append(primaryComposit.toString()).append( "," + clusterComposit.toString());
-            clusterBuf.replace(clusterBuf.length()-1, clusterBuf.length(), ")");
-        }else{
+            primaryBuf.append(primaryComposit.toString()).append("," + clusterComposit.toString());
+            clusterBuf.replace(clusterBuf.length() - 1, clusterBuf.length(), ")");
+        } else {
             primaryBuf.append(primaryComposit.toString());
             clusterBuf.replace(0, clusterBuf.length(), ")");
         }
@@ -711,23 +700,23 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
                 .append(") ")                  // )
                 .append(clusterBuf.toString()) // WITH CLUSTERING ORDER BY (cluster-1 ASE, cluster-2 DESC, ... )
                 .append(";").toString();
-        try{
+        try {
             ResultSet set = getSession().execute(query);
             return set.wasApplied();
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new SQLException(e.getMessage());
         }
     }
 
     //FIXME: com.datastax.driver.core.Cluster Re-preparing already prepared query is generally an anti-pattern and will likely affect performance. Consider preparing the statement only once.
     //TODO: Check if this query already prepared in this session:
-    private static class StatementPool{
+    private static class StatementPool {
 
         static final Map<String, PreparedStatement> statementPool = new ConcurrentHashMap<>();
 
-        static PreparedStatement createIfNotExist(String key, Session session){
+        static PreparedStatement createIfNotExist(String key, Session session) {
             PreparedStatement smt = statementPool.get(key);
-            if (smt == null){
+            if (smt == null) {
                 smt = session.prepare(key);
                 statementPool.put(key, smt);
             }
@@ -735,7 +724,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         }
     }
 
-    public String version(){
+    public String version() {
         CQLSelectQuery query = new CQLQuery.Builder(QueryType.SELECT)
                 .columns("release_version")
                 .from("system.local")
@@ -743,7 +732,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         Statement stmt = createSelectStatementFrom(query);
         ResultSet set = getSession().execute(stmt);
         List<Row> items = createRowsFrom(set);
-        if (items.size() > 0){
+        if (items.size() > 0) {
             Map<String, Object> on = items.get(0).keyObjectMap();
             return on.get("release_version").toString();
         }

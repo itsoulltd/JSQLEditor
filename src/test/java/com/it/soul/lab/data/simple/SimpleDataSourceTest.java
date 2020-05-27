@@ -56,7 +56,7 @@ public class SimpleDataSourceTest {
     }
 
     @Test
-    public void readTest(){
+    public void readTest() {
 
         System.out.println("===========================0-(datasource.size())======================");
         int maxItem = dataSource.size();
@@ -99,27 +99,5 @@ public class SimpleDataSourceTest {
         for (Object p : readAll) {
             System.out.println(p.toString());
         }
-        System.out.println("==========================(Asynch)===================");
-        dataSource.readAsynch(4, 1, (items) -> {
-            System.out.println("==========================4-1=======================");
-            for (Object p : items) {
-                System.out.println(p.toString());
-            }
-        });
-        //
-        dataSource.readAsynch(4, 2, (items) -> {
-            System.out.println("==========================4-2=======================");
-            for (Object p : items) {
-                System.out.println(p.toString());
-            }
-        });
-        //
-        dataSource.readAsynch(4, 3, (items) -> {
-            System.out.println("==========================4-3=======================");
-            for (Object p : items) {
-                System.out.println(p.toString());
-            }
-        });
     }
-
 }
