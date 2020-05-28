@@ -185,43 +185,4 @@ public class PersonTest {
 		Property salaryProp = person.getPropertyTest("salary", exe, false);
 		Assert.assertTrue(salaryProp.getKey().equalsIgnoreCase("salary"));
 	}
-
-	@Test
-	public void readAsynch(){
-		System.out.println("Test: PageSize: 3 RowCount: 5");
-		Person.read(Person.class, exe, 3, 5, null, (persons) -> {
-			System.out.println("Read Count: " + persons.size());
-		});
-		//
-		System.out.println("Test: PageSize: 2 RowCount: 7");
-		Person.read(Person.class, exe, 2, 7, null, (persons) -> {
-			System.out.println("Read Count: " + persons.size());
-		});
-		//
-		System.out.println("Test: PageSize: 3 RowCount: 2");
-		Person.read(Person.class, exe, 3, 2, null, (persons) -> {
-			System.out.println("Read Count: " + persons.size());
-		});
-		//
-		System.out.println("Test: PageSize: 5 RowCount: 1");
-		Person.read(Person.class, exe, 5, 1, null, (persons) -> {
-			System.out.println("Read Count: " + persons.size());
-		});
-		//
-		System.out.println("Test: PageSize: 5 RowCount: 4");
-		Person.read(Person.class, exe, 5, 4, null, (persons) -> {
-			System.out.println("Read Count: " + persons.size());
-		});
-		//
-		System.out.println("Test: PageSize: 50 RowCount: 400");
-		Person.read(Person.class, exe, 50, 400, null, (persons) -> {
-			System.out.println("Read Count: " + persons.size());
-		});
-		//
-		System.out.println("Test: PageSize: 7 RowCount: ALL");
-		Person.read(Person.class, exe, 7, null, (persons) -> {
-			System.out.println("Read Count: " + persons.size());
-		});
-	}
-
 }

@@ -1,6 +1,5 @@
 package com.it.soul.lab.cql.entity;
 
-import com.it.soul.lab.sql.entity.PrimaryKey;
 import com.it.soul.lab.sql.query.models.DataType;
 import com.it.soul.lab.sql.query.models.Operator;
 
@@ -13,6 +12,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface ClusteringKey {
     String name();
+
     DataType type() default DataType.STRING;
+
     Operator order() default Operator.ASC;
 }
