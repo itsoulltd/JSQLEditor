@@ -24,9 +24,9 @@ public enum DataType {
 	OBJECT,
 	UUID,
 	LIST,
-	MAP,
-	NULL_OBJECT,
-	NULL_SKIP,
+    MAP,
+    NULL_OBJECT,
+    NULL_SKIP,
 	JSON,
 	BIG_DECIMAL;
 
@@ -55,10 +55,10 @@ public enum DataType {
 		}else if(value instanceof UUID) {
 			return DataType.UUID;
 		}else if (value instanceof List) {
-			return DataType.LIST;
-		}else if (value instanceof Map) {
-			return DataType.MAP;
-		}else if (value instanceof BigDecimal) {
+		    return DataType.LIST;
+        }else if (value instanceof Map) {
+            return DataType.MAP;
+        }else if (value instanceof BigDecimal) {
 			return DataType.BIG_DECIMAL;
 		}else {
 			return DataType.OBJECT;
