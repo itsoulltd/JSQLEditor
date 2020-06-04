@@ -1,5 +1,6 @@
 package com.it.soul.lab.sql.query.models;
 
+import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Date;
 import java.sql.Time;
@@ -26,7 +27,8 @@ public enum DataType {
     MAP,
     NULL_OBJECT,
     NULL_SKIP,
-	JSON;
+	JSON,
+	BIG_DECIMAL;
 	
 	public static DataType getDataType(Object value) {
 		if (value == null) return DataType.NULL_OBJECT;
@@ -56,7 +58,9 @@ public enum DataType {
 		    return DataType.LIST;
         }else if (value instanceof Map) {
             return DataType.MAP;
-        }else {
+        }else if (value instanceof BigDecimal) {
+			return DataType.BIG_DECIMAL;
+		}else {
 			return DataType.OBJECT;
 		}
 	}
