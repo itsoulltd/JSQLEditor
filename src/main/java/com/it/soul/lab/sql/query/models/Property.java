@@ -1,5 +1,6 @@
 package com.it.soul.lab.sql.query.models;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Objects;
@@ -127,6 +128,9 @@ public class Property implements Comparable<Property>{
 				break;
 			case DOUBLE:
 				result = Double.valueOf(value).compareTo(Double.valueOf(oValue));
+				break;
+			case BIG_DECIMAL:
+				result = new BigDecimal(value).compareTo(new BigDecimal(oValue));
 				break;
 			case UUID:
 				result = UUID.fromString(value).compareTo(UUID.fromString(oValue));
