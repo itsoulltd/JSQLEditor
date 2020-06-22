@@ -68,7 +68,7 @@ public class JDBConnectorTest {
 			conn = new JDBConnection.Builder(DriverClass.H2_EMBEDDED)
 					.database("testH2DB")
 					.credential("sa","")
-					.query("DB_CLOSE_DELAY=-1")
+					.query(";DB_CLOSE_DELAY=-1")
 					.build();
 
 		} catch (Exception e) {
@@ -85,6 +85,24 @@ public class JDBConnectorTest {
 		try {
 			conn = new JDBConnection.Builder("jdbc:mysql://localhost:3306/testDB")
 					.credential("root","root@123")
+					.build();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Assert.assertTrue(conn != null);
+		System.out.println("----------------------");
+	}
+
+	//@Test
+	public void testConnDriver() {
+		Connection conn = null;
+		try {
+			conn = new JDBConnection.Builder(DriverClass.MYSQL)
+					.host("localhost", "3306")
+					.database("testDB")
+					.credential("root","root@123")
+					.query("?autoReconnect=true&failOverReadOnly=false&maxReconnects=10")
 					.build();
 
 		} catch (Exception e) {

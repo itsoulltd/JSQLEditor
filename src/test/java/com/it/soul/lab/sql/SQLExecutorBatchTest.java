@@ -122,9 +122,11 @@ public class SQLExecutorBatchTest {
                     .set(new Property("name"))
                     .from(Passenger.tableName(Passenger.class)).build();
             //
-            Integer[] updated = exe.executeUpdate(100, updateQuery, rows);
-            System.out.println(updated.length > 0 ? "Successfully Updated "+ updated.length : "Failed To Update any.");
-            seeAll();
+            if (rows.size() > 0) {
+                Integer[] updated = exe.executeUpdate(100, updateQuery, rows);
+                System.out.println(updated.length > 0 ? "Successfully Updated "+ updated.length : "Failed To Update any.");
+                seeAll();
+            }
             //
         } catch (InstantiationException e) {
             e.printStackTrace();
@@ -153,9 +155,11 @@ public class SQLExecutorBatchTest {
                 queries.add(updateQuery);
             });
             //
-            Integer[] updated = exe.executeUpdate(100, queries);
-            System.out.println(updated.length > 0 ? "Successfully Updated "+ updated.length : "Failed To Update any.");
-            seeAll();
+            if (queries.size() > 0) {
+                Integer[] updated = exe.executeUpdate(100, queries);
+                System.out.println(updated.length > 0 ? "Successfully Updated "+ updated.length : "Failed To Update any.");
+                seeAll();
+            }
             //
         } catch (InstantiationException e) {
             e.printStackTrace();
