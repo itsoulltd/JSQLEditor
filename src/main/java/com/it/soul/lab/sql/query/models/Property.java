@@ -1,20 +1,21 @@
 package com.it.soul.lab.sql.query.models;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Objects;
 import java.util.UUID;
 
 public class Property implements Comparable<Property>{
-	
+
 	public Property() {
 		super();
 	}
 
 	public static final String SQL_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	private String key = null;
-    private Object value = null;
-    private DataType type = DataType.NULL_OBJECT;
+	private Object value = null;
+	private DataType type = DataType.NULL_OBJECT;
 
 	private Property(Object value){
 		this.value = value;
@@ -25,20 +26,20 @@ public class Property implements Comparable<Property>{
 		this(value);
 		this.key = key;
 	}
-	
+
 	public Property(String key){
 		this(key, null);
 	}
-	
-    public Property(String key, Object value, DataType type){
-        this.key = key;
-        this.value = value;
-        this.type = (type == null) ? DataType.getDataType(value) : type;
-    }
 
-    public Property(Property prop) {
-        this(prop.getKey(), prop.getValue(), prop.getType());
-    }
+	public Property(String key, Object value, DataType type){
+		this.key = key;
+		this.value = value;
+		this.type = (type == null) ? DataType.getDataType(value) : type;
+	}
+
+	public Property(Property prop) {
+		this(prop.getKey(), prop.getValue(), prop.getType());
+	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -82,9 +83,9 @@ public class Property implements Comparable<Property>{
 		String result = null;
 		SimpleDateFormat formatter = new SimpleDateFormat(SQL_DATETIME_FORMAT);
 		try {
-			if (date != null 
-					&& ((date instanceof java.util.Date) 
-							|| (date instanceof java.sql.Date))) {
+			if (date != null
+					&& ((date instanceof java.util.Date)
+					|| (date instanceof java.sql.Date))) {
 
 				result = formatter.format(date);
 			}
@@ -98,11 +99,11 @@ public class Property implements Comparable<Property>{
 	public String toString() {
 		String value = (getValue() != null) ? getValue().toString() : null;
 		if (getValue() != null
-                && getType() == DataType.SQLDATE)
-		    value = getDateString(getValue());
+				&& getType() == DataType.SQLDATE)
+			value = getDateString(getValue());
 		//
 		return String.format("{\"key\":\"%s\",\"value\":\"%s\",\"type\":\"%s\"}"
-                                , getKey(), value, getType().name());
+				, getKey(), value, getType().name());
 	}
 
 	@Override
@@ -127,6 +128,9 @@ public class Property implements Comparable<Property>{
 				break;
 			case DOUBLE:
 				result = Double.valueOf(value).compareTo(Double.valueOf(oValue));
+				break;
+			case BIG_DECIMAL:
+				result = new BigDecimal(value).compareTo(new BigDecimal(oValue));
 				break;
 			case UUID:
 				result = UUID.fromString(value).compareTo(UUID.fromString(oValue));
