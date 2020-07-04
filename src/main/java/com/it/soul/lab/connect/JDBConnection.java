@@ -14,7 +14,7 @@ public class JDBConnection implements Serializable{
 		private JDBConnection dbConnection;
 		private StringBuffer hostStr = new StringBuffer();
 		private String dbName;
-		private DriverClass driver;
+		private final DriverClass driver;
 		private String linkQuery;
 		public Builder(String connectionURL){
 			dbConnection = new JDBConnection();
@@ -28,14 +28,14 @@ public class JDBConnection implements Serializable{
 			this.driver = driver;
 		}
 		public Builder host(String name, String port) {
-			generateHostName(name, port);
+			updateHost(name, port);
 			return this;
 		}
-		private void generateHostName(String name, String port) {
+		private void updateHost(String name, String port) {
 			if((name == null || name.isEmpty())) {
 				hostStr.append("localhost");
 			}else {
-				hostStr.append(name); 
+				hostStr.append(name);
 			}
 			if ((port == null || port.isEmpty())) {
 				hostStr.append(":"+driver.defaultPort());
@@ -44,8 +44,8 @@ public class JDBConnection implements Serializable{
 			}
 		}
 		public JDBConnectionBuilder database(String name) {
-			if(name == null || name.isEmpty()) {dbName = "/";}
-			else {dbName = "/"+name;}
+			if(name == null || name.isEmpty()) {dbName = driver.pathPrefix();}
+			else {dbName = driver.pathPrefix() + name.trim();}
 			return this;
 		}
 		public JDBConnectionBuilder credential(String name, String password){
@@ -55,16 +55,12 @@ public class JDBConnection implements Serializable{
 		}
 		public JDBConnectionBuilder query(String query) {
 		    if (linkQuery != null && !linkQuery.isEmpty()) return this;
-		    if (query != null && !query.trim().startsWith("?")) query = "?" + query.trim();
+		    if (query != null) query = query.trim();
 		    linkQuery = query;
 			return this;
 		}
 		public Connection build() throws SQLException{
 			if(dbConnection.serverUrl == null) {
-				String hostName = hostStr.toString();
-				if(hostName.isEmpty()) {
-					generateHostName(null, null);
-				}
 				if(dbName == null || dbName.isEmpty()) {
 					throw new SQLException("Database Name is empty.");
 				}
