@@ -106,7 +106,8 @@ public abstract class CQLEntity extends Entity {
 
     public static <T extends Entity> List<T> read(Class<T>  type, QueryExecutor exe, Property...match) throws SQLException, Exception{
         //We will add our cassandra specific search key.
-        ExpressionInterpreter expression = getExpressionInterpreter(CQLEntity.validateProperties(type, exe, Arrays.asList(match)));
+        List<Property> properties = validateProperties(type, exe, Arrays.asList(match));
+        ExpressionInterpreter expression = getExpressionInterpreter(properties);
         //
         String name = Entity.tableName(type);
         SQLSelectQuery query = getSqlSelectQuery(exe, expression, name);
@@ -115,7 +116,7 @@ public abstract class CQLEntity extends Entity {
 
     public static <T extends Entity> List<T> read(Class<T>  type, QueryExecutor exe, ExpressionInterpreter expression) throws SQLException, Exception{
         //We will add our cassandra specific search key.
-        expression = CQLEntity.validateExpressions(type, exe, expression);
+        expression = validateExpressions(type, exe, expression);
 
         String name = Entity.tableName(type);
         SQLSelectQuery query = getSqlSelectQuery(exe, expression, name);
@@ -167,7 +168,7 @@ public abstract class CQLEntity extends Entity {
     protected static <T extends Entity> List<Property> validateProperties(Class<T> type, QueryExecutor exe, List<Property> match) {
         List<Property> results = new ArrayList<>();
         try {
-            //FIXME: Not efficient way of sorting.
+            //Not efficient way of sorting:
             Entity instance = type.newInstance();
             if (instance instanceof CQLEntity){
                 List<Property> primaryProps = ((CQLEntity)instance).getPrimaryProperties(exe);
