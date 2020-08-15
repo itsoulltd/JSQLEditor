@@ -12,6 +12,7 @@ import com.it.soul.lab.sql.query.models.*;
 import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Consumer;
 
 public abstract class CQLEntity extends Entity {
 
@@ -121,6 +122,21 @@ public abstract class CQLEntity extends Entity {
         String name = Entity.tableName(type);
         SQLSelectQuery query = getSqlSelectQuery(exe, expression, name);
         return exe.executeSelect(query, type, CQLEntity.mapColumnsToProperties(type));
+    }
+
+    public static <T extends Entity> void read(Class<T> aClass
+            , QueryExecutor executor
+            , int pageSize
+            , ExpressionInterpreter expression
+            , Consumer<List<T>> consumer) { read(aClass, executor, pageSize, -1, expression, consumer); }
+
+    public static <T extends Entity> void read(Class<T> aClass
+            , QueryExecutor executor
+            , int pageSize
+            , int rowCount
+            , ExpressionInterpreter expression
+            , Consumer<List<T>> consumer) {
+        System.out.println("NOT IMPLEMENTED YET!!! IF NEEDED PLEASE EXTEND");
     }
 
     private static SQLSelectQuery getSqlSelectQuery(QueryExecutor exe, ExpressionInterpreter expression, String name) {

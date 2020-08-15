@@ -57,7 +57,7 @@ public class SimpleDataSource<Key, Value> implements DataSource<Key, Value> {
     }
 
     @Override
-    public Value[] readSynch(int offset, int pageSize) {
+    public Value[] readSync(int offset, int pageSize) {
         //In-Memory-Pagination:
         int size = size();
         int maxItemCount = Math.abs(offset) + Math.abs(pageSize);
@@ -75,10 +75,10 @@ public class SimpleDataSource<Key, Value> implements DataSource<Key, Value> {
     private Executor serviceExe = Executors.newSingleThreadExecutor();
 
     @Override
-    public void readAsynch(int offset, int pageSize, Consumer<Value[]> consumer) {
+    public void readAsync(int offset, int pageSize, Consumer<Value[]> consumer) {
         serviceExe.execute(() -> {
             if (consumer != null){
-                Value[] items = readSynch(offset, pageSize);
+                Value[] items = readSync(offset, pageSize);
                 consumer.accept(items);
             }
         });
