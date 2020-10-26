@@ -1,7 +1,11 @@
 package com.it.soul.lab.sql.query.models;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.math.BigDecimal;
 
 public class PropertyTest {
 
@@ -135,6 +139,84 @@ public class PropertyTest {
         System.out.println(property2.hashCode());
         Assert.assertTrue(property1.hashCode() != property2.hashCode());
 
+    }
+
+    @Test
+    public void propTestBigDecimal() throws JsonProcessingException {
+        Property property = new Property("amount", new BigDecimal(100.00));
+        String str = property.toString();
+        System.out.println("Actual: "+ str);
+        //
+        ObjectMapper mapper = new ObjectMapper();
+        Property reProp = mapper.readValue(str, Property.class);
+        System.out.println("Expected: " + reProp.toString());
+        //
+        Assert.assertEquals(reProp.toString(), property.toString());
+    }
+
+    @Test
+    public void propTestString() throws JsonProcessingException {
+        Property property = new Property("amount", "Hi There");
+        String str = property.toString();
+        System.out.println("Actual: "+ str);
+        //
+        ObjectMapper mapper = new ObjectMapper();
+        Property reProp = mapper.readValue(str, Property.class);
+        System.out.println("Expected: " + reProp.toString());
+        //
+        Assert.assertEquals(reProp.toString(), property.toString());
+    }
+
+    @Test
+    public void propTestInteger() throws JsonProcessingException {
+        Property property = new Property("amount", 10000);
+        String str = property.toString();
+        System.out.println("Actual: "+ str);
+        //
+        ObjectMapper mapper = new ObjectMapper();
+        Property reProp = mapper.readValue(str, Property.class);
+        System.out.println("Expected: " + reProp.toString());
+        //
+        Assert.assertEquals(reProp.toString(), property.toString());
+    }
+
+    @Test
+    public void propTestDouble() throws JsonProcessingException {
+        Property property = new Property("amount", 2.89d);
+        String str = property.toString();
+        System.out.println("Actual: "+ str);
+        //
+        ObjectMapper mapper = new ObjectMapper();
+        Property reProp = mapper.readValue(str, Property.class);
+        System.out.println("Expected: " + reProp.toString());
+        //
+        Assert.assertEquals(reProp.toString(), property.toString());
+    }
+
+    @Test
+    public void propTestFloat() throws JsonProcessingException {
+        Property property = new Property("amount", 2.3f);
+        String str = property.toString();
+        System.out.println("Actual: "+ str);
+        //
+        ObjectMapper mapper = new ObjectMapper();
+        Property reProp = mapper.readValue(str, Property.class);
+        System.out.println("Expected: " + reProp.toString());
+        //
+        Assert.assertEquals(reProp.toString(), property.toString());
+    }
+
+    @Test
+    public void propTestBool() throws JsonProcessingException {
+        Property property = new Property("isAmount", true);
+        String str = property.toString();
+        System.out.println("Actual: "+ str);
+        //
+        ObjectMapper mapper = new ObjectMapper();
+        Property reProp = mapper.readValue(str, Property.class);
+        System.out.println("Expected: " + reProp.toString());
+        //
+        Assert.assertEquals(reProp.toString(), property.toString());
     }
 
 }

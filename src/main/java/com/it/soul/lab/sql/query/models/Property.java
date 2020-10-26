@@ -103,13 +103,23 @@ public class Property implements Comparable<Property>, Externalizable {
 	}
 	@Override
 	public String toString() {
-		String value = (getValue() != null) ? getValue().toString() : null;
-		if (getValue() != null
-                && getType() == DataType.SQLDATE)
-		    value = getDateString(getValue());
-		//
-		return String.format("{\"key\":\"%s\",\"value\":\"%s\",\"type\":\"%s\"}"
-                                , getKey(), value, getType().name());
+		String value = null;
+		if (getValue() != null){
+			if (getType() == DataType.SQLDATE)
+				value = getDateString(getValue());
+			else
+				value = getValue().toString();
+		}
+		return (getType() == DataType.INT
+				|| getType() == DataType.BOOL
+				|| getType() == DataType.FLOAT
+				|| getType() == DataType.DOUBLE
+				|| getType() == DataType.LONG
+				|| getType() == DataType.BIG_DECIMAL)
+				? String.format("{\"key\":\"%s\",\"value\":%s,\"type\":\"%s\"}"
+				, getKey(), value, getType().name())
+				: String.format("{\"key\":\"%s\",\"value\":\"%s\",\"type\":\"%s\"}"
+				, getKey(), value, getType().name());
 	}
 
 	@Override
@@ -162,6 +172,7 @@ public class Property implements Comparable<Property>, Externalizable {
 		Map<String, Object> props = new HashMap<>();
 		props.put("key", getKey());
 		props.put("value", getValue());
+		props.put("type", getType().name());
 		out.writeObject(props);
 	}
 
@@ -172,6 +183,7 @@ public class Property implements Comparable<Property>, Externalizable {
 			Map<String, Object> data = (Map) object;
 			setKey(data.get("key").toString());
 			setValue(data.get("value"));
+			setType(DataType.valueOf(data.get("type").toString()));
 		}
 	}
 }
