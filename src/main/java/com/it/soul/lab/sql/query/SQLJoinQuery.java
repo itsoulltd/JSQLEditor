@@ -7,7 +7,7 @@ import com.it.soul.lab.sql.query.models.ExpressionInterpreter;
 import com.it.soul.lab.sql.query.models.JoinExpression;
 import com.it.soul.lab.sql.query.models.Operator;
 
-public class SQLJoinQuery extends SQLQuery {
+public class SQLJoinQuery extends SQLSelectQuery {
 	
 	private QueryType type;
 	protected Integer limit = 0;
