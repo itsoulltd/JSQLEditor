@@ -3,6 +3,7 @@ package com.it.soul.lab.sql.query;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.it.soul.lab.sql.query.models.ExpressionInterpreter;
 import com.it.soul.lab.sql.query.models.JoinExpression;
 import com.it.soul.lab.sql.query.models.Operator;
 
@@ -12,7 +13,10 @@ public class SQLJoinQuery extends SQLQuery {
 	protected Integer limit = 0;
 	protected Integer offset = 0;
 	protected List<String> orderByList;
+	protected List<String> groupByList;
 	protected Operator orderOpt = Operator.ASC;
+	private char quientifier = ' '; //Default is empty space
+	protected ExpressionInterpreter havingInterpreter;
 
 	public SQLJoinQuery() {
 		this(QueryType.INNER_JOIN);
@@ -53,11 +57,55 @@ public class SQLJoinQuery extends SQLQuery {
 		}
 		if (index > 0) {buffer.append(joinBuffer.toString());}
 		//
+		appendWhere(buffer);
+		appendGroupBy(buffer, groupByList);
+		appendHaving(buffer);
 		appendOrderBy(buffer, orderByList, orderOpt);
 		appendLimit(buffer);
 		return buffer.toString();
 	}
-	
+
+	private void appendHaving(StringBuffer buffer) {
+		if(havingInterpreter != null)
+			buffer.append(" HAVING " + havingInterpreter.interpret());
+	}
+
+	@SuppressWarnings("Duplicates")
+	private void appendGroupBy(StringBuffer buffer, List<String> columns) {
+		if (columns != null && columns.size() > 0) {
+			StringBuffer groupBuffer = new StringBuffer(" GROUP BY ");
+			int count = 0;
+			for(String col : columns) {
+				if(col.trim().equals("")){continue;}
+				if(count++ != 0){groupBuffer.append(", ");}
+				if(quientifierEnabled()){groupBuffer.append(getQuientifier() + "." + col);}
+				else {groupBuffer.append(col);}
+			}
+			if (count > 0) {
+				buffer.append(groupBuffer.toString());
+			}
+		}
+	}
+
+	protected Boolean quientifierEnabled(){
+		return Character.isWhitespace(quientifier) == false;
+	}
+
+	protected SQLJoinQuery setQuientifier(char quientifier){
+		this.quientifier = quientifier;
+		return this;
+	}
+
+	protected char getQuientifier() {
+		return quientifier;
+	}
+
+	private void appendWhere(StringBuffer buffer) {
+		ExpressionInterpreter interpreter = super.getWhereExpression();
+		if(interpreter != null)
+			buffer.append(" WHERE " + interpreter.interpret());
+	}
+
 	public void setLimit(Integer limit, Integer offset) {
 		this.limit = (limit < 0) ? 0 : limit;
 		this.offset = (offset < 0) ? 0 : offset;
@@ -89,6 +137,18 @@ public class SQLJoinQuery extends SQLQuery {
 				pqlBuffer.append(orderBuffer.toString());
 			}
 		}
+	}
+
+	public void setGroupBy(List<String> columns) {
+		this.groupByList = columns;
+	}
+	public void setHavingExpression(ExpressionInterpreter interpreter) {
+		this.havingInterpreter = interpreter;
+	}
+
+	@Override
+	public void setWhereExpression(ExpressionInterpreter whereExpression) {
+		super.setWhereExpression(whereExpression);
 	}
 	
 	private String joinName() {
