@@ -1,18 +1,13 @@
 package com.it.soul.lab.sql;
 
-import com.it.soul.lab.sql.entity.Entity;
-import com.it.soul.lab.sql.query.models.*;
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.it.soul.lab.jpql.query.JPQLQuery;
 import com.it.soul.lab.jpql.query.JPQLSelectQuery;
 import com.it.soul.lab.jpql.query.JPQLUpdateQuery;
-import com.it.soul.lab.sql.query.SQLJoinQuery;
-import com.it.soul.lab.sql.query.SQLQuery;
-import com.it.soul.lab.sql.query.QueryType;
-import com.it.soul.lab.sql.query.SQLScalarQuery;
-import com.it.soul.lab.sql.query.SQLSelectQuery;
+import com.it.soul.lab.sql.entity.Entity;
+import com.it.soul.lab.sql.query.*;
+import com.it.soul.lab.sql.query.models.*;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.util.Arrays;
 
@@ -352,7 +347,7 @@ public class QueryBuilderTest {
 							"ORDER BY Customers.CustomerName ASC";
 		
 		Assert.assertEquals(expected, join.toString());
-		System.out.println(join.toString());
+		System.out.println(join.bindValueToString());
 	}
 
 	@Test

@@ -1,22 +1,18 @@
 package com.it.soul.lab.sql.query;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.it.soul.lab.sql.query.models.ExpressionInterpreter;
 import com.it.soul.lab.sql.query.models.JoinExpression;
 import com.it.soul.lab.sql.query.models.Operator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SQLJoinQuery extends SQLSelectQuery {
 	
 	private QueryType type;
 	protected Integer limit = 0;
 	protected Integer offset = 0;
-	protected List<String> orderByList;
-	protected List<String> groupByList;
 	protected Operator orderOpt = Operator.ASC;
-	private char quientifier = ' '; //Default is empty space
-	protected ExpressionInterpreter havingInterpreter;
 
 	public SQLJoinQuery() {
 		this(QueryType.INNER_JOIN);
@@ -87,19 +83,6 @@ public class SQLJoinQuery extends SQLSelectQuery {
 		}
 	}
 
-	protected Boolean quientifierEnabled(){
-		return Character.isWhitespace(quientifier) == false;
-	}
-
-	protected SQLJoinQuery setQuientifier(char quientifier){
-		this.quientifier = quientifier;
-		return this;
-	}
-
-	protected char getQuientifier() {
-		return quientifier;
-	}
-
 	private void appendWhere(StringBuffer buffer) {
 		ExpressionInterpreter interpreter = super.getWhereExpression();
 		if(interpreter != null)
@@ -142,6 +125,7 @@ public class SQLJoinQuery extends SQLSelectQuery {
 	public void setGroupBy(List<String> columns) {
 		this.groupByList = columns;
 	}
+
 	public void setHavingExpression(ExpressionInterpreter interpreter) {
 		this.havingInterpreter = interpreter;
 	}
