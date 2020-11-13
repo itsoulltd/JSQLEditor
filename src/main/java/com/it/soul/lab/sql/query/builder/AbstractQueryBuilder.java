@@ -204,16 +204,20 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 
     @Override
     public HavingBuilder groupBy(String... columns) {
-        if (tempQuery instanceof SQLSelectQuery) {
-            ((SQLSelectQuery) tempQuery).setGroupBy(Arrays.asList(columns));
+        if(tempQuery instanceof SQLSelectQuery) {
+            ((SQLSelectQuery)tempQuery).setGroupBy(Arrays.asList(columns));
+        }else if(tempQuery instanceof SQLJoinQuery){
+            ((SQLJoinQuery) tempQuery).setGroupBy(Arrays.asList(columns));
         }
         return this;
     }
 
     @Override
     public OrderByBuilder having(ExpressionInterpreter expression) {
-        if (tempQuery instanceof SQLSelectQuery) {
-            ((SQLSelectQuery) tempQuery).setHavingExpression(expression);
+        if(tempQuery instanceof SQLSelectQuery) {
+            ((SQLSelectQuery)tempQuery).setHavingExpression(expression);
+        }else if(tempQuery instanceof SQLJoinQuery){
+            ((SQLJoinQuery) tempQuery).setHavingExpression(expression);
         }
         return this;
     }

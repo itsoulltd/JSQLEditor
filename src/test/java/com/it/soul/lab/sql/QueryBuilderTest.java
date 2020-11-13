@@ -337,15 +337,22 @@ public class QueryBuilderTest {
 				.join("Customers", "CustomerName")
 				.on(new JoinExpression("CustomerID", "CustomerID"))
 				.join("Orders", "OrderID")
+				.where(new Where("Customers.createDate").isGreaterThen("2020-11-05"))
+				.groupBy("Customers.CustomerName")
+				.having(new Where("Customers.createDate").isGreaterThen("2020-11-05"))
 				.orderBy("Customers.CustomerName").build();
 		
 		String expected = 	"SELECT Customers.CustomerName, Orders.OrderID " + 
 							"FROM (Customers " + 
 							"LEFT JOIN Orders " + 
-							"ON Customers.CustomerID = Orders.CustomerID) " + 
+							"ON Customers.CustomerID = Orders.CustomerID) " +
+							"WHERE Customers.createDate > ? " +
+							"GROUP BY Customers.CustomerName " +
+							"HAVING Customers.createDate > ? " +
 							"ORDER BY Customers.CustomerName ASC";
 		
 		Assert.assertEquals(expected, join.toString());
+		System.out.println(join.toString());
 	}
 
 	@Test
