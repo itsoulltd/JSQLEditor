@@ -1,6 +1,7 @@
 package com.it.soul.lab.jpql.service;
 
 import com.it.soul.lab.jpql.entity.JPassenger;
+import com.it.soul.lab.sql.QueryExecutor;
 import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.query.models.Predicate;
 import com.it.soul.lab.sql.query.models.Where;
@@ -54,25 +55,41 @@ public class JPassengerTest{
         return ages[index];
     }
 
+    private void insertSampleRows(QueryExecutor executor, int count){
+        for (int index = 0; index < count; index++){
+            try {
+                JPassenger passenger = new JPassenger();
+                passenger.setUuid(UUID.randomUUID().toString());
+                passenger.setAge(getRandomAge());
+                passenger.setName(getRandomName());
+                if (passenger.getName().toLowerCase().startsWith("mr")){
+                    passenger.setSex(Sex.Male.name());
+                }else {
+                    passenger.setSex(Sex.Female.name());
+                }
+                boolean isInserted = passenger.insert(executor);
+            } catch (SQLException e){
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
     @Test
     public void passengerInsertTest() throws Exception {
-        //
-        JPassenger passenger = new JPassenger();
-        passenger.setUuid(UUID.randomUUID().toString());
-        //
-        passenger.setAge(getRandomAge());
-        passenger.setName(getRandomName());
-        //
-        if (passenger.getName().toLowerCase().startsWith("mr")){
-            passenger.setSex(Sex.Male.name());
-        }else {
-            passenger.setSex(Sex.Female.name());
-        }
         //Insertion
         long countBeforeInsert = executor.rowCount(JPassenger.class);
-        boolean isInserted = passenger.insert(executor);
+        insertSampleRows(executor, 1);
         long countAfterInsert = executor.rowCount(JPassenger.class);
-        Assert.assertTrue("Insert Failed!", isInserted && (countBeforeInsert < countAfterInsert));
+        Assert.assertTrue("Insert Failed!", (countBeforeInsert < countAfterInsert));
+    }
+
+    @Test
+    public void paginationReadTest(){
+        //JPQL Does Not Support Pagination:
+        /*insertSampleRows(executor, 23);
+        Entity.read(JPassenger.class, executor, 7, null, (results) -> {
+            if(results != null) System.out.println("Read Count: " + results.size());
+        });*/
     }
 
     @Test

@@ -54,7 +54,7 @@ public class SimpleDataSource<Key, Value> implements DataSource<Key, Value> {
     }
 
     @Override
-    public Value[] readSynch(int offset, int pageSize) {
+    public Value[] readSync(int offset, int pageSize) {
         //In-Memory-Pagination:
         int size = size();
         int maxItemCount = Math.abs(offset) + Math.abs(pageSize);
