@@ -1,12 +1,18 @@
 package com.it.soul.lab.sql.query.models;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-public class Property implements Comparable<Property>{
+public class Property implements Comparable<Property>, Externalizable {
 
 	public Property() {
 		super();
@@ -151,4 +157,21 @@ public class Property implements Comparable<Property>{
 		return result;
 	}
 
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		Map<String, Object> props = new HashMap<>();
+		props.put("key", getKey());
+		props.put("value", getValue());
+		out.writeObject(props);
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		Object object = in.readObject();
+		if (object instanceof Map){
+			Map<String, Object> data = (Map) object;
+			setKey(data.get("key").toString());
+			setValue(data.get("value"));
+		}
+	}
 }
