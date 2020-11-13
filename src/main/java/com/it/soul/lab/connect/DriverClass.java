@@ -9,7 +9,7 @@ public enum DriverClass {
     MYSQL("com.mysql.jdbc.Driver","jdbc:mysql://","3306", "/"),
     PostgresQLv7("org.postgresql.Driver","jdbc:postgresql://","5432", "/"),
     DB2("COM.ibm.db2.jdbc.app.DB2Driver","jdbc:db2://","446", "/"),
-    OracleOCI9i("oracle.jdbc.driver.OracleDriver","jdbc:oracle:thin:@//","", "/"),
+    OracleOCI9i("oracle.jdbc.driver.OracleDriver","jdbc:oracle:thin:@","", "/"),
     SQLServer("com.microsoft.jdbc.sqlserver.SQLServerDriver","jdbc:sqlserver://","1433", "/"),
     H2_EMBEDDED("org.h2.Driver","jdbc:h2:mem:","", ""),
     H2_FILE("org.h2.Driver","jdbc:h2:file:","", ""),
