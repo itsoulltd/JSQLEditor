@@ -101,7 +101,9 @@ public class SQLSelectQuery extends SQLQuery{
 	@Override
 	public Row getWhereProperties() {
 		if(havingInterpreter != null) {
-			List<Expression> expressions = new ArrayList<>(super.getWhereParamExpressions());
+			List<Expression> expressions = (super.getWhereParamExpressions() != null)
+					? new ArrayList<>(super.getWhereParamExpressions())
+					: new ArrayList<>();
 			expressions.addAll(Arrays.asList(havingInterpreter.resolveExpressions()));
 			super.setWhereParamExpressions(expressions);
 		}

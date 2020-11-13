@@ -167,25 +167,20 @@ public class QueryExecutionTest {
 	}
 	
 	@Test
-	public void GroupByHaving() {
-		
-		try {
-			SQLSelectQuery qu12 = (SQLSelectQuery) new SQLQuery.Builder(QueryType.SELECT)
-					.columns("name",ScalarType.COUNT.toAlias("age"))
-					.from("Passenger")
-					.groupBy("name")
-					.having(new Expression(ScalarType.COUNT.toString("age"), Operator.GREATER_THAN).setPropertyValue(1, DataType.INT))
-					.orderBy(ScalarType.COUNT.toString("age"))
-					.build();
-			
-			ResultSet set = exe.executeSelect(qu12);
-			Table x = exe.collection(set);
-			exe.displayCollection(x);
-			Assert.assertTrue("Only 2 Rows Should returns.", true);
-			
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
+	public void GroupByHaving() throws SQLException {
+
+		SQLSelectQuery qu12 = new SQLQuery.Builder(QueryType.SELECT)
+				.columns("name",ScalarType.COUNT.toAlias("age"))
+				.from("Passenger")
+				.groupBy("name")
+				.having(new Expression(ScalarType.COUNT.toString("age"), Operator.GREATER_THAN).setPropertyValue(1, DataType.INT))
+				.orderBy(ScalarType.COUNT.toString("age"))
+				.build();
+
+		ResultSet set = exe.executeSelect(qu12);
+		Table x = exe.collection(set);
+		exe.displayCollection(x);
+		Assert.assertTrue("Only 2 Rows Should returns.", true);
 		
 	}
 }
