@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -1050,6 +1051,29 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		}
 		
 		return result;
+	}
+
+	public <T extends Entity> Map<String, List<T>> groupBy(Class<T> clType, String key, List<Map<String, Object>> rows){
+		Map<String, List<T>> results = new ConcurrentHashMap<>();
+		for (Map<String, Object> map : rows) {
+			try {
+				String theKey = map.get(key).toString(); //key's value going to be the results-key
+				List<T> items = results.get(theKey);
+				if (items == null) {
+					items = new ArrayList<>();
+					results.put(theKey, items);
+				}
+				//
+				Entity test = clType.newInstance();
+				test.unmarshallingFromMap(map, true);
+				items.add((T) test);
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+		return results;
 	}
 	
 	public Map<Object, Map<String, Object>> convertToIndexedKeyValuePaire(ResultSet rst, String indexColumn){
