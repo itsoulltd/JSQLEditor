@@ -1053,6 +1053,20 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		return result;
 	}
 
+	public Map<String, List<Map<String, Object>>> groupBy(String key, List<Map<String, Object>> rows){
+		Map<String, List<Map<String, Object>>> results = new ConcurrentHashMap<>();
+		for (Map<String, Object> map : rows) {
+			String theKey = map.get(key).toString(); //key's value going to be the results-key
+			List<Map<String, Object>> items = results.get(theKey);
+			if (items == null) {
+				items = new ArrayList<>();
+				results.put(theKey, items);
+			}
+			items.add(map);
+		}
+		return results;
+	}
+
 	public <T extends Entity> Map<String, List<T>> groupBy(Class<T> clType, String key, List<Map<String, Object>> rows){
 		Map<String, List<T>> results = new ConcurrentHashMap<>();
 		for (Map<String, Object> map : rows) {
