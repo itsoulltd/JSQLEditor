@@ -602,9 +602,20 @@ public abstract class Entity implements EntityInterface{
 			, ExpressionInterpreter expression
 			, Consumer<List<T>> consumer){
 		//
+		read(aClass, executor, 0, pageSize, rowCount, expression, consumer);
+	}
+
+	public static <T extends Entity> void read(Class<T> aClass
+			, QueryExecutor executor
+			, int offset
+			, int pageSize
+			, int rowCount
+			, ExpressionInterpreter expression
+			, Consumer<List<T>> consumer){
+		//
 		if (consumer == null) return;
 		try {
-			List<SQLSelectQuery> queries = createSelectQueries(aClass, executor, pageSize, rowCount, expression);
+			List<SQLSelectQuery> queries = createSelectQueries(aClass, executor, offset, pageSize, rowCount, expression);
 			for (SQLSelectQuery query : queries) {
 				try {
 					List<T> items = executor.executeSelect(query, aClass, Entity.mapColumnsToProperties(aClass));
@@ -622,6 +633,7 @@ public abstract class Entity implements EntityInterface{
 
 	private static List<SQLSelectQuery> createSelectQueries(Class<? extends Entity> aClass
 			, QueryExecutor executor
+			, int offset
 			, int pageSize
 			, int rowCount
 			, ExpressionInterpreter expression)
@@ -636,7 +648,6 @@ public abstract class Entity implements EntityInterface{
 		int maxCount = executor.getScalarValue(countQuery);
 		rowCount = (rowCount > 0 && rowCount < maxCount) ? rowCount : maxCount;
 		int loopCount = (rowCount / pageSize) + 1;
-		int offset = 0;
 		int index = 0;
 		while (index < loopCount){
 			SQLSelectQuery query;
