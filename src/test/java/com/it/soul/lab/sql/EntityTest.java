@@ -38,6 +38,29 @@ public class EntityTest {
         Assert.assertEquals("Both Owner Must Be same! Too", me, nOwner);
     }
 
+    @Test
+    public void pageCountTest(){
+        int rowCount = 100;
+        int pageSize = 10;
+        int loopCount = (rowCount % 2 == 0) ? (rowCount / pageSize) : ((rowCount / pageSize) + 1);
+        Assert.assertEquals(10, loopCount);
+
+        rowCount = 100;
+        pageSize = 9;
+        loopCount = (rowCount % 2 == 0) ? (rowCount / pageSize) : ((rowCount / pageSize) + 1);
+        Assert.assertEquals(11, loopCount);
+
+        rowCount = 99;
+        pageSize = 10;
+        loopCount = (rowCount % 2 == 0) ? (rowCount / pageSize) : ((rowCount / pageSize) + 1);
+        Assert.assertEquals(10, loopCount);
+
+        rowCount = 99;
+        pageSize = 9;
+        loopCount = (rowCount % 2 == 0) ? (rowCount / pageSize) : ((rowCount / pageSize) + 1);
+        Assert.assertEquals(12, loopCount);
+    }
+
     public static class Owner extends Entity {
         @Ignore
         private static final long serialVersionUID = 1L;

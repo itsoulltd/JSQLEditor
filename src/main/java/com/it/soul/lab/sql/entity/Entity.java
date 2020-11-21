@@ -647,7 +647,7 @@ public abstract class Entity implements EntityInterface{
 
 		int maxCount = executor.getScalarValue(countQuery);
 		rowCount = (rowCount > 0 && rowCount < maxCount) ? rowCount : maxCount;
-		int loopCount = (rowCount / pageSize) + 1;
+		int loopCount = (rowCount % 2 == 0) ? (rowCount / pageSize) : ((rowCount / pageSize) + 1);
 		int index = 0;
 		while (index < loopCount){
 			SQLSelectQuery query;
