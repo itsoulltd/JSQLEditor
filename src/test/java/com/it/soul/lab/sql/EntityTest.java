@@ -59,6 +59,72 @@ public class EntityTest {
         pageSize = 9;
         loopCount = (rowCount % 2 == 0) ? (rowCount / pageSize) : ((rowCount / pageSize) + 1);
         Assert.assertEquals(12, loopCount);
+
+        rowCount = 80856;
+        pageSize = 1000;
+        loopCount = (rowCount % 2 == 0) ? (rowCount / pageSize) : ((rowCount / pageSize) + 1);
+        Assert.assertEquals(80, loopCount);
+
+        //floor
+
+        rowCount = 80856;
+        pageSize = 1000;
+        loopCount = Double.valueOf(Math.floor((rowCount * 1.0d / pageSize))).intValue();
+        System.out.println("floor->>" + Math.floor((rowCount * 1.0d / pageSize)));
+        Assert.assertEquals(80, loopCount);
+
+        rowCount = 80855;
+        pageSize = 1000;
+        loopCount = Double.valueOf(Math.floor((rowCount * 1.0d / pageSize))).intValue();
+        System.out.println("floor->>" + Math.floor((rowCount * 1.0d / pageSize)));
+        Assert.assertEquals(80, loopCount);
+    }
+
+    @Test
+    public void pageCountCeilTest(){
+        //ceil
+
+        int rowCount = 80856;
+        int pageSize = 1000;
+        int loopCount = Double.valueOf(Math.ceil((rowCount * 1.0d / pageSize))).intValue();
+        System.out.println("ceil->>" + Math.ceil((rowCount * 1.0d / pageSize)));
+        Assert.assertEquals(81, loopCount);
+
+        rowCount = 80855;
+        pageSize = 1000;
+        loopCount = Double.valueOf(Math.ceil((rowCount * 1.0d / pageSize))).intValue();
+        System.out.println("ceil->>" + Math.ceil((rowCount * 1.0d / pageSize)));
+        Assert.assertEquals(81, loopCount);
+
+        rowCount = 53;
+        pageSize = 7;
+        loopCount = Double.valueOf(Math.ceil((rowCount * 1.0d / pageSize))).intValue();
+        System.out.println("ceil->>" + Math.ceil((rowCount * 1.0d / pageSize)));
+        Assert.assertEquals(8, loopCount);
+
+        rowCount = 50;
+        pageSize = 7;
+        loopCount = Double.valueOf(Math.ceil((rowCount * 1.0d / pageSize))).intValue();
+        System.out.println("ceil->>" + Math.ceil((rowCount * 1.0d / pageSize)));
+        Assert.assertEquals(8, loopCount);
+
+        rowCount = 13;
+        pageSize = 7;
+        loopCount = Double.valueOf(Math.ceil((rowCount * 1.0d / pageSize))).intValue();
+        System.out.println("ceil->>" + Math.ceil((rowCount * 1.0d / pageSize)));
+        Assert.assertEquals(2, loopCount);
+
+        rowCount = 14;
+        pageSize = 7;
+        loopCount = Double.valueOf(Math.ceil((rowCount * 1.0d / pageSize))).intValue();
+        System.out.println("ceil->>" + Math.ceil((rowCount * 1.0d / pageSize)));
+        Assert.assertEquals(2, loopCount);
+
+        rowCount = 15;
+        pageSize = 7;
+        loopCount = Double.valueOf(Math.ceil((rowCount * 1.0d / pageSize))).intValue();
+        System.out.println("ceil->>" + Math.ceil((rowCount * 1.0d / pageSize)));
+        Assert.assertEquals(3, loopCount);
     }
 
     public static class Owner extends Entity {
