@@ -40,15 +40,17 @@ public class SQLJoinQuery extends SQLSelectQuery {
 		Integer index = 0;
 		StringBuffer joinBuffer = new StringBuffer();
 		for (JoinTable table : tables) {
-			if(table.joinWith() == null) {break;} //terminate the loop
+			if(table.joinWith() == null) {continue;} //terminate the loop
 			if (index++ == 0) {
 				//first case
-				joinBuffer.append("("+ table.getName() + " " + joinName() + " " + table.joinWith().getName() + table.getExpression().interpret()+ ")");
+				//joinBuffer.append("("+ table.getName() + " " + joinName() + " " + table.joinWith().getName() + table.getExpression().interpret() + ")");
+				joinBuffer.append( table.getName() + " " + joinName() + " " + table.joinWith().getName() + table.getExpression().interpret() );
 			}else {
 				//every other case
 				String lastBuffer = joinBuffer.toString();
 				joinBuffer.delete(0, lastBuffer.length());
-				joinBuffer.append("("+ lastBuffer + " " + joinName() + " " + table.joinWith().getName() + table.getExpression().interpret() + ")");
+				//joinBuffer.append("("+ lastBuffer + " " + joinName() + " " + table.joinWith().getName() + table.getExpression().interpret() + ")");
+				joinBuffer.append( lastBuffer + " " + joinName() + " " + table.joinWith().getName() + table.getExpression().interpret() );
 			}
 		}
 		if (index > 0) {buffer.append(joinBuffer.toString());}
@@ -174,6 +176,12 @@ public class SQLJoinQuery extends SQLSelectQuery {
 			cExp.setRightTable(table);
 			previousTable.join(jTable);
 		}
+		previousTable = jTable;
+	}
+
+	public void setReJoins(String reJoins) {
+		JoinTable jTable = new JoinTable(reJoins);
+		tables.add(jTable);
 		previousTable = jTable;
 	}
 	

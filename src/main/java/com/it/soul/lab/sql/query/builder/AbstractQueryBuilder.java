@@ -217,7 +217,15 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 		return this;
 	}
 
-    @Override
+	@Override
+	public JoinOnBuilder rejoin(String table) {
+		if(tempQuery instanceof SQLJoinQuery) {
+			((SQLJoinQuery)tempQuery).setReJoins(table);
+		}
+		return this;
+	}
+
+	@Override
     public ColumnsBuilder index(String name) {
         return this;
     }
