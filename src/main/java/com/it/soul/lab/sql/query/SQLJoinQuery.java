@@ -30,8 +30,11 @@ public class SQLJoinQuery extends SQLSelectQuery {
 		StringBuffer columnBuffer = new StringBuffer();
 		Integer count = 0;
 		for (JoinTable table : tables) {
-			if (count++ != 0) {columnBuffer.append(", ");}
-			columnBuffer.append(table.toColumnString().trim());
+			String cols = table.toColumnString().trim();
+			if (!cols.isEmpty()){
+				if (count++ != 0) {columnBuffer.append(", ");}
+				columnBuffer.append(cols);
+			}
 		}
 		if (count > 0) {buffer.append(columnBuffer.toString());}
 		//
@@ -180,9 +183,18 @@ public class SQLJoinQuery extends SQLSelectQuery {
 	}
 
 	public void setReJoins(String reJoins) {
-		JoinTable jTable = new JoinTable(reJoins);
-		tables.add(jTable);
-		previousTable = jTable;
+		if (reJoins == null || reJoins.isEmpty()) return;
+		if (previousTable != null && previousTable.getName().equalsIgnoreCase(reJoins))
+			return;
+		for (JoinTable sTable : tables) {
+			if (sTable.getName().equalsIgnoreCase(reJoins)){
+				JoinTable jTable = new JoinTable(reJoins);
+				jTable.skipColumns();
+				tables.add(jTable);
+				previousTable = jTable;
+				break;
+			}
+		}
 	}
 	
 	private List<JoinTable> tables = new ArrayList<>();
@@ -192,15 +204,18 @@ public class SQLJoinQuery extends SQLSelectQuery {
 		private List<String> columns = new ArrayList<>();
 		private JoinExpression expression;
 		private JoinTable tail;
+
 		public JoinTable(String name) {
 			this.name = name;
 		}
 		public JoinTable addColumn(String column) {
+			if (columns == null) columns = new ArrayList<>();
 			if (columns.contains(column) || column.trim().equals("")) {return this;}
 			columns.add(column);
 			return this;
 		}
 		public String toColumnString() {
+			if (columns == null) return "";
 			StringBuffer buffer = new StringBuffer();
 			int count = 0;
 			for (String col : columns) {
@@ -225,6 +240,9 @@ public class SQLJoinQuery extends SQLSelectQuery {
 		}
 		public JoinTable joinWith() {
 			return tail;
+		}
+		public void skipColumns() {
+			columns = null;
 		}
 	}
 	
