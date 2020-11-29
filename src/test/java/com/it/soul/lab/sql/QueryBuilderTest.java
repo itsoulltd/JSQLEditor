@@ -320,11 +320,12 @@ public class QueryBuilderTest {
 				.join("Shippers", "ShipperName").build();
 		
 		String expected = 	"SELECT Customers.CustomerName, Orders.OrderID, Shippers.ShipperName " + 
-							"FROM ((Customers " + 
-							"INNER JOIN Orders ON Customers.CustomerID = Orders.CustomerID) " + 
-							"INNER JOIN Shippers ON Orders.ShipperID = Shippers.ShipperID)";
+							"FROM Customers " +
+							"INNER JOIN Orders ON Customers.CustomerID = Orders.CustomerID " +
+							"INNER JOIN Shippers ON Orders.ShipperID = Shippers.ShipperID";
 		
 		Assert.assertEquals(expected, join.toString());
+		System.out.println(join.toString());
 	}
 	
 	@Test public void LeftJoinTest() {
@@ -338,9 +339,9 @@ public class QueryBuilderTest {
 				.orderBy("Customers.CustomerName").build();
 		
 		String expected = 	"SELECT Customers.CustomerName, Orders.OrderID " + 
-							"FROM (Customers " + 
+							"FROM Customers " +
 							"LEFT JOIN Orders " + 
-							"ON Customers.CustomerID = Orders.CustomerID) " +
+							"ON Customers.CustomerID = Orders.CustomerID " +
 							"WHERE Customers.createDate > ? " +
 							"GROUP BY Customers.CustomerName " +
 							"HAVING Customers.createDate > ? " +
@@ -348,6 +349,49 @@ public class QueryBuilderTest {
 		
 		Assert.assertEquals(expected, join.toString());
 		System.out.println(join.bindValueToString());
+	}
+
+	@Test public void LeftJoinTest2() {
+
+		String from = "2020-11-05";
+		String to = "2020-11-05";
+
+		Predicate where = new Where("_tm_audit_datas.audit_type").isEqualTo("Uddokta-dso")
+				.and("_tm_audit_datas.create_date").isGreaterThenOrEqual(from)
+				.and("_tm_audit_datas.create_date").isLessThenOrEqual(to);
+
+		SQLJoinQuery join = new SQLQuery.Builder(QueryType.LEFT_JOIN)
+				.join("_tm_audit_datas", "audit_type as 'TYPE'", "shop_outside_media as 'IMG_PATH'")
+				.on(new JoinExpression("fk_uddokta_id", "pk_uddokta_id"))
+				.join("_uddoktas", "fullname as 'NAME'", "wallet_number as 'WALLET'")
+				.rejoin("_tm_audit_datas")
+				.on(new JoinExpression("fk_tm_id", "pk_user_id"))
+				.join("_users", "u_firstname as 'DSO-NAME'", "u_contact_number as 'DSO-WALLET'")
+				.where(where)
+				.groupBy("_uddoktas.wallet_number")
+				.orderBy("_uddoktas.fullname")
+				.addLimit(10, 5)
+				.build();
+
+		System.out.println(join.toString());
+		System.out.println(join.bindValueToString());
+
+		String expected = 	"SELECT " +
+				"_tm_audit_datas.audit_type as 'TYPE'" +
+				", _tm_audit_datas.shop_outside_media as 'IMG_PATH'" +
+				", _uddoktas.fullname as 'NAME'" +
+				", _uddoktas.wallet_number as 'WALLET'" +
+				", _users.u_firstname as 'DSO-NAME'" +
+				", _users.u_contact_number as 'DSO-WALLET'" +
+				" FROM _tm_audit_datas" +
+				" LEFT JOIN _uddoktas ON _tm_audit_datas.fk_uddokta_id = _uddoktas.pk_uddokta_id" +
+				" LEFT JOIN _users ON _tm_audit_datas.fk_tm_id = _users.pk_user_id" +
+				" WHERE ( ( _tm_audit_datas.audit_type = 'Uddokta-dso'" +
+				" AND _tm_audit_datas.create_date >= '2020-11-05' ) AND _tm_audit_datas.create_date <= '2020-11-05' )" +
+				" GROUP BY _uddoktas.wallet_number" +
+				" ORDER BY _uddoktas.fullname ASC LIMIT 10 OFFSET 5";
+
+		Assert.assertEquals(expected, join.bindValueToString());
 	}
 
 	@Test
