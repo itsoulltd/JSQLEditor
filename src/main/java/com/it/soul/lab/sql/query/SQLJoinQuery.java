@@ -47,13 +47,13 @@ public class SQLJoinQuery extends SQLSelectQuery {
 			if (index++ == 0) {
 				//first case
 				//joinBuffer.append("("+ table.getName() + " " + joinName() + " " + table.joinWith().getName() + table.getExpression().interpret() + ")");
-				joinBuffer.append( table.getName() + " " + joinName() + " " + table.joinWith().getName() + table.getExpression().interpret() );
+				joinBuffer.append( table.getAsAlice() + " " + joinName() + " " + table.joinWith().getAsAlice() + table.getExpression().interpret() );
 			}else {
 				//every other case
 				String lastBuffer = joinBuffer.toString();
 				joinBuffer.delete(0, lastBuffer.length());
 				//joinBuffer.append("("+ lastBuffer + " " + joinName() + " " + table.joinWith().getName() + table.getExpression().interpret() + ")");
-				joinBuffer.append( lastBuffer + " " + joinName() + " " + table.joinWith().getName() + table.getExpression().interpret() );
+				joinBuffer.append( lastBuffer + " " + joinName() + " " + table.joinWith().getAsAlice() + table.getExpression().interpret() );
 			}
 		}
 		if (index > 0) {buffer.append(joinBuffer.toString());}
@@ -168,15 +168,15 @@ public class SQLJoinQuery extends SQLSelectQuery {
 		}
 	}
 	
-	public void setJoins(String table, List<String> cols) {
-		JoinTable jTable = new JoinTable(table);
+	public void setJoins(String table, String alice, List<String> cols) {
+		JoinTable jTable = new JoinTable(table, alice);
 		for (String col : cols) {
 			jTable.addColumn(col);
 		}
 		tables.add(jTable);
 		if(previousTable != null) {
 			JoinExpression cExp = previousTable.getExpression(); 
-			cExp.setRightTable(table);
+			cExp.setRightTable(jTable.getName());
 			previousTable.join(jTable);
 		}
 		previousTable = jTable;
@@ -184,11 +184,11 @@ public class SQLJoinQuery extends SQLSelectQuery {
 
 	public void setReJoins(String reJoins) {
 		if (reJoins == null || reJoins.isEmpty()) return;
-		if (previousTable != null && previousTable.getName().equalsIgnoreCase(reJoins))
+		if (previousTable != null && previousTable.matchName(reJoins))
 			return;
 		for (JoinTable sTable : tables) {
-			if (sTable.getName().equalsIgnoreCase(reJoins)){
-				JoinTable jTable = new JoinTable(reJoins);
+			if (sTable.matchName(reJoins)){
+				JoinTable jTable = new JoinTable(reJoins, sTable.getAlice());
 				jTable.skipColumns();
 				tables.add(jTable);
 				previousTable = jTable;
@@ -201,12 +201,14 @@ public class SQLJoinQuery extends SQLSelectQuery {
 	
 	public class JoinTable{
 		private String name = "";
+		private String alice = "";
 		private List<String> columns = new ArrayList<>();
 		private JoinExpression expression;
 		private JoinTable tail;
 
-		public JoinTable(String name) {
+		public JoinTable(String name, String alice) {
 			this.name = name;
+			if(alice != null) this.alice = alice.trim();
 		}
 		public JoinTable addColumn(String column) {
 			if (columns == null) columns = new ArrayList<>();
@@ -220,10 +222,10 @@ public class SQLJoinQuery extends SQLSelectQuery {
 			int count = 0;
 			for (String col : columns) {
 				if(count++ != 0){buffer.append(", ");}
-				buffer.append(name+"."+col);
+				buffer.append(getName()+"."+col);
 			}
 			//If all passed parameter is empty
-			if(count == 0){buffer.append(name+"."+STARIC);}
+			if(count == 0){buffer.append(getName()+"."+STARIC);}
 			return buffer.toString();
 		}
 		public void setExpression(JoinExpression expression) {
@@ -233,7 +235,10 @@ public class SQLJoinQuery extends SQLSelectQuery {
 			return expression;
 		}
 		public String getName() {
-			return name;
+			return (alice != null && !alice.isEmpty()) ? alice : name;
+		}
+		public String getAsAlice() {
+			return (alice != null && !alice.isEmpty()) ? (name + " AS " + alice) : name;
 		}
 		public void join(JoinTable tail) {
 			this.tail = tail;
@@ -243,6 +248,13 @@ public class SQLJoinQuery extends SQLSelectQuery {
 		}
 		public void skipColumns() {
 			columns = null;
+		}
+		public boolean matchName(String reJoins) {
+			if (reJoins == null) return false;
+			return name.trim().equalsIgnoreCase(reJoins.trim());
+		}
+		public String getAlice() {
+			return alice;
 		}
 	}
 	

@@ -204,8 +204,12 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 	}
 	@Override
 	public JoinOnBuilder join(String table, String... columns) {
+    	return joinAsAlice(table, null, columns);
+	}
+	@Override
+	public JoinOnBuilder joinAsAlice(String table, String alice, String... columns) {
 		if(tempQuery instanceof SQLJoinQuery) {
-			((SQLJoinQuery)tempQuery).setJoins(table, Arrays.asList(columns));
+			((SQLJoinQuery)tempQuery).setJoins(table, alice, Arrays.asList(columns));
 		}
 		return this;
 	}

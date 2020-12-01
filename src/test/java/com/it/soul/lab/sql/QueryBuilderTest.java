@@ -351,6 +351,57 @@ public class QueryBuilderTest {
 		System.out.println(join.bindValueToString());
 	}
 
+	@Test public void LeftJoinAsAliceTest() {
+		SQLJoinQuery join = new SQLQuery.Builder(QueryType.LEFT_JOIN)
+				.join("Customers", "CustomerName")
+				.on(new JoinExpression("CustomerID", "CustomerID"))
+				.joinAsAlice("Orders", "myAlice", "OrderID")
+				.where(new Where("Customers.createDate").isGreaterThen("2020-11-05"))
+				.groupBy("Customers.CustomerName")
+				.having(new Where("Customers.createDate").isGreaterThen("2020-11-05"))
+				.orderBy("Customers.CustomerName").build();
+
+		String expected = 	"SELECT Customers.CustomerName, myAlice.OrderID " +
+				"FROM Customers " +
+				"LEFT JOIN Orders AS myAlice " +
+				"ON Customers.CustomerID = myAlice.CustomerID " +
+				"WHERE Customers.createDate > ? " +
+				"GROUP BY Customers.CustomerName " +
+				"HAVING Customers.createDate > ? " +
+				"ORDER BY Customers.CustomerName ASC";
+
+		Assert.assertEquals(expected, join.toString());
+		System.out.println(join.bindValueToString());
+	}
+
+	@Test public void LeftJoinAsAliceTest2() {
+		SQLJoinQuery join = new SQLQuery.Builder(QueryType.LEFT_JOIN)
+				.joinAsAlice("Customers", "cs", "CustomerName")
+				.on(new JoinExpression("CustomerID", "CustomerID"))
+				.joinAsAlice("Orders", "myAlice", "OrderID")
+				.rejoin("Customers")
+				.on(new JoinExpression("supplierID", "supplierID"))
+				.join("Supplier")
+				.where(new Where("Customers.createDate").isGreaterThen("2020-11-05"))
+				.groupBy("Customers.CustomerName")
+				.having(new Where("Customers.createDate").isGreaterThen("2020-11-05"))
+				.orderBy("Customers.CustomerName").build();
+
+		String expected = 	"SELECT cs.CustomerName, myAlice.OrderID, Supplier.* " +
+				"FROM Customers AS cs " +
+				"LEFT JOIN Orders AS myAlice " +
+				"ON cs.CustomerID = myAlice.CustomerID " +
+				"LEFT JOIN Supplier " +
+				"ON cs.supplierID = Supplier.supplierID " +
+				"WHERE Customers.createDate > ? " +
+				"GROUP BY Customers.CustomerName " +
+				"HAVING Customers.createDate > ? " +
+				"ORDER BY Customers.CustomerName ASC";
+
+		Assert.assertEquals(expected, join.toString());
+		System.out.println(join.bindValueToString());
+	}
+
 	@Test public void LeftJoinTest2() {
 
 		String from = "2020-11-05";
