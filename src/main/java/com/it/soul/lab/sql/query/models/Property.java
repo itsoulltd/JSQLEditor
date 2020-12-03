@@ -51,8 +51,10 @@ public class Property implements Comparable<Property>, Externalizable {
 	public boolean equals(Object obj) {
 		if(obj instanceof Property){
 			Property comparable = (Property)obj;
+			if (getKey() == null || comparable.getKey() == null) return false;
 			if (getValue() == null || comparable.getValue() == null) return false;
-			return Objects.equals(getValue(), comparable.getValue());
+			return Objects.equals(getKey(), comparable.getKey())
+					&& Objects.equals(getValue(), comparable.getValue());
 		}
 		return false;
 	}

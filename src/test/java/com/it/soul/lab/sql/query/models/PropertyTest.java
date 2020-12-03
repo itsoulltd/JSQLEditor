@@ -51,8 +51,8 @@ public class PropertyTest {
 
     @Test
     public void equalTest(){
-        Property property = new Property();
-        Property property1 = new Property();
+        Property property = new Property("myProp");
+        Property property1 = new Property("myProp");
         System.out.println(property1.equals(property));
         Assert.assertTrue(!property1.equals(property));
 
