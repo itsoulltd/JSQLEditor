@@ -36,47 +36,39 @@ public abstract class AbstractExecutor {
     }
 
     protected DataType convertDataType(String type){
-
-        String trimedType = type.trim().toUpperCase();
-
-        if(trimedType.equals("CHAR")
-                || trimedType.equals("VARCHAR")
-                || trimedType.equals("LONGVARCHAR")){
-
+        String trimmedType = type.trim().toUpperCase();
+        if(trimmedType.equals("CHAR")
+                || trimmedType.equals("VARCHAR")
+                || trimmedType.equals("LONGVARCHAR")){
             return DataType.STRING;
-
-        }
-        else if(trimedType.equals("INTEGER")
-                || trimedType.equals("BIGINT")
-                || trimedType.equals("SMALLINT")){
+        }else if(trimmedType.equals("INTEGER")
+                || trimmedType.equals("SMALLINT")){
             return DataType.INT;
-
-        }
-        else if(trimedType.equals("DATE")
-                || trimedType.equals("DATETIME")){
+        }else if(trimmedType.equals("BIGINT")) {
+            return DataType.LONG;
+        }else if(trimmedType.equals("DECIMAL")
+                || trimmedType.equals("NUMERIC")) {
+            return DataType.BIG_DECIMAL;
+        }else if(trimmedType.equals("DATE")
+                || trimmedType.equals("DATETIME")){
             return DataType.SQLDATE;
-
-        }else if(trimedType.equals("TIME")
-                || trimedType.equals("TIMESTAMP")){
+        }else if(trimmedType.equals("TIME")
+                || trimmedType.equals("TIMESTAMP")){
             return DataType.SQLTIMESTAMP;
-
-        }else if(trimedType.equals("FLOAT")){
+        }else if(trimmedType.equals("FLOAT")){
             return DataType.FLOAT;
-        }
-        else if(trimedType.equals("DOUBLE")){
+        }else if(trimmedType.equals("DOUBLE")){
             return DataType.DOUBLE;
-        }
-        else if(trimedType.equals("BIT")
-                || trimedType.equals("TINYINT")){
+        }else if(trimmedType.equals("BIT")
+                || trimmedType.equals("TINYINT")){
             return DataType.BOOL;
-        }
-        else if(trimedType.equals("BINARY") || trimedType.equals("VARBINARY") || trimedType.equals("LONGVARBINARY")){
+        }else if(trimmedType.equals("BINARY")
+                || trimmedType.equals("VARBINARY")
+                || trimmedType.equals("LONGVARBINARY")){
             return DataType.BYTEARRAY;
-        }
-        else{
+        }else{
             return DataType.OBJECT;
         }
-
     }
 
     protected  <T extends Entity> String getTableName(Class<T> tableType) {
