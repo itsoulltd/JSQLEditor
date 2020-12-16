@@ -922,7 +922,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 	}
 
 	protected Property createPropertyFrom(ResultSet rst, ResultSetMetaData rsmd, int x) throws SQLException {
-		String key = rsmd.getColumnName(x);
+		String key = rsmd.getColumnLabel(x);
 		DataType type = convertDataType(rsmd.getColumnTypeName(x));
 		Object value = getValueFromResultSet(type, rst, x);
 		return new Property(key, value);
@@ -951,7 +951,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 			while(rst.next()){ //For each Row
 				Map<String, Object> row = new HashMap<String, Object>(numCol);
 				for(int x = 1; x <= numCol; x++){ //For each column in a Row
-					String key = rsmd.getColumnName(x);
+					String key = rsmd.getColumnLabel(x);
 					DataType type = convertDataType(rsmd.getColumnTypeName(x));
 					Object value = getValueFromResultSet(type, rst, x);
 					
@@ -991,7 +991,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 			while(rst.next()){ //For each Row
 				Map<String, Object> row = new HashMap<String, Object>(columnIndecies.size());
 				for(int x : columnIndecies){ //For each column in paramProperties
-					String key = rsmd.getColumnName(x);
+					String key = rsmd.getColumnLabel(x);
 					DataType type = convertDataType(rsmd.getColumnTypeName(x));
 					Object value = getValueFromResultSet(type, rst, x);
 
@@ -1108,7 +1108,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 				Map<String, Object> row = new HashMap<String, Object>(numCol);
 				for(int x = 1; x <= numCol; x++){ //For each column in a Row
 					
-					String key = rsmd.getColumnName(x);
+					String key = rsmd.getColumnLabel(x);
 					DataType type = convertDataType(rsmd.getColumnTypeName(x));
 					Object value = getValueFromResultSet(type, rst, x);
 					
@@ -1157,7 +1157,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 				Map<String, Object> row = new HashMap<String, Object>(columnIndecies.size());
 				for(int x : columnIndecies){ //For each column in the paramProperties
 					
-					String key = rsmd.getColumnName(x);
+					String key = rsmd.getColumnLabel(x);
 					DataType type = convertDataType(rsmd
 							.getColumnTypeName(x));
 					Object value = getValueFromResultSet(type, rst, x);
@@ -1215,7 +1215,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 				int newNameCount = 0;
 				for(int x : columnIndices){ //For each column in paramProperties
 					
-					String key = rsmd.getColumnName(x);
+					String key = rsmd.getColumnLabel(x);
 					String keyConverted = paramPropertyNames.get(newNameCount++);
 					DataType type = convertDataType(rsmd.getColumnTypeName(x));
 					Object value = getValueFromResultSet(type, rst, x);
@@ -1297,7 +1297,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 			ResultSetMetaData rsmd = rst.getMetaData();
 			int x = (rst.findColumn(indexColumn) <= 0) ? 1 : rst.findColumn(indexColumn);
 			
-			String key = rsmd.getColumnName(x);
+			String key = rsmd.getColumnLabel(x);
 			DataType type = convertDataType(rsmd.getColumnTypeName(x));
 			
 			while(rst.next()){ //For each Row
@@ -1330,7 +1330,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 				x = indexColumn;
 			}
 			
-			String key = rsmd.getColumnName(x);
+			String key = rsmd.getColumnLabel(x);
 			DataType type = convertDataType(rsmd.getColumnTypeName(x));
 			
 			while(rst.next()){ //For each Row
