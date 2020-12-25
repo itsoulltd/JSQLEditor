@@ -3,8 +3,10 @@ package com.it.soul.lab.sql;
 import com.it.soul.lab.connect.DriverClass;
 import com.it.soul.lab.connect.io.ScriptRunner;
 import com.it.soul.lab.sql.entity.Entity;
-import com.it.soul.lab.sql.query.*;
-import com.it.soul.lab.sql.query.builder.WhereExpressionBuilder;
+import com.it.soul.lab.sql.query.QueryType;
+import com.it.soul.lab.sql.query.SQLInsertQuery;
+import com.it.soul.lab.sql.query.SQLQuery;
+import com.it.soul.lab.sql.query.SQLSelectQuery;
 import com.it.soul.lab.sql.query.models.DataType;
 import com.it.soul.lab.sql.query.models.Property;
 import com.it.soul.lab.sql.query.models.Row;
@@ -15,7 +17,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.sql.Date;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
 
 public class SQLInjectionTest {
@@ -143,9 +147,12 @@ public class SQLInjectionTest {
                 .into("Passenger")
                 .values(new Row()
                         .add("name","MyName-A")
-                        .add(new Property("age", null, DataType.INT))
-                        .add("sex", null).getProperties().toArray(new Property[0]))
+                        .add(new Property("age", 18, DataType.INT))
+                        .add("sex", null)
+                        .add("dob", new Timestamp(new java.util.Date().getTime()))
+                        .getProperties().toArray(new Property[0]))
                 .build();
+        System.out.println(query.bindValueToString());
         int res = exe.executeInsert(true, query);
         Assert.assertTrue(res > 0);
     }

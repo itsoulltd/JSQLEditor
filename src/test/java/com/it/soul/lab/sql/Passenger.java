@@ -6,6 +6,7 @@ import com.it.soul.lab.sql.entity.TableName;
 import com.it.soul.lab.sql.query.models.Property;
 
 import javax.persistence.Column;
+import java.util.Date;
 
 @TableName(value = "Passenger", acceptAll = false)
 public class Passenger extends Entity {
@@ -18,6 +19,8 @@ public class Passenger extends Entity {
 	private String name;
 	@Column(name = "SEX")
 	private String sex;
+	@Column(name = "DOB")
+	private Date dob;
 	public Passenger() {}
 	public Integer getId() {
 		return id;
@@ -43,7 +46,13 @@ public class Passenger extends Entity {
 	public void setSex(String sex) {
 		this.sex = sex;
 	}
-	
+	public Date getDob() {
+		return dob;
+	}
+	public void setDob(Date dob) {
+		this.dob = dob;
+	}
+
 	public Property getPropertyTest(String key, SQLExecutor exe, boolean skipPrimary) {
 		return getProperty(key, exe, skipPrimary);
 	}

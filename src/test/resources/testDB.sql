@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS Passenger
  name varchar(1024) null,
  age  int default '18' null,
  sex varchar(12) null,
+ dob datetime null,
  constraint Passenger_id_uindex unique (id)
  );
 
