@@ -103,8 +103,8 @@ public class SQLInjectionTest {
         SQLSelectQuery query = new SQLQuery.Builder(QueryType.SELECT)
                 .columns()
                 .from("Passenger")
-                .where(new Where("name").isEqualTo("MyName-A")).build();
-        System.out.println(query.toString());
+                .where(new Where("name").isLike("%Na%")).build();
+        System.out.println(query.bindValueToString());
         List<Passenger> results = exe.executeSelect(query.bindValueToString(), Passenger.class, Entity.mapColumnsToProperties(Passenger.class));
         Assert.assertEquals(results.size(), 1);
         results.forEach(pass -> System.out.println(pass.marshallingToMap(true)));
@@ -123,6 +123,15 @@ public class SQLInjectionTest {
                 .columns()
                 .from("Passenger")
                 .where(new Where("name").isEqualTo("MyName-A OR \"\"=\"\"")).build();
+        System.out.println(query.bindValueToString());
+        results = exe.executeSelect(query.bindValueToString(), Passenger.class, Entity.mapColumnsToProperties(Passenger.class));
+        Assert.assertEquals(results.size(), 0);
+
+        //AVOID: ""="" e.g.  SELECT * FROM Users WHERE Name ="" or ""="" AND Pass ="" or ""="";
+        query = new SQLQuery.Builder(QueryType.SELECT)
+                .columns()
+                .from("Passenger")
+                .where(new Where("name").isLike("%ame% OR \"\"=\"\"")).build();
         System.out.println(query.bindValueToString());
         results = exe.executeSelect(query.bindValueToString(), Passenger.class, Entity.mapColumnsToProperties(Passenger.class));
         Assert.assertEquals(results.size(), 0);
