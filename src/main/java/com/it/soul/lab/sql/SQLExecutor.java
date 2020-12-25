@@ -936,7 +936,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		return result;
 	}
 	
-	public List<Map<String, Object>> convertToKeyValuePaire(ResultSet rst){
+	public List<Map<String, Object>> convertToKeyValuePair(ResultSet rst){
 		
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 		try{
@@ -967,10 +967,10 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		return result;
 	}
 	
-	public List<Map<String, Object>> convertToKeyValuePaire(ResultSet rst, List<String> paramProperties){
+	public List<Map<String, Object>> convertToKeyValuePair(ResultSet rst, List<String> paramProperties){
 		
 		if(paramProperties == null || paramProperties.size() <= 0){
-            return convertToKeyValuePaire(rst);
+            return convertToKeyValuePair(rst);
         }
 		
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
@@ -1008,16 +1008,16 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		return result;
 	}
 	
-	public List<Map<String, Object>> convertToKeyValuePaire(ResultSet rst, List<String> paramProperties, List<String> paramPropertyNames){
+	public List<Map<String, Object>> convertToKeyValuePair(ResultSet rst, List<String> paramProperties, List<String> paramPropertyNames){
 		
 		if(paramProperties == null 
 				|| paramProperties.size() <= 0){
-			return convertToKeyValuePaire(rst);
+			return convertToKeyValuePair(rst);
 		}
 		if(paramPropertyNames == null
 				|| paramPropertyNames.size() <= 0
 				|| paramProperties.size() != paramPropertyNames.size()){
-			return convertToKeyValuePaire(rst, paramProperties);
+			return convertToKeyValuePair(rst, paramProperties);
 		}
 		
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
@@ -1090,7 +1090,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		return results;
 	}
 	
-	public Map<Object, Map<String, Object>> convertToIndexedKeyValuePaire(ResultSet rst, String indexColumn){
+	public Map<Object, Map<String, Object>> convertToIndexedKeyValuePair(ResultSet rst, String indexColumn){
 		
 		Map<Object,Map<String, Object>> result = new HashMap<Object, Map<String,Object>>();
 		try{
@@ -1129,10 +1129,10 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		return result;
 	}
 	
-	public Map<Object, Map<String, Object>> convertToIndexedKeyValuePaire(ResultSet rst, String indexColumn, List<String> paramProperties){
+	public Map<Object, Map<String, Object>> convertToIndexedKeyValuePair(ResultSet rst, String indexColumn, List<String> paramProperties){
 		
 		if(paramProperties == null || paramProperties.size() <= 0){
-            return convertToIndexedKeyValuePaire(rst, indexColumn);
+            return convertToIndexedKeyValuePair(rst, indexColumn);
         }
 		
 		Map<Object,Map<String, Object>> result = new HashMap<Object, Map<String,Object>>();
@@ -1181,16 +1181,16 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		return result;
 	}
 	
-	public Map<Object, Map<String, Object>> convertToIndexedKeyValuePaire(ResultSet rst, String indexColumn, List<String> paramProperties, List<String> paramPropertyNames){
+	public Map<Object, Map<String, Object>> convertToIndexedKeyValuePair(ResultSet rst, String indexColumn, List<String> paramProperties, List<String> paramPropertyNames){
 		
 		if(paramProperties == null 
 				|| paramProperties.size() <= 0){
-			return convertToIndexedKeyValuePaire(rst, indexColumn);
+			return convertToIndexedKeyValuePair(rst, indexColumn);
 		}
 		if(paramPropertyNames == null
 				|| paramPropertyNames.size() <= 0
 				|| paramProperties.size() != paramPropertyNames.size()){
-			return convertToIndexedKeyValuePaire(rst, indexColumn, paramProperties);
+			return convertToIndexedKeyValuePair(rst, indexColumn, paramProperties);
 		}
 		
 		Map<Object,Map<String, Object>> result = new HashMap<Object, Map<String, Object>>();
