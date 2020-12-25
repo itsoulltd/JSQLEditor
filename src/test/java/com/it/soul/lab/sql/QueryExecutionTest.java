@@ -64,7 +64,7 @@ public class QueryExecutionTest {
 			
 			SQLSelectQuery query = (SQLSelectQuery) new SQLQuery.Builder(QueryType.SELECT).columns().from("Passenger").build();
 			ResultSet set = exe.executeSelect(query);
-			List<Map<String,Object>> x = exe.convertToKeyValuePaire(set);
+			List<Map<String,Object>> x = exe.convertToKeyValuePair(set);
 			exe.displayCollection(x);
 			Assert.assertTrue("Select All Successfull", true);
 			
@@ -89,7 +89,7 @@ public class QueryExecutionTest {
 															.build();
 		try {
 			ResultSet set = exe.executeSelect(qc);
-			List<Map<String,Object>> x = exe.convertToKeyValuePaire(set);
+			List<Map<String,Object>> x = exe.convertToKeyValuePair(set);
 			//Table x = exe.collection(set);
 			Assert.assertTrue(true);
 			

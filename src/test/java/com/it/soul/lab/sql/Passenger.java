@@ -5,13 +5,18 @@ import com.it.soul.lab.sql.entity.PrimaryKey;
 import com.it.soul.lab.sql.entity.TableName;
 import com.it.soul.lab.sql.query.models.Property;
 
-@TableName
+import javax.persistence.Column;
+
+@TableName(value = "Passenger", acceptAll = false)
 public class Passenger extends Entity {
 	
-	@PrimaryKey(name="id", auto =true)
+	@PrimaryKey(name="ID", auto =true)
 	private Integer id;
+	@Column(name = "AGE")
 	private Integer age;
+	@Column(name = "NAME")
 	private String name;
+	@Column(name = "SEX")
 	private String sex;
 	public Passenger() {}
 	public Integer getId() {
