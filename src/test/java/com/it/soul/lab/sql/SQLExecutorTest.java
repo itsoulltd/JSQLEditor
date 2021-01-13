@@ -61,6 +61,11 @@ public class SQLExecutorTest {
 
     @Test
     public void insert() throws SQLException {
+        int res = insertInto();
+        Assert.assertTrue(res > 0);
+    }
+
+    private int insertInto() throws SQLException{
         SQLInsertQuery query = new SQLQuery.Builder(QueryType.INSERT)
                 .into("Passenger")
                 .values(new Row()
@@ -69,7 +74,7 @@ public class SQLExecutorTest {
                         .add("sex", null).getProperties().toArray(new Property[0]))
                 .build();
         int res = exe.executeInsert(true, query);
-        Assert.assertTrue(res > 0);
+        return res;
     }
 
     @Test
@@ -85,11 +90,38 @@ public class SQLExecutorTest {
 
     @Test
     public void delete() throws SQLException {
+        insert();
         SQLDeleteQuery query = new SQLQuery.Builder(QueryType.DELETE)
                 .rowsFrom("Passenger")
                 .where(new Where("sex").isNull())
                 .build();
         int deleted = exe.executeDelete(query);
         Assert.assertTrue(deleted >= 0);
+    }
+
+    @Test
+    public void deleteSuccess() throws SQLException {
+        int id = insertInto();
+        SQLDeleteQuery query = new SQLQuery.Builder(QueryType.DELETE)
+                .rowsFrom("Passenger")
+                .where(new Where("id").isEqualTo(id))
+                .build();
+        int deleted = exe.executeDelete(query);
+        if (deleted > 0) System.out.println("Deleted Success");
+        else System.out.println("Deleted Failed");
+        Assert.assertTrue(deleted > 0);
+    }
+
+    @Test
+    public void deleteFailed() throws SQLException {
+        int id = insertInto();
+        SQLDeleteQuery query = new SQLQuery.Builder(QueryType.DELETE)
+                .rowsFrom("Passenger")
+                .where(new Where("id").isEqualTo(id + 1))
+                .build();
+        int deleted = exe.executeDelete(query);
+        if (deleted > 0) System.out.println("Deleted Success");
+        else System.out.println("Deleted Failed");
+        Assert.assertTrue(deleted == 0);
     }
 }
