@@ -242,7 +242,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
                 List<int[]> batchUpdatedRowsCount = new ArrayList<int[]>();
                 if(notBegin) begin();
                 stmt = conn.prepareStatement(query);
-                int batchCount = 1;
+                int batchCount = 0;
                 for (int index = 0; index < rows.size(); index++) {
 
                     String[] keySet = rows.get(index).getKeys();
@@ -303,7 +303,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
                 List<int[]> batchUpdatedRowsCount = new ArrayList<int[]>();
                 if(notBegin) begin();
                 stmt = conn.createStatement();
-                int batchCount = 1;
+                int batchCount = 0;
                 for (int index = 0; index < queries.size(); index++) {
                     SQLUpdateQuery upQuery = queries.get(index);
                     String queryAfter = bindValueToQuery(upQuery);
@@ -386,7 +386,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
             size = (size < 100) ? 100 : size;//Least should be 100
             if(conn != null){
                 if(notBegin) begin();
-                int batchCount = 1;
+                int batchCount = 0;
                 stmt = conn.prepareStatement(query);
                 for (Row paramValue: where) {
                     stmt = bindValueToStatement(stmt, 1, whereKeySet, paramValue.keyValueMap());
@@ -498,7 +498,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
                 stmt = autoId
                         ? conn.prepareStatement(query,Statement.RETURN_GENERATED_KEYS)
                         : conn.prepareStatement(query);
-                int batchCount = 1;
+                int batchCount = 0;
                 List<int[]> batchUpdatedRowsCount = new ArrayList<int[]>();
                 for (Row row : rows) {
                     stmt = bindValueToStatement(stmt, 1, keySet, row.keyValueMap());
