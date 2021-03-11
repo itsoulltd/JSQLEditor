@@ -206,6 +206,10 @@ public abstract class Entity implements EntityInterface{
 			Column column = field.getAnnotation(Column.class);
 			String clName = column.name().trim();
 			return (!clName.isEmpty()) ? clName : field.getName();
+		}else if(field.isAnnotationPresent(javax.persistence.Column.class)) {
+			javax.persistence.Column column = field.getAnnotation(javax.persistence.Column.class);
+			String clName = column.name().trim();
+			return (!clName.isEmpty()) ? clName : field.getName();
 		}else if(field.isAnnotationPresent(PrimaryKey.class)) {
 			PrimaryKey pm = field.getAnnotation(PrimaryKey.class);
 			String pmName = pm.name().trim();
