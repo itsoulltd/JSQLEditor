@@ -34,7 +34,7 @@ public class Row {
 	public List<Property> getCloneProperties(){
 		//All standard collections have copy constructors.
 		//This does a shallow copy
-		return new ArrayList<Property>(this.properties);
+		return new ArrayList<>(this.properties);
 	}
 	public String[] getKeys(){
     	//Before Java 8
@@ -45,6 +45,13 @@ public class Row {
         }
     	return result.toArray(new String[]{});
     }
+	public Object[] getValues(){
+		List<Object> result = new ArrayList<>();
+		for (Property x : this.properties) {
+			result.add(x.getValue());
+		}
+		return result.toArray();
+	}
     public Map<String, Property> keyValueMap(){
     	//This does a shallow copy
     	Map<String, Property> result = new HashMap<String, Property>();
