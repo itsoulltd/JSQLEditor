@@ -134,7 +134,9 @@ public abstract class SQLQuery {
 				}
                 //Check for dataType:
                 if (entry.getType() == DataType.STRING
-                        || entry.getType() == DataType.OBJECT)
+                        || entry.getType() == DataType.OBJECT
+						|| entry.getType() == DataType.SQLDATE
+						|| entry.getType() == DataType.SQLTIMESTAMP)
                     buffer.replace(index, index+1,"'"+ entry.getValue().toString()+"'");
                 else if (entry.getType() == DataType.LIST){
                     StringBuffer inner = new StringBuffer();

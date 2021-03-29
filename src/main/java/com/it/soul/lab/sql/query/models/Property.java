@@ -107,7 +107,8 @@ public class Property implements Comparable<Property>, Externalizable {
 	public String toString() {
 		String value = null;
 		if (getValue() != null){
-			if (getType() == DataType.SQLDATE)
+			if (getType() == DataType.SQLDATE
+			|| getType() == DataType.SQLTIMESTAMP)
 				value = getDateString(getValue());
 			else
 				value = getValue().toString();
