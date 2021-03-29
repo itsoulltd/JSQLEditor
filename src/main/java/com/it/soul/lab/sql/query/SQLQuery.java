@@ -126,9 +126,12 @@ public abstract class SQLQuery {
         int index = 0; //Start Index;
         for (String key : keySet) { //So that, order get preserved
             Property entry = propertyMap.get(key);
-            if (entry.getValue() == null) continue;
             index = buffer.indexOf("?", index);
             if (!(index < 0)){ // index >= Math.min(fromIndex, length-of-string)
+				if (entry.getValue() == null) {
+					buffer.replace(index, index+1, "NULL");
+					continue;
+				}
                 //Check for dataType:
                 if (entry.getType() == DataType.STRING
                         || entry.getType() == DataType.OBJECT)
