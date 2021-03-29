@@ -36,6 +36,11 @@ public class Row {
 		//This does a shallow copy
 		return new ArrayList<>(this.properties);
 	}
+	public Row remove(String name, Object value){
+		Property property = new Property(name, value);
+		properties.remove(property);
+		return this;
+	}
 	public String[] getKeys(){
     	//Before Java 8
 		//This does a shallow copy
