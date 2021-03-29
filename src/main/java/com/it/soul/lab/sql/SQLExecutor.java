@@ -392,11 +392,14 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
                     stmt = bindValueToStatement(stmt, 1, whereKeySet, paramValue.keyValueMap());
                     stmt.addBatch();
                     if ((++batchCount % size) == 0) {
-                        stmt.executeBatch();
+                        int[] c = stmt.executeBatch();
+                        rowUpdated += c.length;
                     }
                 }
-                if(where.size() % size != 0)
-                    stmt.executeBatch();
+                if(where.size() % size != 0) {
+					int[] c = stmt.executeBatch();
+					rowUpdated += c.length;
+				}
                 //
                 if(notBegin) end();
             }
