@@ -36,9 +36,11 @@ public class Row {
 		//This does a shallow copy
 		return new ArrayList<>(this.properties);
 	}
-	public Row remove(String name, Object value){
-		Property property = new Property(name, value);
-		properties.remove(property);
+	public Row remove(String...names){
+		Map<String, Property> keyPropMap = keyValueMap();
+		for (String key : names) {
+			properties.remove(keyPropMap.get(key));
+		}
 		return this;
 	}
 	public String[] getKeys(){
