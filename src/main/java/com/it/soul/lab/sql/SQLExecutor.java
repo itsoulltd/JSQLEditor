@@ -249,7 +249,6 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
                     stmt = bindValueToStatement(stmt, 1, keySet, row);
 
                     int length = keySet.length;
-                    //Row whereProperties = getLeastAppropriateProperties(whereClause, index);
                     Row whereProperties = updateQuery.getWhereProperties();
                     String[] whereKeySet = whereProperties.getKeys();
                     Map<String, Property> whereRow = whereProperties.keyValueMap();
@@ -281,10 +280,6 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
         return affectedRows.toArray(new Integer[]{});
     }
 
-    private String bindValueToQuery(SQLQuery query){
-	    return query.bindValueToString();
-    }
-
     @Override
     public Integer[] executeUpdate(int size, List<SQLUpdateQuery> queries) throws SQLException, IllegalArgumentException {
         if(queries == null
@@ -301,18 +296,43 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
                 //
                 List<int[]> batchUpdatedRowsCount = new ArrayList<int[]>();
                 if(notBegin) begin();
-                stmt = conn.createStatement();
                 int batchCount = 0;
-                for (int index = 0; index < queries.size(); index++) {
+                //Using value binding to query:
+				/*stmt = conn.createStatement();
+				for (int index = 0; index < queries.size(); index++) {
                     SQLUpdateQuery upQuery = queries.get(index);
-                    String queryAfter = bindValueToQuery(upQuery);
+                    String queryAfter = upQuery.bindValueToString();
                     stmt.addBatch(queryAfter);
                     if ((++batchCount % size) == 0) {
                         batchUpdatedRowsCount.add(stmt.executeBatch());
                     }
                 }
-                if(queries.size() % size != 0)
-                    batchUpdatedRowsCount.add(stmt.executeBatch());
+				if(queries.size() % size != 0)
+					batchUpdatedRowsCount.add(stmt.executeBatch());
+				*/
+				//Using Query Param Binding:
+				for (SQLUpdateQuery upQuery : queries) {
+					if (stmt == null) {
+						stmt = conn.prepareStatement(upQuery.toString());
+					}
+
+					String[] keySet = upQuery.getRow().getKeys();
+					Map<String, Property> row = upQuery.getRow().keyValueMap();
+					stmt = bindValueToStatement((PreparedStatement)stmt, 1, keySet, row);
+
+					int length = keySet.length;
+					Row whereProperties = upQuery.getWhereProperties();
+					String[] whereKeySet = whereProperties.getKeys();
+					Map<String, Property> whereRow = whereProperties.keyValueMap();
+					stmt = bindValueToStatement((PreparedStatement)stmt, length + 1, whereKeySet, whereRow);
+
+					((PreparedStatement)stmt).addBatch();
+					if ((++batchCount % size) == 0) {
+						batchUpdatedRowsCount.add(stmt.executeBatch());
+					}
+				}
+				if(stmt != null && queries.size() % size != 0)
+					batchUpdatedRowsCount.add(stmt.executeBatch());
                 //
                 if(notBegin) end();
                 //
