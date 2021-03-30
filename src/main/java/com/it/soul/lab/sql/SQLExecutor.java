@@ -222,7 +222,6 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
         return rowUpdated;
     }
 
-    @Override
     public Integer[] executeUpdate(int size, SQLUpdateQuery updateQuery, List<Row> rows) throws SQLException, IllegalArgumentException {
 
         if(rows == null

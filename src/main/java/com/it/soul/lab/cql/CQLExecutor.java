@@ -194,7 +194,6 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         return (properties.isEmpty()) ? smt.bind() : smt.bind(values);
     }
 
-    @Override
     public Integer[] executeUpdate(int size, CQLUpdateQuery query, List<Row> rows) throws SQLException, IllegalArgumentException {
         throw new SQLException("Not Implemented YET");
     }

@@ -102,7 +102,6 @@ public class JPQLExecutor extends AbstractExecutor implements QueryExecutor<JPQL
         return executeUpdate(typedQuery);
     }
 
-    @Override
     public Integer[] executeUpdate(int size, JPQLUpdateQuery query, List<Row> rows) throws SQLException, IllegalArgumentException {
         throw new SQLException("Not Implemented YET");
     }
