@@ -602,19 +602,19 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 	}
 
 	@Override
-	public <T> List<T> executeSelect(String query, Class<T> type, Map<String, String> mappingKeys) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
+	public <T extends Entity> List<T> executeSelect(String query, Class<T> type, Map<String, String> mappingKeys) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
 		ResultSet set = executeSelect(query);
 		Table table = collection(set);
 		List result = table.inflate(type, mappingKeys);
 		return result;
 	}
 
-	public <T> List<T> executeSelect(SQLSelectQuery query, Class<T> type) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
-		return executeSelect(query, type, null);
+	public <T extends Entity> List<T> executeSelect(SQLSelectQuery query, Class<T> type) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
+		return executeSelect(query, type, Entity.mapColumnsToProperties(type));
 	}
 
 	@Override
-	public <T> List<T> executeSelect(SQLSelectQuery query, Class<T> type, Map<String, String> mappingKeys) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
+	public <T extends Entity> List<T> executeSelect(SQLSelectQuery query, Class<T> type, Map<String, String> mappingKeys) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
 		ResultSet set = executeSelect(query);
 		Table table = collection(set);
 		List result = table.inflate(type, mappingKeys);

@@ -321,7 +321,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
     }
 
     @Override
-    public <T> List<T> executeSelect(CQLSelectQuery cqlSelectQuery, Class<T> aClass, Map<String, String> map) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
+    public <T extends Entity> List<T> executeSelect(CQLSelectQuery cqlSelectQuery, Class<T> aClass, Map<String, String> map) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
         try {
             Statement statement = createSelectStatementFrom(cqlSelectQuery);
             ResultSet set = getSession().execute(statement);
@@ -406,7 +406,7 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
     }
 
     @Override
-    public <T> List<T> executeSelect(String s, Class<T> aClass, Map<String, String> map) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
+    public <T extends Entity> List<T> executeSelect(String s, Class<T> aClass, Map<String, String> map) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
         try{
             ResultSet set = getSession().execute(s);
             List<Row> rows = createRowsFrom(set);

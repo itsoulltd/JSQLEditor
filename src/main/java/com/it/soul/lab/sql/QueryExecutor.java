@@ -32,8 +32,8 @@ public interface QueryExecutor<S extends SQLQuery
 
     Integer getScalarValue(C scalarQuery) throws SQLException;
 
-    <T> List<T> executeSelect(String query, Class<T> type, Map<String, String> mappingKeys) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException;
-    <T> List<T> executeSelect(S query, Class<T> type, Map<String, String> mappingKeys) throws SQLException,IllegalArgumentException, IllegalAccessException, InstantiationException;
+    <T extends Entity> List<T> executeSelect(String query, Class<T> type, Map<String, String> mappingKeys) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException;
+    <T extends Entity> List<T> executeSelect(S query, Class<T> type, Map<String, String> mappingKeys) throws SQLException,IllegalArgumentException, IllegalAccessException, InstantiationException;
 
     <T extends Entity> List<T> executeCRUDQuery(String query, Class<T> type) throws SQLException, IllegalAccessException, InstantiationException;
 }
