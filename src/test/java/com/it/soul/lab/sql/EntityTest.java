@@ -152,6 +152,11 @@ public class EntityTest {
                 , passRow.toString());
         System.out.println(passRow.toString());
 
+        Row passRow2 = passenger.getRow("DOB");
+        Assert.assertEquals("{SEX=Male, ID=null, AGE=34, NAME=Pass}"
+                , passRow2.toString());
+        System.out.println(passRow2.toString());
+
         Owner me = new Owner();
         me.name = "Hi Pass";
         me.age = 36;
@@ -159,6 +164,11 @@ public class EntityTest {
         Assert.assertEquals("{car=null, name=Hi Pass, age=36}"
                 , def2.toString());
         System.out.println(def2.toString());
+
+        Row def3 = me.getRow("car");
+        Assert.assertEquals("{name=Hi Pass, age=36}"
+                , def3.toString());
+        System.out.println(def3.toString());
     }
 
     public static class Owner extends Entity {
