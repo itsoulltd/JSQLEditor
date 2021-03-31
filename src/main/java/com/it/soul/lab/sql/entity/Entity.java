@@ -677,4 +677,28 @@ public abstract class Entity implements EntityInterface{
 		}
 		return queries;
 	}
+
+	public static Row getRowDefinition(Class<? extends Entity> aClass, String...skipColumns) {
+		Row row = new Row();
+		Map<String, String> columnNameMap = mapColumnsToProperties(aClass);
+		List<String> skipList = Arrays.asList(skipColumns);
+		columnNameMap.forEach((columnName, fieldName) -> {
+			if (!skipList.contains(columnName))
+				row.add(columnName);
+		});
+		return row;
+	}
+
+	public Row getRow(String...skipColumns) {
+		Row row = new Row();
+		Class<? extends Entity> aClass = this.getClass();
+		Map<String, String> columnNameMap = mapColumnsToProperties(aClass);
+		Map<String, Object> data = marshallingToMap(true);
+		List<String> skipList = Arrays.asList(skipColumns);
+		columnNameMap.forEach((columnName, fieldName) -> {
+			if (!skipList.contains(columnName))
+				row.add(columnName, data.get(fieldName));
+		});
+		return row;
+	}
 }
