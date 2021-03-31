@@ -680,25 +680,49 @@ public abstract class Entity implements EntityInterface{
 
 	public static Row getRowDefinition(Class<? extends Entity> aClass, String...skipColumns) {
 		Row row = new Row();
-		Map<String, String> columnNameMap = mapColumnsToProperties(aClass);
 		List<String> skipList = Arrays.asList(skipColumns);
-		columnNameMap.forEach((columnName, fieldName) -> {
-			if (!skipList.contains(columnName))
-				row.add(columnName);
-		});
+		Map<String, String> columnNameMap = mapColumnsToProperties(aClass);
+		if (columnNameMap != null && !columnNameMap.isEmpty()){
+			//Map<columnName, fieldName> : mapColumnsToProperties(...)
+			for (Map.Entry<String, String> entry : columnNameMap.entrySet()) {
+				String columnName = entry.getKey();
+				if (!skipList.contains(columnName))
+					row.add(columnName);
+			}
+		}else{
+			for (Field field : Entity.getDeclaredFields(aClass, true)) {
+				if (field.isAnnotationPresent(Ignore.class))
+					continue;
+				if (!skipList.contains(field.getName()))
+					row.add(field.getName());
+			}
+		}
 		return row;
 	}
 
 	public Row getRow(String...skipColumns) {
 		Row row = new Row();
 		Class<? extends Entity> aClass = this.getClass();
-		Map<String, String> columnNameMap = mapColumnsToProperties(aClass);
-		Map<String, Object> data = marshallingToMap(true);
 		List<String> skipList = Arrays.asList(skipColumns);
-		columnNameMap.forEach((columnName, fieldName) -> {
-			if (!skipList.contains(columnName))
-				row.add(columnName, data.get(fieldName));
-		});
+		Map<String, Object> data = marshallingToMap(true);
+		//
+		Map<String, String> columnNameMap = mapColumnsToProperties(aClass);
+		if (columnNameMap != null && !columnNameMap.isEmpty()){
+			//Map<columnName, fieldName> : mapColumnsToProperties(...)
+			for (Map.Entry<String, String> entry : columnNameMap.entrySet()) {
+				String columnName = entry.getKey();
+				String fieldName = entry.getValue();
+				if (!skipList.contains(columnName))
+					row.add(columnName, data.get(fieldName));
+			}
+		}else {
+			for (Field field : Entity.getDeclaredFields(aClass, true)) {
+				if (field.isAnnotationPresent(Ignore.class))
+					continue;
+				if (!skipList.contains(field.getName()))
+					row.add(field.getName(), data.get(field.getName()));
+			}
+		}
 		return row;
 	}
 }

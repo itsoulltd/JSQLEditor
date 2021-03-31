@@ -2,9 +2,11 @@ package com.it.soul.lab.sql;
 
 import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.entity.Ignore;
+import com.it.soul.lab.sql.query.models.Row;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -125,6 +127,38 @@ public class EntityTest {
         loopCount = Double.valueOf(Math.ceil((rowCount * 1.0d / pageSize))).intValue();
         System.out.println("ceil->>" + Math.ceil((rowCount * 1.0d / pageSize)));
         Assert.assertEquals(3, loopCount);
+    }
+
+    @Test public void rowDefTest(){
+        Row def = Entity.getRowDefinition(Passenger.class);
+        Assert.assertEquals("{DOB=null, SEX=null, ID=null, AGE=null, NAME=null}"
+                                    , def.toString());
+        System.out.println(def.toString());
+
+        Row def2 = Entity.getRowDefinition(Owner.class);
+        Assert.assertEquals("{car=null, name=null, age=null}"
+                            , def2.toString());
+        System.out.println(def2.toString());
+    }
+
+    @Test public void rowValueTest(){
+        //
+        Passenger passenger = new Passenger();
+        passenger.setName("Pass");
+        passenger.setAge(34);
+        passenger.setSex("Male");
+        Row passRow = passenger.getRow();
+        Assert.assertEquals("{DOB=null, SEX=Male, ID=null, AGE=34, NAME=Pass}"
+                , passRow.toString());
+        System.out.println(passRow.toString());
+
+        Owner me = new Owner();
+        me.name = "Hi Pass";
+        me.age = 36;
+        Row def2 = me.getRow();
+        Assert.assertEquals("{car=null, name=Hi Pass, age=36}"
+                , def2.toString());
+        System.out.println(def2.toString());
     }
 
     public static class Owner extends Entity {
