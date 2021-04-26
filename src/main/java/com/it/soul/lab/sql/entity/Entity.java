@@ -5,10 +5,11 @@ import com.it.soul.lab.sql.query.*;
 import com.it.soul.lab.sql.query.models.*;
 
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Table;
 import java.lang.reflect.Field;
-import java.sql.*;
 import java.sql.Date;
+import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Consumer;
@@ -550,6 +551,22 @@ public abstract class Entity implements EntityInterface{
 		}else {
 			return type.getSimpleName();
 		}
+	}
+
+	public static <T extends Entity> boolean isAutoID(Class<T> type) {
+		boolean result = false;
+		for (Field field : type.getDeclaredFields()) {
+			if (field.isAnnotationPresent(PrimaryKey.class)){
+				PrimaryKey primaryKey = type.getAnnotation(PrimaryKey.class);
+				result = primaryKey.auto();
+				break;
+			}else if (field.isAnnotationPresent(GeneratedValue.class)){
+				GeneratedValue generatedValue = type.getAnnotation(GeneratedValue.class);
+				result = (generatedValue.strategy() == GenerationType.AUTO);
+				break;
+			}
+		}
+		return result;
 	}
 
 	public static <T extends Entity> List<T> read(Class<T>  type
