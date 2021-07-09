@@ -1,5 +1,6 @@
 package com.it.soul.lab.sql.query.builder;
 
+import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.query.*;
 import com.it.soul.lab.sql.query.models.*;
 
@@ -8,7 +9,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuilder
         , WhereExpressionBuilder, InsertBuilder, ScalarExpressionBuilder, GroupByBuilder
@@ -238,4 +238,29 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
     public ColumnsBuilder uniqueIndex(String name) {
         return this;
     }
+
+	@Override
+	public JoinOnBuilder join(Class<? extends Entity> cType, String... columns) {
+		return join(Entity.tableName(cType), columns);
+	}
+
+	@Override
+	public JoinOnBuilder joinAsAlice(Class<? extends Entity> cType, String alice, String... columns) {
+		return joinAsAlice(Entity.tableName(cType), alice, columns);
+	}
+
+	@Override
+	public JoinOnBuilder rejoin(Class<? extends Entity> cType) {
+		return rejoin(Entity.tableName(cType));
+	}
+
+	@Override
+	public WhereExpressionBuilder from(Class<? extends Entity> cType) {
+		return from(Entity.tableName(cType));
+	}
+
+	@Override
+	public ScalarExpressionBuilder on(Class<? extends Entity> cType) {
+		return on(Entity.tableName(cType));
+	}
 }
