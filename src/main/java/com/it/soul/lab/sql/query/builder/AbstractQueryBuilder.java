@@ -263,4 +263,14 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 	public ScalarExpressionBuilder on(Class<? extends Entity> cType) {
 		return on(Entity.tableName(cType));
 	}
+
+	@Override
+	public InsertBuilder into(Class<? extends Entity> cType) {
+		return into(Entity.tableName(cType));
+	}
+
+	@Override
+	public WhereExpressionBuilder rowsFrom(Class<? extends Entity> cType) {
+		return rowsFrom(Entity.tableName(cType));
+	}
 }
