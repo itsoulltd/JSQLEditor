@@ -12,6 +12,7 @@ import java.sql.Date;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public abstract class Entity implements EntityInterface{
@@ -742,4 +743,21 @@ public abstract class Entity implements EntityInterface{
 		}
 		return row;
 	}
+
+	public static <T extends Entity> Map<String, List<T>> groupBy(String groupByKey, List<T> rows){
+		Map<String, List<T>> results = new ConcurrentHashMap<>();
+		for (T row : rows) {
+			Map<String, Object> map = row.marshallingToMap(true);
+			String theKey = map.get(groupByKey).toString(); //key's value going to be the results-key
+			List<T> items = results.get(theKey);
+			if (items == null) {
+				items = new ArrayList<>();
+				results.put(theKey, items);
+			}
+			//
+			items.add(row);
+		}
+		return results;
+	}
+
 }
