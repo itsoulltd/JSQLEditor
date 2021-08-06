@@ -1,28 +1,19 @@
 package com.it.soul.lab.sql;
 
-import java.io.File;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-
 import com.it.soul.lab.connect.DriverClass;
 import com.it.soul.lab.connect.io.ScriptRunner;
+import com.it.soul.lab.sql.query.*;
 import com.it.soul.lab.sql.query.models.*;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.it.soul.lab.connect.JDBConnection;
-import com.it.soul.lab.sql.query.SQLDeleteQuery;
-import com.it.soul.lab.sql.query.SQLInsertQuery;
-import com.it.soul.lab.sql.query.SQLQuery;
-import com.it.soul.lab.sql.query.QueryType;
-import com.it.soul.lab.sql.query.SQLScalarQuery;
-import com.it.soul.lab.sql.query.SQLSelectQuery;
-import com.it.soul.lab.sql.query.SQLUpdateQuery;
+import java.io.File;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 public class QueryExecutionTest {
 	
@@ -62,7 +53,10 @@ public class QueryExecutionTest {
 		
 		try{
 			
-			SQLSelectQuery query = (SQLSelectQuery) new SQLQuery.Builder(QueryType.SELECT).columns().from("Passenger").build();
+			SQLSelectQuery query = new SQLQuery.Builder(QueryType.SELECT)
+					.columns()
+					.from(Passenger.class)
+					.build();
 			ResultSet set = exe.executeSelect(query);
 			List<Map<String,Object>> x = exe.convertToKeyValuePair(set);
 			exe.displayCollection(x);
@@ -82,9 +76,9 @@ public class QueryExecutionTest {
 		//Compact and smart way:
 		Predicate compWith = new Where("name").isEqualTo("towhid");
 
-		SQLSelectQuery qc = (SQLSelectQuery) new SQLQuery.Builder(QueryType.SELECT)
+		SQLSelectQuery qc = new SQLQuery.Builder(QueryType.SELECT)
 															.columns()
-															.from("Passenger")
+															.from(Passenger.class)
 															.where(compWith)
 															.build();
 		try {
@@ -102,7 +96,7 @@ public class QueryExecutionTest {
 	public void testInsert(){
 		//Insert into
 		SQLInsertQuery iQuery2 = (SQLInsertQuery) new SQLQuery.Builder(QueryType.INSERT)
-										.into("Passenger")
+										.into(Passenger.class)
 										.values(new Property("name","tanvir"), new Property("age", 28), new Property("sex"))
 										.build();
 		try {
@@ -118,7 +112,10 @@ public class QueryExecutionTest {
 	public void updateTest(){
 		
 		try {
-			SQLScalarQuery max = (SQLScalarQuery) new SQLQuery.Builder(QueryType.MAX).columns("id").on("Passenger").build();
+			SQLScalarQuery max = (SQLScalarQuery) new SQLQuery.Builder(QueryType.MAX)
+					.columns("id")
+					.on(Passenger.class)
+					.build();
 			int autoId = exe.getScalarValue(max);
 			Assert.assertTrue("Get Max value", true);
 
@@ -132,7 +129,7 @@ public class QueryExecutionTest {
 
 					SQLUpdateQuery upQuery = new SQLQuery.Builder(QueryType.UPDATE)
 											.set(values)
-											.from("Passenger")
+											.from(Passenger.class)
 											.where(compareWith)
 											.build();
 
