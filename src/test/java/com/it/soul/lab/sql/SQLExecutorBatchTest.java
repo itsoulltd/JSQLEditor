@@ -63,7 +63,7 @@ public class SQLExecutorBatchTest {
     @Test
     public void seeAll(){
         SQLSelectQuery selectQuery = new SQLQuery.Builder(QueryType.SELECT)
-                .columns().from("Passenger")
+                .columns().from(Passenger.class)
                 .build();
         try {
             List<Passenger> all = exe.collection(exe.executeSelect(selectQuery)).inflate(Passenger.class);
@@ -81,7 +81,7 @@ public class SQLExecutorBatchTest {
     public void updateQueryValueBinding(){
         SQLUpdateQuery updateQuery = new SQLQuery.Builder(QueryType.UPDATE)
                 .set(new Property("name", "Towhid"), new Property("age", 36), new Property("sex", "male"))
-                .from("Passenger")
+                .from(Passenger.class)
                 .where(new Where("uuid").notNull())
                 .build();
         String buffer = updateQuery.bindValueToString();
@@ -89,14 +89,14 @@ public class SQLExecutorBatchTest {
         //
         updateQuery = new SQLQuery.Builder(QueryType.UPDATE)
                 .set(new Property("name", "Towhid"), new Property("age", 36), new Property("sex", "male"))
-                .from("Passenger")
-                .where(new Where("uuid").isEqualTo(UUID.randomUUID().toString()))
+                .from(Passenger.class)
+                .where(new Where("uuid").isIn(UUID.randomUUID().toString(), "adaa"))
                 .build();
         buffer = updateQuery.bindValueToString();
         System.out.println(buffer);
         //
         SQLInsertQuery insertQuery = new SQLQuery.Builder(QueryType.INSERT)
-                .into("Passenger")
+                .into(Passenger.class)
                 .values(new Property("name", "Towhid"), new Property("age", 36), new Property("sex", "male"))
                 .build();
         buffer = insertQuery.bindValueToString();
@@ -106,7 +106,7 @@ public class SQLExecutorBatchTest {
     @Test
     public void executeUpdate() {
         SQLSelectQuery selectQuery = new SQLQuery.Builder(QueryType.SELECT)
-                .columns().from("Passenger")
+                .columns().from(Passenger.class)
                 //.where(new Where("name").isLike("%tan%"))
                 .build();
         try {
@@ -140,7 +140,7 @@ public class SQLExecutorBatchTest {
     @Test
     public void executeUpdateV2() {
         SQLSelectQuery selectQuery = new SQLQuery.Builder(QueryType.SELECT)
-                .columns().from("Passenger")
+                .columns().from(Passenger.class)
                 //.where(new Where("name").isLike("%tan%"))
                 .build();
         try {
