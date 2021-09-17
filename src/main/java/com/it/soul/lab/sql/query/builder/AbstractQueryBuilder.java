@@ -222,6 +222,11 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 	}
 
 	@Override
+	public JoinBuilder on(String leftColumn, String rightColumn) {
+		return on(new JoinExpression(leftColumn, rightColumn));
+	}
+
+	@Override
 	public JoinOnBuilder rejoin(String table) {
 		if(tempQuery instanceof SQLJoinQuery) {
 			((SQLJoinQuery)tempQuery).setReJoins(table);

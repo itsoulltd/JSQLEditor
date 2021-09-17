@@ -314,9 +314,9 @@ public class QueryBuilderTest {
 	@Test public void JoinTest() {
 		SQLJoinQuery join = new SQLQuery.Builder(QueryType.INNER_JOIN)
 				.join("Customers", "CustomerName")
-				.on(new JoinExpression("CustomerID", "CustomerID"))
+				.on("CustomerID", "CustomerID")
 				.join("Orders", "OrderID")
-				.on(new JoinExpression("ShipperID", "ShipperID"))
+				.on("ShipperID", "ShipperID")
 				.join("Shippers", "ShipperName").build();
 		
 		String expected = 	"SELECT Customers.CustomerName, Orders.OrderID, Shippers.ShipperName " + 
@@ -331,7 +331,7 @@ public class QueryBuilderTest {
 	@Test public void LeftJoinTest() {
 		SQLJoinQuery join = new SQLQuery.Builder(QueryType.LEFT_JOIN)
 				.join("Customers", "CustomerName")
-				.on(new JoinExpression("CustomerID", "CustomerID"))
+				.on("CustomerID", "CustomerID")
 				.join("Orders", "OrderID")
 				.where(new Where("Customers.createDate").isGreaterThen("2020-11-05"))
 				.groupBy("Customers.CustomerName")
@@ -354,7 +354,7 @@ public class QueryBuilderTest {
 	@Test public void LeftJoinAsAliceTest() {
 		SQLJoinQuery join = new SQLQuery.Builder(QueryType.LEFT_JOIN)
 				.join("Customers", "CustomerName")
-				.on(new JoinExpression("CustomerID", "CustomerID"))
+				.on("CustomerID", "CustomerID")
 				.joinAsAlice("Orders", "myAlice", "OrderID")
 				.where(new Where("Customers.createDate").isGreaterThen("2020-11-05"))
 				.groupBy("Customers.CustomerName")
@@ -377,10 +377,10 @@ public class QueryBuilderTest {
 	@Test public void LeftJoinAsAliceTest2() {
 		SQLJoinQuery join = new SQLQuery.Builder(QueryType.LEFT_JOIN)
 				.joinAsAlice("Customers", "cs", "CustomerName")
-				.on(new JoinExpression("CustomerID", "CustomerID"))
+				.on("CustomerID", "CustomerID")
 				.joinAsAlice("Orders", "myAlice", "OrderID")
 				.rejoin("Customers")
-				.on(new JoinExpression("supplierID", "supplierID"))
+				.on("supplierID", "supplierID")
 				.join("Supplier")
 				.where(new Where("Customers.createDate").isGreaterThen("2020-11-05"))
 				.groupBy("Customers.CustomerName")
@@ -413,10 +413,10 @@ public class QueryBuilderTest {
 
 		SQLJoinQuery join = new SQLQuery.Builder(QueryType.LEFT_JOIN)
 				.join("_tm_audit_datas", "audit_type as 'TYPE'", "shop_outside_media as 'IMG_PATH'")
-				.on(new JoinExpression("fk_uddokta_id", "pk_uddokta_id"))
+				.on("fk_uddokta_id", "pk_uddokta_id")
 				.join("_uddoktas", "fullname as 'NAME'", "wallet_number as 'WALLET'")
 				.rejoin("_tm_audit_datas")
-				.on(new JoinExpression("fk_tm_id", "pk_user_id"))
+				.on("fk_tm_id", "pk_user_id")
 				.join("_users", "u_firstname as 'DSO-NAME'", "u_contact_number as 'DSO-WALLET'")
 				.where(where)
 				.groupBy("_uddoktas.wallet_number")
