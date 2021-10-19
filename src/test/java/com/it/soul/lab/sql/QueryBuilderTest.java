@@ -17,6 +17,7 @@ public class QueryBuilderTest {
 	private static String SELECT_NAME_ID = "SELECT name, id FROM Passenger";
 	private static String SELECT_WHERE_OR = "SELECT name, age FROM Passenger WHERE id = ? OR age = ?";
 	private static String SELECT_WHERE = "SELECT name, age FROM Passenger WHERE ( name LIKE ? OR ( id = ? AND age >= ? ) )";
+	private static String SELECT_WHERE_AND = "SELECT name, age FROM Passenger WHERE ( id = ? AND age = ? )";
 	
 	private static String COUNT_VALUE = "SELECT COUNT(id) FROM Passenger WHERE name = 'sohana'";
 	private static String COUNT_WHERE = "SELECT COUNT(*) FROM Passenger WHERE name = ?";
@@ -81,6 +82,19 @@ public class QueryBuilderTest {
 									.build();
 		
 		Assert.assertEquals(SELECT_WHERE, qu6.toString());
+	}
+
+	@Test
+	public void select_where_PredicateTest(){
+
+		SQLSelectQuery qu6 = new SQLQuery.Builder(QueryType.SELECT)
+				.columns("name","age")
+				.from("Passenger")
+				.where(() -> new Where("id").isEqualTo("kajalrer")
+							.and("age").isEqualTo(18))
+				.build();
+
+		Assert.assertEquals(SELECT_WHERE_AND, qu6.toString());
 	}
 	
 	@Test

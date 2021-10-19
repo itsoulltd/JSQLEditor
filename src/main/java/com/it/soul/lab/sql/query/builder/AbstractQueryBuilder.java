@@ -6,6 +6,7 @@ import com.it.soul.lab.sql.query.models.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -277,5 +278,10 @@ public abstract class AbstractQueryBuilder implements ColumnsBuilder, TableBuild
 	@Override
 	public WhereExpressionBuilder rowsFrom(Class<? extends Entity> cType) {
 		return rowsFrom(Entity.tableName(cType));
+	}
+
+	@Override
+	public GroupByBuilder where(Supplier<ExpressionInterpreter> supplier) {
+		return this.where(supplier.get());
 	}
 }
