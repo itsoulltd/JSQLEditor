@@ -558,12 +558,13 @@ public abstract class Entity implements EntityInterface{
 		boolean result = false;
 		for (Field field : type.getDeclaredFields()) {
 			if (field.isAnnotationPresent(PrimaryKey.class)){
-				PrimaryKey primaryKey = type.getAnnotation(PrimaryKey.class);
+				PrimaryKey primaryKey = field.getAnnotation(PrimaryKey.class);
 				result = primaryKey.auto();
 				break;
 			}else if (field.isAnnotationPresent(GeneratedValue.class)){
-				GeneratedValue generatedValue = type.getAnnotation(GeneratedValue.class);
-				result = (generatedValue.strategy() == GenerationType.AUTO);
+				GeneratedValue generatedValue = field.getAnnotation(GeneratedValue.class);
+				result = (generatedValue.strategy() == GenerationType.AUTO
+							|| generatedValue.strategy() == GenerationType.IDENTITY);
 				break;
 			}
 		}
