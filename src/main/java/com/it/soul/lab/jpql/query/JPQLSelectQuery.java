@@ -19,7 +19,7 @@ public class JPQLSelectQuery extends SQLSelectQuery {
 	
 	@Override
 	protected void prepareTableName(String name) {
-		pqlBuffer.append(" FROM "+ name + " " + QUIENTIFIER);
+		pqlBuffer.append(" FROM "+ name + " " + QUANTIFIER);
 	}
 	
 	@Override
@@ -30,12 +30,12 @@ public class JPQLSelectQuery extends SQLSelectQuery {
 			for(String str : getColumns()){
 				if(str.trim().equals("")){continue;}
 				if(count++ != 0){pqlBuffer.append(", ");}
-				pqlBuffer.append( QUIENTIFIER + "." + str);
+				pqlBuffer.append( QUANTIFIER + "." + str);
 			}
 			//If all passed parameter is empty
-			if(count == 0){pqlBuffer.append(QUIENTIFIER);}
+			if(count == 0){pqlBuffer.append(QUANTIFIER);}
 		}else{
-			pqlBuffer.append(QUIENTIFIER);
+			pqlBuffer.append(QUANTIFIER);
 		}
 	}
 	
@@ -56,7 +56,7 @@ public class JPQLSelectQuery extends SQLSelectQuery {
 				for( Expression param : whereParams ){
 					if(param.getProperty().trim().equals("")){continue;}
 					if(count++ != 0){pqlBuffer.append( " " + getLogic().name() + " ");}
-					pqlBuffer.append(QUIENTIFIER + "." + param.getProperty()+ " " + param.getType().toString() + " :" + param.getProperty());
+					pqlBuffer.append(QUANTIFIER + "." + param.getProperty()+ " " + param.getType().toString() + " :" + param.getProperty());
 				}
 			}
 		}
@@ -66,26 +66,26 @@ public class JPQLSelectQuery extends SQLSelectQuery {
 	protected void prepareWhereExpression(ExpressionInterpreter whereExpression) {
 		Expression[] resolved = whereExpression.resolveExpressions();
 		for (Expression comp : resolved) {
-			comp.setQuientifier(QUIENTIFIER).setMarker(":"+comp.getProperty());
+			comp.setQuantifier(QUANTIFIER).setMarker(":"+comp.getProperty());
 		}
 		pqlBuffer.append(" WHERE " + whereExpression.interpret());
 		for (Expression comp : resolved) {
-			comp.setQuientifier(' ');
+			comp.setQuantifier(' ');
 		}
 	}
 	
 	@Override
 	public void setOrderBy(List<String> columns, Operator opt) {
-		setQuientifier(QUIENTIFIER);
+		setQuantifier(QUANTIFIER);
 		super.setOrderBy(columns, opt);
-		setQuientifier(' ');
+		setQuantifier(' ');
 	}
 	
 	@Override
 	public void setGroupBy(List<String> columns) {
-		setQuientifier(QUIENTIFIER);
+		setQuantifier(QUANTIFIER);
 		super.setGroupBy(columns);
-		setQuientifier(' ');
+		setQuantifier(' ');
 	}
 	
 }

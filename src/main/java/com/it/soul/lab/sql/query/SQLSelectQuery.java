@@ -14,7 +14,7 @@ public class SQLSelectQuery extends SQLQuery{
 	protected List<String> orderByList;
 	protected List<String> groupByList;
 	protected ExpressionInterpreter havingInterpreter;
-	private char quientifier = ' '; //Default is empty space
+	private char quantifier = ' '; //Default is empty space
 	
 	public SQLSelectQuery() {
 		this.pqlBuffer = new StringBuffer("SELECT ");
@@ -26,17 +26,17 @@ public class SQLSelectQuery extends SQLQuery{
 		return pqlBuffer.toString();
 	}
 	
-	protected SQLSelectQuery setQuientifier(char quientifier){
-		this.quientifier = quientifier;
+	protected SQLSelectQuery setQuantifier(char quantifier){
+		this.quantifier = quantifier;
 		return this;
 	}
 	
-	protected char getQuientifier() {
-		return quientifier;
+	protected char getQuantifier() {
+		return quantifier;
 	}
 	
-	protected Boolean quientifierEnabled(){
-		return Character.isWhitespace(quientifier) == false;
+	protected Boolean quantifierEnabled(){
+		return Character.isWhitespace(quantifier) == false;
 	}
 
 	public void setLimit(Integer limit, Integer offset) {
@@ -65,7 +65,7 @@ public class SQLSelectQuery extends SQLQuery{
 			for(String col : columns) {
 				if(col.trim().equals("")){continue;}
 				if(count++ != 0){orderBuffer.append(", ");}
-				if(quientifierEnabled()) {orderBuffer.append(getQuientifier() + "." + col);}
+				if(quantifierEnabled()) {orderBuffer.append(getQuantifier() + "." + col);}
 				else {orderBuffer.append(col);}
 				if (opt != null) {orderBuffer.append(" " + opt.toString());}
 			}
@@ -84,7 +84,7 @@ public class SQLSelectQuery extends SQLQuery{
 			for(String col : columns) {
 				if(col.trim().equals("")){continue;}
 				if(count++ != 0){groupBuffer.append(", ");}
-				if(quientifierEnabled()){groupBuffer.append(getQuientifier() + "." + col);}
+				if(quantifierEnabled()){groupBuffer.append(getQuantifier() + "." + col);}
 				else {groupBuffer.append(col);}
 			}
 			if (count > 0) {
@@ -228,14 +228,14 @@ public class SQLSelectQuery extends SQLQuery{
 			for(String str : projectionParams){
 				if(str.trim().equals("")){continue;}
 				if(count++ != 0){pqlBuffer.append(", ");}
-				pqlBuffer.append( QUIENTIFIER + "." + str);
+				pqlBuffer.append( QUANTIFIER + "." + str);
 			}
 			//If all passed parameter is empty
-			if(count == 0){pqlBuffer.append(QUIENTIFIER + "." + STARIC);}
+			if(count == 0){pqlBuffer.append(QUANTIFIER + "." + STARIC);}
 		}else{
-			pqlBuffer.append(QUIENTIFIER + "." + STARIC);
+			pqlBuffer.append(QUANTIFIER + "." + STARIC);
 		}
-		pqlBuffer.append(" FROM "+ tableName + " " + QUIENTIFIER);
+		pqlBuffer.append(" FROM "+ tableName + " " + QUANTIFIER);
 		return pqlBuffer.toString();
 	}
 

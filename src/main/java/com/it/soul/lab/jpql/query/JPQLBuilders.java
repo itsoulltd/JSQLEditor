@@ -10,7 +10,7 @@ import com.it.soul.lab.sql.query.models.Logic;
 @Deprecated @SuppressWarnings("Duplicates")
 public class JPQLBuilders {
 	
-	private static final char QUIENTIFIER = 'e';
+	private static final char QUANTIFIER = 'e';
 	
 	/**
 	 * 
@@ -44,18 +44,18 @@ public class JPQLBuilders {
 				if(count++ != 0){
 					pqlBuffer.append(", ");
 				}
-				pqlBuffer.append( QUIENTIFIER + "." + str);
+				pqlBuffer.append( QUANTIFIER + "." + str);
 			}
 			//If all passed parameter is empty
 			if(count == 0){
-				pqlBuffer.append(QUIENTIFIER);
+				pqlBuffer.append(QUANTIFIER);
 			}
 		}else{
 			
-			pqlBuffer.append(QUIENTIFIER);
+			pqlBuffer.append(QUANTIFIER);
 		}
 		
-		pqlBuffer.append(" FROM "+ tableName + " " + QUIENTIFIER);
+		pqlBuffer.append(" FROM "+ tableName + " " + QUANTIFIER);
 		//
 		return pqlBuffer.toString();
 	}
@@ -95,7 +95,7 @@ public class JPQLBuilders {
 				if(count++ != 0){
 					pqlBuffer.append( " " + whereLogic.name() + " ");
 				}
-				pqlBuffer.append( QUIENTIFIER + "." + param + " = :" + param);
+				pqlBuffer.append( QUANTIFIER + "." + param + " = :" + param);
 			}
 		}
 		//
@@ -138,7 +138,7 @@ public class JPQLBuilders {
 				if(count++ != 0){
 					pqlBuffer.append( " " + whereLogic.name() + " ");
 				}
-				pqlBuffer.append( QUIENTIFIER + "." + param.getKey()+ " " + param.getValue().toString() + " :" + param.getKey());
+				pqlBuffer.append( QUANTIFIER + "." + param.getKey()+ " " + param.getValue().toString() + " :" + param.getKey());
 			}
 		}
 		//
@@ -171,7 +171,7 @@ public class JPQLBuilders {
 			throw iex;
 		}
 		
-		StringBuffer pqlBuffer = new StringBuffer("UPDATE " + tableName + " " + QUIENTIFIER + " SET ");
+		StringBuffer pqlBuffer = new StringBuffer("UPDATE " + tableName + " " + QUANTIFIER + " SET ");
 		
 		if(setParams != null && setParams.length > 0){
 			
@@ -184,7 +184,7 @@ public class JPQLBuilders {
 				if(count++ != 0){
 					pqlBuffer.append(", ");
 				}
-				pqlBuffer.append( QUIENTIFIER + "." + str + " = :" + str);
+				pqlBuffer.append( QUANTIFIER + "." + str + " = :" + str);
 			}
 		}
 		
@@ -200,7 +200,7 @@ public class JPQLBuilders {
 				if(count++ != 0){
 					pqlBuffer.append( " " + whereLogic.name() + " ");
 				}
-				pqlBuffer.append( QUIENTIFIER + "." + param + " = :" + param);
+				pqlBuffer.append( QUANTIFIER + "." + param + " = :" + param);
 			}
 		}
 		

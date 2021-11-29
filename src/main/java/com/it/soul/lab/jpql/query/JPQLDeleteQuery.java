@@ -10,7 +10,7 @@ public class JPQLDeleteQuery extends SQLDeleteQuery {
 
     @Override
     protected void prepareTableName(String name) {
-        pqlBuffer.append(name + " " + QUIENTIFIER + " ");
+        pqlBuffer.append(name + " " + QUANTIFIER + " ");
     }
 
     @Override @SuppressWarnings("Duplicates")
@@ -25,7 +25,7 @@ public class JPQLDeleteQuery extends SQLDeleteQuery {
                 for(Expression param : whereParams){
                     if(param.getProperty().trim().equals("")){continue;}
                     if(count++ != 0){pqlBuffer.append( " " + getLogic().name() + " ");}
-                    pqlBuffer.append( QUIENTIFIER + "." + param.getProperty() + " " + param.getType().toString() + " " + ":" + param.getProperty());
+                    pqlBuffer.append( QUANTIFIER + "." + param.getProperty() + " " + param.getType().toString() + " " + ":" + param.getProperty());
                 }
             }
         }
@@ -35,11 +35,11 @@ public class JPQLDeleteQuery extends SQLDeleteQuery {
     protected void prepareWhereExpression(ExpressionInterpreter whereExpression) {
         Expression[] resolved = whereExpression.resolveExpressions();
         for (Expression comp : resolved) {
-            comp.setQuientifier(QUIENTIFIER).setMarker(":"+comp.getProperty());
+            comp.setQuantifier(QUANTIFIER).setMarker(":"+comp.getProperty());
         }
         pqlBuffer.append("WHERE " + whereExpression.interpret());
         for (Expression comp : resolved) {
-            comp.setQuientifier(' ');
+            comp.setQuantifier(' ');
         }
     }
 }

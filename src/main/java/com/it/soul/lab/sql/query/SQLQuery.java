@@ -95,7 +95,7 @@ public abstract class SQLQuery {
 	public void setLogic(Logic logic) {
 		this.logic = logic;
 	}
-	protected static final char QUIENTIFIER = 'e';
+	protected static final char QUANTIFIER = 'e';
 	protected static final char STARIC = '*';
 	protected static final char MARKER = '?';
 	

@@ -79,7 +79,7 @@ public class SQLJoinQuery extends SQLSelectQuery {
 			for(String col : columns) {
 				if(col.trim().equals("")){continue;}
 				if(count++ != 0){groupBuffer.append(", ");}
-				if(quientifierEnabled()){groupBuffer.append(getQuientifier() + "." + col);}
+				if(quantifierEnabled()){groupBuffer.append(getQuantifier() + "." + col);}
 				else {groupBuffer.append(col);}
 			}
 			if (count > 0) {

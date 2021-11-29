@@ -34,8 +34,8 @@ public class Expression implements ExpressionInterpreter{
 	public Property getValueProperty() {
 		return valueProperty;
 	}
-	public Expression setQuientifier(char quientifier){
-		this.quientifier = quientifier;
+	public Expression setQuantifier(char quantifier){
+		this.quantifier = quantifier;
 		return this;
 	}
 	public Expression setMarker(String marker){
@@ -47,7 +47,7 @@ public class Expression implements ExpressionInterpreter{
 	private String property;
 	private Operator type;
 	private Property valueProperty;
-	private char quientifier = ' '; //Default is empty space
+	private char quantifier = ' '; //Default is empty space
 	private String expressMarker = String.valueOf(MARKER);
 	
 	public static List<Expression> createListFrom(String[] names, Operator type){
@@ -69,7 +69,7 @@ public class Expression implements ExpressionInterpreter{
 		return props;
 	}
 	public String toString(){
-		if (Character.isWhitespace(quientifier) == false) {return  quientifier+ "." + getProperty() + " " + type.toString() + " " + getPropertyValue(valueProperty);}
+		if (Character.isWhitespace(quantifier) == false) {return  quantifier+ "." + getProperty() + " " + type.toString() + " " + getPropertyValue(valueProperty);}
 		else {return getProperty() + " " + type.toString() + " " + getPropertyValue(valueProperty);}
 	}
 	private String getPropertyValue(Property val){
@@ -94,8 +94,8 @@ public class Expression implements ExpressionInterpreter{
     }
 	@Override
 	public String interpret() {
-		if (Character.isWhitespace(quientifier) == false) {
-		    return quientifier+ "." + getProperty() + " " + type.toString() + " " + (shouldInsertMarker() ? expressMarker : "");
+		if (Character.isWhitespace(quantifier) == false) {
+		    return quantifier+ "." + getProperty() + " " + type.toString() + " " + (shouldInsertMarker() ? expressMarker : "");
 		}else {
 			return getProperty() + " " + type.toString() + " " + (shouldInsertMarker() ? MARKER : "");
 		}
@@ -105,8 +105,8 @@ public class Expression implements ExpressionInterpreter{
 		return new Expression[] {this};
 	}
 
-    protected char getQuientifier() {
-        return quientifier;
+    protected char getQuantifier() {
+        return quantifier;
     }
 
     protected String getExpressMarker() {

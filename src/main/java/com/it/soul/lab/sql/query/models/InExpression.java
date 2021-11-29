@@ -18,9 +18,9 @@ public class InExpression extends Expression {
             List items = (List) getValueProperty().getValue();
             if (items.size() > 0) {
                 StringBuffer buffer = new StringBuffer();
-                if (Character.isWhitespace(getQuientifier()) == false){
+                if (Character.isWhitespace(getQuantifier()) == false){
                     buffer.append( " " + getExpressMarker());
-                    return getQuientifier()+ "." + getProperty() + " " + getType().toString() + " (" + buffer.toString().replaceFirst(",", "") + " )";
+                    return getQuantifier()+ "." + getProperty() + " " + getType().toString() + " (" + buffer.toString().replaceFirst(",", "") + " )";
                 }
                 else {
                     //items.forEach(o -> buffer.append(", " + getMARKER()));

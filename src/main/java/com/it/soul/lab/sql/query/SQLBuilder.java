@@ -11,7 +11,7 @@ import com.it.soul.lab.sql.query.models.Property;
 @Deprecated @SuppressWarnings("Duplicates")
 public class SQLBuilder {
 	
-	private static final char QUIENTIFIER = 'e';
+	private static final char QUANTIFIER = 'e';
 	private static final char STARIC = '*';
 	private static final char marker = '?';
 	private static final String COUNT_FUNC = "Count";//"COUNT";
@@ -171,17 +171,17 @@ public class SQLBuilder {
 				if(count++ != 0){
 					pqlBuffer.append(", ");
 				}
-				pqlBuffer.append( QUIENTIFIER + "." + str);
+				pqlBuffer.append( QUANTIFIER + "." + str);
 			}
 			//If all passed parameter is empty
 			if(count == 0){
-				pqlBuffer.append(QUIENTIFIER + "." + STARIC);
+				pqlBuffer.append(QUANTIFIER + "." + STARIC);
 			}
 		}else{
 			
-			pqlBuffer.append(QUIENTIFIER + "." + STARIC);
+			pqlBuffer.append(QUANTIFIER + "." + STARIC);
 		}
-		pqlBuffer.append(" From "+ tableName + " " + QUIENTIFIER);
+		pqlBuffer.append(" From "+ tableName + " " + QUANTIFIER);
 		//
 		return pqlBuffer.toString();
 	}
@@ -222,7 +222,7 @@ public class SQLBuilder {
 					if(count++ != 0){
 						pqlBuffer.append( " " + whereLogic.name() + " ");
 					}
-					pqlBuffer.append( QUIENTIFIER + "." + param + " = " + marker);
+					pqlBuffer.append( QUANTIFIER + "." + param + " = " + marker);
 				}
 			}
 		}
@@ -266,7 +266,7 @@ public class SQLBuilder {
 					if(count++ != 0){
 						pqlBuffer.append( " " + whereLogic.name() + " ");
 					}
-					pqlBuffer.append( QUIENTIFIER + "." + param.getKey() + " " +  param.getValue().toString() + " " + marker);
+					pqlBuffer.append( QUANTIFIER + "." + param.getKey() + " " +  param.getValue().toString() + " " + marker);
 				}
 			}
 		}
@@ -540,7 +540,7 @@ public class SQLBuilder {
 		}
 		
 		//Query Builders
-		//StringBuffer pqlBuffer = new StringBuffer("DELETE FROM "+ tableName + " " + QUIENTIFIER );
+		//StringBuffer pqlBuffer = new StringBuffer("DELETE FROM "+ tableName + " " + QUANTIFIER );
 		StringBuffer pqlBuffer = new StringBuffer("Delete From "+ tableName + " " );
 		
 		if(whereParams != null 
@@ -560,7 +560,7 @@ public class SQLBuilder {
 					if(count++ != 0){
 						pqlBuffer.append( " " + whereLogic.name() + " ");
 					}
-					//pqlBuffer.append( QUIENTIFIER + "." + param + " = " + marker);
+					//pqlBuffer.append( QUANTIFIER + "." + param + " = " + marker);
 					pqlBuffer.append( param + " = " + marker);
 				}
 			}

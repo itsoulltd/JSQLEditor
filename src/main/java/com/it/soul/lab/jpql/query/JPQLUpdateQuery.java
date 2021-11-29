@@ -11,7 +11,7 @@ public class JPQLUpdateQuery extends SQLUpdateQuery {
 	
 	@Override
 	protected void prepareTableName(String name) {
-		pqlBuffer.append(getTableName() + " " + QUIENTIFIER + " SET");
+		pqlBuffer.append(getTableName() + " " + QUANTIFIER + " SET");
 	}
 	
 	@Override
@@ -21,7 +21,7 @@ public class JPQLUpdateQuery extends SQLUpdateQuery {
 			for(String column : getColumns()){
 				if(column.trim().equals("")){continue;}
 				if(count++ != 0){paramBuffer.append(", ");}
-				paramBuffer.append( QUIENTIFIER + "." + column + " = :" + column);
+				paramBuffer.append( QUANTIFIER + "." + column + " = :" + column);
 			}
 		}
 	}
@@ -43,7 +43,7 @@ public class JPQLUpdateQuery extends SQLUpdateQuery {
 				for(Expression param : whereParams){
 					if(param.getProperty().trim().equals("")){continue;}
 					if(count++ != 0){whereBuffer.append( " " + getLogic().name() + " ");}
-					whereBuffer.append( QUIENTIFIER + "." + param.getProperty() + " " + param.getType().toString() + " " + ":" + param.getProperty());
+					whereBuffer.append( QUANTIFIER + "." + param.getProperty() + " " + param.getType().toString() + " " + ":" + param.getProperty());
 				}
 			}
 		}
@@ -53,11 +53,11 @@ public class JPQLUpdateQuery extends SQLUpdateQuery {
 	protected void prepareWhereExpression(ExpressionInterpreter whereExpression) {
 		Expression[] resolved = whereExpression.resolveExpressions();
 		for (Expression comp : resolved) {
-			comp.setQuientifier(QUIENTIFIER).setMarker(":"+comp.getProperty());
+			comp.setQuantifier(QUANTIFIER).setMarker(":"+comp.getProperty());
 		}
 		whereBuffer.append("WHERE " + whereExpression.interpret());
 		for (Expression comp : resolved) {
-			comp.setQuientifier(' ');
+			comp.setQuantifier(' ');
 		}
 	}
 }
