@@ -1,5 +1,6 @@
 package com.it.soul.lab.jpql.service;
 
+import com.it.soul.lab.connect.DriverClass;
 import com.it.soul.lab.jpql.query.JPQLDeleteQuery;
 import com.it.soul.lab.jpql.query.JPQLQuery;
 import com.it.soul.lab.jpql.query.JPQLSelectQuery;
@@ -186,6 +187,11 @@ public class JPQLExecutor extends AbstractExecutor implements QueryExecutor<JPQL
             }
         }
         return typedQuery.getResultList();
+    }
+
+    @Override
+    public DriverClass getDialect() {
+        return null;
     }
 
     protected boolean isTransactionActive(){

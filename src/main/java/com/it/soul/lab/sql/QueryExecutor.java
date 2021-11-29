@@ -1,5 +1,6 @@
 package com.it.soul.lab.sql;
 
+import com.it.soul.lab.connect.DriverClass;
 import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.SQLQuery;
@@ -35,4 +36,6 @@ public interface QueryExecutor<S extends SQLQuery
     <T extends Entity> List<T> executeSelect(S query, Class<T> type, Map<String, String> mappingKeys) throws SQLException,IllegalArgumentException, IllegalAccessException, InstantiationException;
 
     <T extends Entity> List<T> executeCRUDQuery(String query, Class<T> type) throws SQLException, IllegalAccessException, InstantiationException;
+
+    DriverClass getDialect();
 }

@@ -22,8 +22,10 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 
 	public static class Builder {
 		private JDBConnection.Builder connectionBuilder;
+		private DriverClass driver;
 		public Builder(DriverClass driver){
 			connectionBuilder = new JDBConnection.Builder(driver);
+			this.driver = driver;
 		}
 		public Builder host(String name, String port) {
 			connectionBuilder.host(name, port);
@@ -43,12 +45,24 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		}
 		public SQLExecutor build() throws Exception {
 			Connection conn = connectionBuilder.build();
-			return new SQLExecutor(conn);
+			SQLExecutor executor = new SQLExecutor(conn);
+			executor.setDialect(driver);
+			return executor;
 		}
 	}
 
 	private Logger LOG = Logger.getLogger(this.getClass().getSimpleName());
-	private Connection conn = null;
+	private final Connection conn;
+	private DriverClass dialect = DriverClass.MYSQL;
+
+	@Override
+	public DriverClass getDialect() {
+		return dialect;
+	}
+
+	public void setDialect(DriverClass dialect){
+		this.dialect = dialect;
+	}
 
 	public SQLExecutor(Connection conn){ this.conn = conn; }
 	
