@@ -50,8 +50,12 @@ public class SQLSelectQuery extends SQLQuery{
 		//orc.query.limit.format=OFFSET %s ROWS FETCH NEXT %s ROWS ONLY
 		//orc.query.limit.format=LIMIT %s OFFSET %s
 		if (limit > 0) {
-			pqlBuffer.append(" LIMIT " + limit) ;
-			if (offset > 0) { pqlBuffer.append(" OFFSET " + offset) ;}
+			if (dialect == DriverClass.OracleOCI9i){
+				pqlBuffer.append(String.format("OFFSET %s ROWS FETCH NEXT %s ROWS ONLY", offset, limit));
+			}else {
+				pqlBuffer.append(" LIMIT " + limit) ;
+				if (offset > 0) { pqlBuffer.append(" OFFSET " + offset) ;}
+			}
 		}
 	}
 

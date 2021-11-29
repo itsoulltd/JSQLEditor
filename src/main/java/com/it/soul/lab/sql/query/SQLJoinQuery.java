@@ -96,18 +96,17 @@ public class SQLJoinQuery extends SQLSelectQuery {
 	}
 
 	public void setLimit(Integer limit, Integer offset) {
+		super.setLimit(limit, offset);
 		this.limit = (limit < 0) ? 0 : limit;
 		this.offset = (offset < 0) ? 0 : offset;
 	}
 	
-	protected void appendLimit(StringBuffer pqlBuffer, DriverClass dialect) {
-		//orc.query.limit.format=OFFSET %s ROWS FETCH NEXT %s ROWS ONLY
-		//orc.query.limit.format=LIMIT %s OFFSET %s
-		if (limit > 0) { 
+	/*protected void appendLimit(StringBuffer pqlBuffer, DriverClass dialect) {
+		if (limit > 0) {
 			pqlBuffer.append(" LIMIT " + limit) ;
 			if (offset > 0) { pqlBuffer.append(" OFFSET " + offset) ;}
 		}
-	}
+	}*/
 	
 	public void setOrderBy(List<String> columns, Operator opt) {
 		orderByList = columns;
