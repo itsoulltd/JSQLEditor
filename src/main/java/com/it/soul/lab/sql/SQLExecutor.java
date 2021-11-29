@@ -160,7 +160,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		LOG.info(toString(o));
 	}
 
-/////////////////////////////////////QueryExecutor-Interface///////////////
+/////////////////////////////////////QueryExecutor-Interface/////////////////////////////////////////////
 
 
 	@Override
@@ -190,7 +190,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 
 		int rowUpdated = 0;
 		PreparedStatement stmt=null;
-		String queryStr = query.toString();
+		String queryStr = query.toString(getDialect());
 		String [] whereKeySet = query.getWhereProperties().getKeys();
 
 		try{
@@ -246,7 +246,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 
         List<Integer> affectedRows = new ArrayList<Integer>();
         PreparedStatement stmt = null;
-        String query = updateQuery.toString();
+        String query = updateQuery.toString(getDialect());
 
         boolean notBegin = conn.getAutoCommit();
         try{
@@ -376,7 +376,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 
 		int rowUpdated = 0;
 		PreparedStatement stmt=null;
-		String query = deleteQuery.toString();
+		String query = deleteQuery.toString(getDialect());
 		try{
 			if(conn != null){
 				stmt = conn.prepareStatement(query);
@@ -413,7 +413,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
         //
         int rowUpdated = 0;
         PreparedStatement stmt=null;
-        String query = deleteQuery.toString();
+        String query = deleteQuery.toString(getDialect());
         String[] whereKeySet = where.get(0).getKeys();
         boolean notBegin = conn.getAutoCommit();
         try{
@@ -488,7 +488,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 
 		int affectedRows = 0;
 		PreparedStatement stmt=null;
-		String query = insertQuery.toString();
+		String query = insertQuery.toString(getDialect());
 
 		try{
 			if(conn != null){
@@ -526,7 +526,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
         PreparedStatement stmt=null;
         //
         Object[] keySet = rows.get(0).getKeys();
-        String query = insertQuery.toString();
+        String query = insertQuery.toString(getDialect());
         boolean notBegin = conn.getAutoCommit();
         //
         try{
@@ -607,7 +607,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		ResultSet rs = null;
 		PreparedStatement pstmt = null;
 		int rowCount = 0;
-		String query = scalerQuery.toString();
+		String query = scalerQuery.toString(getDialect());
 		Row whereClause = scalerQuery.getWhereProperties();
 		try{
 			if(conn != null){
@@ -847,7 +847,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
     	
         PreparedStatement stmt = null;
         ResultSet rst=null;
-        String queryStr = query.toString();
+        String queryStr = query.toString(getDialect());
         Row whereClause = query.getWhereProperties();
         try{
             if(conn != null && !conn.isClosed()){
