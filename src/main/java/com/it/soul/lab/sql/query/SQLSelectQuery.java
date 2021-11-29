@@ -47,8 +47,8 @@ public class SQLSelectQuery extends SQLQuery{
 	}
 
 	protected void appendLimit(StringBuffer pqlBuffer, DriverClass dialect) {
-		//orc.query.limit.format=OFFSET %s ROWS FETCH NEXT %s ROWS ONLY
-		//orc.query.limit.format=LIMIT %s OFFSET %s
+		//Oracle SQL Format => OFFSET %s ROWS FETCH NEXT %s ROWS ONLY
+		//General SQL Format => LIMIT %s OFFSET %s
 		if (limit > 0) {
 			if (dialect == DriverClass.OracleOCI9i){
 				pqlBuffer.append(String.format("OFFSET %s ROWS FETCH NEXT %s ROWS ONLY", offset, limit));
