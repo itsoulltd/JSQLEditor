@@ -1,5 +1,6 @@
 package com.it.soul.lab.sql.query;
 
+import com.it.soul.lab.connect.DriverClass;
 import com.it.soul.lab.sql.query.models.ExpressionInterpreter;
 import com.it.soul.lab.sql.query.models.JoinExpression;
 import com.it.soul.lab.sql.query.models.Operator;
@@ -24,7 +25,7 @@ public class SQLJoinQuery extends SQLSelectQuery {
 	}
 	
 	@Override
-	protected String queryString() throws IllegalArgumentException {
+	protected String queryString(DriverClass dialect) throws IllegalArgumentException {
 		StringBuffer buffer = new StringBuffer("SELECT ");
 		//
 		StringBuffer columnBuffer = new StringBuffer();
@@ -62,7 +63,7 @@ public class SQLJoinQuery extends SQLSelectQuery {
 		appendGroupBy(buffer, groupByList);
 		appendHaving(buffer);
 		appendOrderBy(buffer, orderByList, orderOpt);
-		appendLimit(buffer);
+		appendLimit(buffer, dialect);
 		return buffer.toString();
 	}
 
@@ -99,7 +100,9 @@ public class SQLJoinQuery extends SQLSelectQuery {
 		this.offset = (offset < 0) ? 0 : offset;
 	}
 	
-	protected void appendLimit(StringBuffer pqlBuffer) {
+	protected void appendLimit(StringBuffer pqlBuffer, DriverClass dialect) {
+		//orc.query.limit.format=OFFSET %s ROWS FETCH NEXT %s ROWS ONLY
+		//orc.query.limit.format=LIMIT %s OFFSET %s
 		if (limit > 0) { 
 			pqlBuffer.append(" LIMIT " + limit) ;
 			if (offset > 0) { pqlBuffer.append(" OFFSET " + offset) ;}

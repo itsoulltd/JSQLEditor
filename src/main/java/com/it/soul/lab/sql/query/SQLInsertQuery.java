@@ -3,6 +3,7 @@ package com.it.soul.lab.sql.query;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.it.soul.lab.connect.DriverClass;
 import com.it.soul.lab.sql.query.models.DataType;
 import com.it.soul.lab.sql.query.models.Property;
 import com.it.soul.lab.sql.query.models.Row;
@@ -15,8 +16,8 @@ public class SQLInsertQuery extends SQLQuery{
 	private Row row;
 	
 	@Override
-	protected String queryString() throws IllegalArgumentException {
-		super.queryString();
+	protected String queryString(DriverClass dialect) throws IllegalArgumentException {
+		super.queryString(dialect);
 		return pqlBuffer.toString() + paramBuffer.toString() + valueBuffer.toString();
 	}
 	

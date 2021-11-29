@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.it.soul.lab.connect.DriverClass;
 import com.it.soul.lab.sql.query.builder.AbstractQueryBuilder;
 import com.it.soul.lab.sql.query.models.*;
 
@@ -99,7 +100,7 @@ public abstract class SQLQuery {
 	protected static final char STARIC = '*';
 	protected static final char MARKER = '?';
 	
-	protected String queryString() throws IllegalArgumentException{
+	protected String queryString(DriverClass dialect) throws IllegalArgumentException{
 		if(tableName == null || tableName.trim().equals("")){
 			throw new IllegalArgumentException("Parameter 'tableName' must not be Null OR Empty.");
 		}
@@ -108,9 +109,9 @@ public abstract class SQLQuery {
 	
 	@Override
 	public String toString() {
-		return queryString().trim();
+		return queryString(DriverClass.MYSQL).trim();
 	}
-	public String bindValueToString(){return queryString().trim();}
+	public String bindValueToString(){return queryString(DriverClass.MYSQL).trim();}
 	
 	private String tableName;
 	private String[] columns;

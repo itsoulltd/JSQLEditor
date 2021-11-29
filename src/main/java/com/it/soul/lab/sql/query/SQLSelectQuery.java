@@ -1,5 +1,6 @@
 package com.it.soul.lab.sql.query;
 
+import com.it.soul.lab.connect.DriverClass;
 import com.it.soul.lab.sql.query.models.*;
 
 import java.util.ArrayList;
@@ -9,8 +10,8 @@ import java.util.List;
 public class SQLSelectQuery extends SQLQuery{
 	
 	protected StringBuffer pqlBuffer;
-	protected Integer limit;
-	protected Integer offset;
+	protected Integer limit = 0;
+	protected Integer offset = 0;
 	protected List<String> orderByList;
 	protected List<String> groupByList;
 	protected ExpressionInterpreter havingInterpreter;
@@ -21,8 +22,9 @@ public class SQLSelectQuery extends SQLQuery{
 	}
 	
 	@Override
-	protected String queryString() throws IllegalArgumentException{
-		super.queryString();
+	protected String queryString(DriverClass dialect) throws IllegalArgumentException{
+		super.queryString(dialect);
+		appendLimit(pqlBuffer, dialect);
 		return pqlBuffer.toString();
 	}
 	
@@ -42,7 +44,12 @@ public class SQLSelectQuery extends SQLQuery{
 	public void setLimit(Integer limit, Integer offset) {
 		this.limit = (limit < 0) ? 0 : limit;
 		this.offset = (offset < 0) ? 0 : offset;
-		if (limit > 0) { 
+	}
+
+	protected void appendLimit(StringBuffer pqlBuffer, DriverClass dialect) {
+		//orc.query.limit.format=OFFSET %s ROWS FETCH NEXT %s ROWS ONLY
+		//orc.query.limit.format=LIMIT %s OFFSET %s
+		if (limit > 0) {
 			pqlBuffer.append(" LIMIT " + limit) ;
 			if (offset > 0) { pqlBuffer.append(" OFFSET " + offset) ;}
 		}
