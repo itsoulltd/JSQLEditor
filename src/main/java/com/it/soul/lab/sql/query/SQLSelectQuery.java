@@ -51,7 +51,7 @@ public class SQLSelectQuery extends SQLQuery{
 		//General SQL Format => LIMIT %s OFFSET %s
 		if (limit > 0) {
 			if (dialect == DriverClass.OracleOCI9i){
-				pqlBuffer.append(String.format("OFFSET %s ROWS FETCH NEXT %s ROWS ONLY", offset, limit));
+				pqlBuffer.append(String.format(" OFFSET %s ROWS FETCH NEXT %s ROWS ONLY", offset, limit));
 			}else {
 				pqlBuffer.append(" LIMIT " + limit) ;
 				if (offset > 0) { pqlBuffer.append(" OFFSET " + offset) ;}
@@ -251,8 +251,8 @@ public class SQLSelectQuery extends SQLQuery{
 	}
 
     @Override
-    public String bindValueToString() {
-        StringBuffer buffer = new StringBuffer(toString());
+    public String bindValueToString(DriverClass dialect) {
+        StringBuffer buffer = new StringBuffer(toString(dialect));
         if(getWhereProperties() != null)
             buffer = bindValueToQueryBuffer(buffer, getWhereProperties());
         return buffer.toString();

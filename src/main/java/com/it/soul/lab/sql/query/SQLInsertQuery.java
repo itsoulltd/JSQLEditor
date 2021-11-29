@@ -131,8 +131,8 @@ public class SQLInsertQuery extends SQLQuery{
 	}
 
     @Override
-    public String bindValueToString() {
-        StringBuffer buffer = new StringBuffer(toString());
+    public String bindValueToString(DriverClass dialect) {
+        StringBuffer buffer = new StringBuffer(toString(dialect));
         if (getRow() != null)
             buffer = bindValueToQueryBuffer(buffer, getRow());
         return buffer.toString();

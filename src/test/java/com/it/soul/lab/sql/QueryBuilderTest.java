@@ -1,5 +1,6 @@
 package com.it.soul.lab.sql;
 
+import com.it.soul.lab.connect.DriverClass;
 import com.it.soul.lab.jpql.query.JPQLQuery;
 import com.it.soul.lab.jpql.query.JPQLSelectQuery;
 import com.it.soul.lab.jpql.query.JPQLUpdateQuery;
@@ -199,6 +200,7 @@ public class QueryBuilderTest {
 	}
 	
 	@Test public void OrderByTest() {
+
 		SQLQuery qu5 = new SQLQuery.Builder(QueryType.SELECT)
 				.columns("name","age")
 				.from("Passenger")
@@ -208,6 +210,19 @@ public class QueryBuilderTest {
 				.build();
 
 		Assert.assertEquals("SELECT name, age FROM Passenger WHERE id = ? OR age = ? ORDER BY id ASC LIMIT 10 OFFSET 20", qu5.toString());
+
+		//Checking Oracle syntax:
+		SQLQuery qu5_ORC = new SQLQuery.Builder(QueryType.SELECT)
+				.columns("name","age")
+				.from("Passenger")
+				.where(Logic.OR, "id", "age")
+				.orderBy("id")
+				.addLimit(10, 20)
+				.build();
+
+		Assert.assertEquals("SELECT name, age FROM Passenger WHERE id = ? OR age = ? ORDER BY id ASC OFFSET 20 ROWS FETCH NEXT 10 ROWS ONLY"
+				, qu5_ORC.toString(DriverClass.OracleOCI9i));
+		//
 		
 		SQLQuery qu8 = new SQLQuery.Builder(QueryType.SELECT)
 				.columns("name","age")

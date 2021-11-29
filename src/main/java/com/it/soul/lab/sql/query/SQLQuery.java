@@ -108,10 +108,11 @@ public abstract class SQLQuery {
 	}
 	
 	@Override
-	public String toString() {
-		return queryString(DriverClass.MYSQL).trim();
-	}
-	public String bindValueToString(){return queryString(DriverClass.MYSQL).trim();}
+	public String toString() {return toString(DriverClass.MYSQL);}
+	public String toString(DriverClass dialect) {return queryString(dialect).trim();}
+
+	public String bindValueToString(){return bindValueToString(DriverClass.MYSQL);}
+	public String bindValueToString(DriverClass dialect){return queryString(dialect).trim();}
 	
 	private String tableName;
 	private String[] columns;
