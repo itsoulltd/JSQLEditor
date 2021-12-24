@@ -39,7 +39,7 @@ public class CQLExecutorTest {
     public void after(){
         //
         try {
-            //cqlExecutor.close();
+            cqlExecutor.close();
         } catch (Exception e) {}
     }
 
@@ -60,6 +60,7 @@ public class CQLExecutorTest {
             event.setTrackID(UUID.randomUUID().toString());
             event.setUserID(UUID.randomUUID().toString());
             event.setUuid(UUID.randomUUID());
+            event.setGuid("wh0rbu49qh61");
 
             Map<String, String> names = new HashMap<>();
             names.put("name-1", "James");
@@ -78,7 +79,8 @@ public class CQLExecutorTest {
             //Select From Cassandra:
             CQLSelectQuery query = new CQLQuery.Builder(QueryType.SELECT)
                                                 .columns()
-                                                .from(Entity.tableName(OrderEvent.class))
+                                                .from(OrderEvent.class)
+                                                //.addLimit(10, 0) //not supported
                                                 .build();
 
             List<OrderEvent> items = cqlExecutor.executeSelect(query, OrderEvent.class);
@@ -115,14 +117,15 @@ public class CQLExecutorTest {
         try{
             //Cassandra force to have all PartitionKey in where clause and they must have to be in sequence as they appear in table schema.
             //ClusteringKey's are optional they may or may not in clause.
-            Predicate predicate = new Where("track_id")
+            /*Predicate predicate = new Where("track_id")
                                         .isEqualTo("3ab863f1-558b-4621-9410-ef3f2180889f")
                                         .and("user_id")
                                         .isEqualTo("776aa40b-8f9c-4e6f-80e9-ae6c5e555be0");
-
+            List<OrderEvent> otherItems = OrderEvent.read(OrderEvent.class, cqlExecutor, predicate);
+            otherItems.stream().forEach(event -> System.out.println("track_id "+ event.getTrackID()));*/
+            //
             List<OrderEvent> otherItems = OrderEvent.read(OrderEvent.class, cqlExecutor);
             otherItems.stream().forEach(event -> System.out.println("track_id "+ event.getTrackID()));
-
         }catch (Exception e){
             System.out.println(e.getMessage());
         }
