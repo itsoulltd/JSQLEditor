@@ -678,6 +678,9 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
 
         Field[] fields = tableType.getDeclaredFields();
         for (Field field : fields) {
+            if (field.isAnnotationPresent(Ignore.class)){
+                continue;
+            }
             if(field.isAnnotationPresent(PrimaryKey.class)) {
                 PrimaryKey pm = field.getAnnotation(PrimaryKey.class);
                 String fieldName = pm.name().trim();
@@ -690,9 +693,6 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
                 columnBuf.append(fieldName + " " + getDataType(field) + ",");
                 clusterComposit.append(fieldName + ",");
                 clusterBuf.append(fieldName + " " + cl.order().name() + ",");
-            }
-            else if (field.isAnnotationPresent(Ignore.class)){
-                continue;
             }
             else{
                 String fieldName = field.getName();
