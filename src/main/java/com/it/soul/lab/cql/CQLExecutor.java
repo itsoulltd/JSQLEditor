@@ -17,6 +17,7 @@ import com.it.soul.lab.sql.QueryExecutor;
 import com.it.soul.lab.sql.QueryTransaction;
 import com.it.soul.lab.sql.entity.Column;
 import com.it.soul.lab.sql.entity.Entity;
+import com.it.soul.lab.sql.entity.Ignore;
 import com.it.soul.lab.sql.entity.PrimaryKey;
 import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.SQLScalarQuery;
@@ -689,6 +690,9 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
                 columnBuf.append(fieldName + " " + getDataType(field) + ",");
                 clusterComposit.append(fieldName + ",");
                 clusterBuf.append(fieldName + " " + cl.order().name() + ",");
+            }
+            else if (field.isAnnotationPresent(Ignore.class)){
+                continue;
             }
             else{
                 String fieldName = field.getName();

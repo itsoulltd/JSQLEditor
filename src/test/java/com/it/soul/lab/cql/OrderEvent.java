@@ -3,6 +3,7 @@ package com.it.soul.lab.cql;
 import com.it.soul.lab.cql.entity.CQLEntity;
 import com.it.soul.lab.cql.entity.CQLIndex;
 import com.it.soul.lab.cql.entity.ClusteringKey;
+import com.it.soul.lab.sql.entity.Ignore;
 import com.it.soul.lab.sql.entity.PrimaryKey;
 import com.it.soul.lab.sql.entity.TableName;
 import com.it.soul.lab.sql.query.models.DataType;
@@ -32,6 +33,9 @@ public class OrderEvent extends CQLEntity {
     private Date timestamp = new Date();
     private Map<String, String> kvm;
     private Map<String, Integer> kvm2;
+
+    @Ignore
+    private static int _autoIncrement;
 
     public OrderEvent() {}
 
