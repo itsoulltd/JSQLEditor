@@ -263,13 +263,17 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         return (properties.isEmpty()) ? smt.bind() : smt.bind(values);
     }
 
-    public Integer getScalerValue(String s) throws SQLException {
-        throw new SQLException("Not Implemented YET");
+    public Integer getScalarValue(String query) throws SQLException {
+        Statement stmt = createSelectStatementFrom(query);
+        ResultSet set = getSession().execute(stmt);
+        com.datastax.driver.core.Row row = set.one();
+        long val = row.getLong("count");
+        return Long.valueOf(val).intValue();
     }
 
     @Override
     public Integer getScalarValue(SQLScalarQuery sqlScalarQuery) throws SQLException {
-        throw new SQLException("Not Implemented YET");
+        return getScalarValue(sqlScalarQuery.toString());
     }
 
     public <T extends Entity> List<T> executeSelect(CQLSelectQuery cqlSelectQuery, Class<T> aClass) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {
@@ -404,6 +408,12 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
         }
         Object[] values = properties.toArray(new Object[0]);
         return (properties.isEmpty()) ? smt.bind() : smt.bind(values);
+    }
+
+    protected Statement createSelectStatementFrom(String query) {
+        //Order of keys in statements
+        PreparedStatement smt = StatementPool.createIfNotExist(query, getSession());
+        return smt.bind();
     }
 
     public <T extends Entity> List<T> executeSelect(String s, Class<T> aClass) throws SQLException, IllegalArgumentException, IllegalAccessException, InstantiationException {

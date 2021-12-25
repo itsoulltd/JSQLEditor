@@ -7,6 +7,7 @@ import com.it.soul.lab.sql.SQLExecutor;
 import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.SQLQuery;
+import com.it.soul.lab.sql.query.SQLScalarQuery;
 import com.it.soul.lab.sql.query.SQLSelectQuery;
 import com.it.soul.lab.sql.query.models.Predicate;
 import com.it.soul.lab.sql.query.models.Where;
@@ -75,6 +76,12 @@ public class CQLExecutorTest {
             //Insert
             boolean inserted = event.insert(cqlExecutor);
             Assert.assertTrue("Successfully Inserted", inserted);
+
+            //RowCount Test:
+            SQLScalarQuery countQuery = new CQLQuery.Builder(QueryType.COUNT).columns().on(OrderEvent.class).build();
+            int rows = cqlExecutor.getScalarValue(countQuery);
+            System.out.println("Total RowCount: " + rows);
+            Assert.assertTrue(rows > 0);
 
             //Select From Cassandra:
             CQLSelectQuery query = new CQLQuery.Builder(QueryType.SELECT)
