@@ -10,10 +10,8 @@ import com.it.soul.lab.sql.query.models.Row;
 import com.it.soul.lab.sql.query.models.Table;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.Date;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -808,7 +806,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
      * @param query
      * @return ResultSet
      */
-    public ResultSet executeSelect(String query)
+    public ResultSet executeSelect(String query, Property...properties)
     throws SQLException,IllegalArgumentException{
     	
         PreparedStatement stmt = null;
@@ -822,6 +820,14 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 	    	}
             if(conn != null){
             	stmt = conn.prepareStatement(query, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            	if (properties.length > 0){
+					Map<String, Property> paramMap = new HashMap<>();
+					for (Property prop : properties) {
+						paramMap.put(prop.getKey(), prop);
+					}
+					Object[] params = paramMap.keySet().toArray();
+					stmt = bindValueToStatement(stmt, 1, params, paramMap);
+				}
                 rst = stmt.executeQuery();                 
             }            
         }catch(SQLException exp){            
