@@ -822,10 +822,12 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
             	stmt = conn.prepareStatement(query, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
             	if (properties.length > 0){
 					Map<String, Property> paramMap = new HashMap<>();
+					List<String> paramList = new ArrayList<>();
 					for (Property prop : properties) {
 						paramMap.put(prop.getKey(), prop);
+						paramList.add(prop.getKey());
 					}
-					Object[] params = paramMap.keySet().toArray();
+					Object[] params = paramList.toArray();
 					stmt = bindValueToStatement(stmt, 1, params, paramMap);
 				}
                 rst = stmt.executeQuery();                 
