@@ -15,9 +15,17 @@ public interface DataSource<Key, Value> {
     default Value remove(Key key) {return null;}
     default Value replace(Key key, Value value) {return null;}
 
-    default boolean contains(Value value) { return containsKey((Key) Integer.valueOf(value.hashCode())); }
-    default void add(Value value) { put((Key) Integer.valueOf(value.hashCode()), value); }
-    default void delete(Value value) { remove((Key) Integer.valueOf(value.hashCode())); }
+    default boolean contains(Value value) throws RuntimeException {
+        return containsKey((Key) Integer.valueOf(value.hashCode()));
+    }
+    default Key add(Value value) throws RuntimeException {
+        Key key = (Key) Integer.valueOf(value.hashCode());
+        put(key, value);
+        return key;
+    }
+    default void delete(Value value) throws RuntimeException {
+        remove((Key) Integer.valueOf(value.hashCode()));
+    }
 
     default int size() {return 0;}
     default void clear() {}

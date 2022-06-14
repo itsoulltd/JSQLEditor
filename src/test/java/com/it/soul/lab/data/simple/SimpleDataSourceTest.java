@@ -230,17 +230,15 @@ public class SimpleDataSourceTest {
                 .setAge(36)
                 .setGender("male"));
 
-        intDataSource.add(new Person()
+        Integer intKey = intDataSource.add(new Person()
                 .setName("Abraham")
                 .setEmail("Abraham@gmail.com")
                 .setAge(45)
                 .setGender("male"));
 
         System.out.println("===========================1-1==========================");
-        readAll = intDataSource.readSync(1, 1);
-        for (Object p : readAll) {
-            System.out.println(p.toString());
-        }
+        Person person = intDataSource.read(intKey);
+        System.out.println(person.toString());
         //
         System.out.println("");
     }
