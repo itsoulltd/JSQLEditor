@@ -1,34 +1,64 @@
 version: '3.5'
 
 networks:
-   jsql-app-net:
-       name: jsql-app-net
-       #driver: overlay
-       driver: bridge
+  jsql-app-net:
+     name: jsql-app-net
+     #driver: overlay
+     driver: bridge
 
 volumes:
-   mysql-test-storage:
-   cassandra-test-storage:
+  mysql-test-storage:
+  cassandra-test-storage:
 
 services:
+  mysql-db:
+    image: mysql:8.0.13
+    environment:
+      MYSQL_DATABASE: testDB
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 3306:3306
+    networks:
+      - jsql-app-net
+    volumes:
+      - mysql-test-storage:/var/lib/mysql
 
-   mysql-db:
-      image: mysql:8.0.13
-      environment:
-          MYSQL_DATABASE: testDB
-          MYSQL_ROOT_PASSWORD: root
-      ports:
-          - 3306:3306
-      networks:
-          - jsql-app-net
-      volumes:
-          - mysql-test-storage:/var/lib/mysql
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: mysql-db
+      PMA_PORT: 3306
+      PMA_PMADB: testDB
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 8081:80
+    networks:
+      - web-app-net
+    depends_on:
+      - mysq-db
+    restart: on-failure
 
-   cassandra:
-         image: cassandra:latest
-         ports:
-           - 9042:9042
-         networks:
-           - jsql-app-net
-         volumes:
-           - cassandra-test-storage:/var/lib/cassandra
+  cassandra-db:
+    image: cassandra:latest
+    ports:
+      - 9042:9042
+    networks:
+      - jsql-app-net
+    volumes:
+      - cassandra-test-storage:/var/lib/cassandra
+
+  cassandra-web:
+    image: ipushc/cassandra-web:latest
+    ports:
+      - 8082:8083
+    environment:
+      READ_ONLY: "false"
+      CASSANDRA_HOST: cassandra-db
+      CASSANDRA_PORT: 9042
+      #CASSANDRA_USERNAME: cassandra
+      #CASSANDRA_PASSWORD: cassandra
+    restart: on-failure
+    networks:
+      - web-app-net
+    depends_on:
+      - cassandra-db
