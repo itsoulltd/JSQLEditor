@@ -1,5 +1,6 @@
 package com.it.soul.lab.cql;
 
+import com.it.soul.lab.cql.query.AlterAction;
 import com.it.soul.lab.cql.query.CQLQuery;
 import com.it.soul.lab.cql.query.CQLSelectQuery;
 import com.it.soul.lab.cql.query.ReplicationStrategy;
@@ -10,6 +11,7 @@ import com.it.soul.lab.sql.query.SQLQuery;
 import com.it.soul.lab.sql.query.SQLScalarQuery;
 import com.it.soul.lab.sql.query.SQLSelectQuery;
 import com.it.soul.lab.sql.query.models.Predicate;
+import com.it.soul.lab.sql.query.models.Property;
 import com.it.soul.lab.sql.query.models.Where;
 import org.junit.After;
 import org.junit.Assert;
@@ -48,6 +50,69 @@ public class CQLExecutorTest {
     public void versionTest(){
         String version = cqlExecutor.version();
         System.out.println("Cassandra: " + version);
+    }
+
+    //@Test
+    public void cassandraInsertTest(){
+        try {
+            //Creating a Table from CQLEntity @TableName description.
+            boolean created = cqlExecutor.createTable(OrderEvent.class);
+            Assert.assertTrue("Successfully Created", created);
+            if (created){
+                //If alter needed:
+                try {
+                    boolean add = cqlExecutor.alterTable(OrderEvent.class, AlterAction.ADD, new Property("last_entry_id", ""));
+                    Assert.assertTrue("Add:", add);
+                } catch (SQLException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+
+            OrderEvent event = new OrderEvent();
+            event.setTrackID(UUID.randomUUID().toString());
+            event.setUserID(UUID.randomUUID().toString());
+            event.setUuid(UUID.randomUUID());
+            event.setGuid("wh0rbu49qh61");
+
+            Map<String, String> names = new HashMap<>();
+            names.put("name-1", "James");
+            names.put("name-2", "Julian");
+            event.setKvm(names);
+
+            Map<String, Integer> collections = new HashMap<>();
+            collections.put("hello-1", 1);
+            collections.put("hello-2", 24);
+            event.setKvm2(collections);
+
+            //Insert
+            boolean inserted = event.insert(cqlExecutor);
+            Assert.assertTrue("Successfully Inserted", inserted);
+
+            //RowCount Test:
+            SQLScalarQuery countQuery = new CQLQuery.Builder(QueryType.COUNT).columns().on(OrderEvent.class).build();
+            int rows = cqlExecutor.getScalarValue(countQuery);
+            System.out.println("Total RowCount: " + rows);
+            Assert.assertTrue(rows > 0);
+
+            //Select From Cassandra:
+            CQLSelectQuery query = new CQLQuery.Builder(QueryType.SELECT)
+                    .columns()
+                    .from(OrderEvent.class)
+                    //.addLimit(10, 0) //not supported
+                    .build();
+
+            List<OrderEvent> items = cqlExecutor.executeSelect(query, OrderEvent.class);
+            Assert.assertTrue("Successfully Fetched:", items.isEmpty() == false);
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } catch (IllegalAccessException e) {
+            System.out.println(e.getMessage());
+        } catch (InstantiationException e) {
+            System.out.println(e.getMessage());
+        }
+        //To Succeed the build
+        Assert.assertTrue(true);
     }
 
     //@Test
@@ -141,22 +206,23 @@ public class CQLExecutorTest {
     }
 
     //@Test
-    public void tableAlterTest(){
-        //try {
-            //cqlExecutor.alterTable(OrderEvent.class, AlterAction.ALTER, new Property("<non-primary-key>", DataType-as-value));
+    public void tableAlterTest() throws SQLException {
+        //boolean alter = cqlExecutor.alterTable(OrderEvent.class, AlterAction.ALTER, new Property("<non-primary-key>", "data-type-as-value"));
+        //Assert.assertTrue("Alter:", alter);
 
-            //boolean rename = cqlExecutor.alterTable(OrderEvent.class, AlterAction.RENAME, new Property("track_id_a", "track_id"));
-            //Assert.assertTrue("Rename:", rename);
+        //boolean rename = cqlExecutor.alterTable(OrderEvent.class, AlterAction.RENAME, new Property("<properties-to-rename>", "<properties-new-name>"));
+        //Assert.assertTrue("Rename:", rename);
 
-            //boolean drop = cqlExecutor.alterTable(OrderEvent.class, AlterAction.DROP, new Property("<properties-to-drop>"));
-            //Assert.assertTrue("Drop:", drop);
+        //boolean drop = cqlExecutor.alterTable(OrderEvent.class, AlterAction.DROP, new Property("<properties-to-drop>"));
+        //e.g.
+        boolean drop = cqlExecutor.alterTable(OrderEvent.class, AlterAction.DROP, new Property("myNewProp"));
+        Assert.assertTrue("Drop:", drop);
 
-            //boolean add = cqlExecutor.alterTable(OrderEvent.class, AlterAction.DROP, new Property("<properties-to-add>", "data-type-as-value"));
-            //Assert.assertTrue("Add:", add);
+        //boolean add = cqlExecutor.alterTable(OrderEvent.class, AlterAction.ADD, new Property("<properties-to-add>", "data-type-as-value"));
+        //e.g.
+        //boolean add = cqlExecutor.alterTable(OrderEvent.class, AlterAction.ADD, new Property("myNewProp", "myValType"));
+        //Assert.assertTrue("Add:", add);
 
-        //} catch (SQLException e) {
-        //    System.out.println(e.getMessage());
-        //}
         //To Succeed the build
         Assert.assertTrue(true);
     }

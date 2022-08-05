@@ -3,6 +3,8 @@ package com.it.soul.lab.cql;
 import com.it.soul.lab.cql.entity.CQLEntity;
 import com.it.soul.lab.cql.entity.CQLIndex;
 import com.it.soul.lab.cql.entity.ClusteringKey;
+import com.it.soul.lab.cql.entity.EnableTimeToLive;
+import com.it.soul.lab.sql.entity.Column;
 import com.it.soul.lab.sql.entity.Ignore;
 import com.it.soul.lab.sql.entity.PrimaryKey;
 import com.it.soul.lab.sql.entity.TableName;
@@ -13,6 +15,8 @@ import java.util.Map;
 import java.util.UUID;
 
 @TableName(value = "order_event")
+@EnableTimeToLive(300L) //TimeToLive 60*5 sec = 5 min
+//@EnableTimeToLive(2160000L) //TimeToLive 60*60*24*25 sec = 25 days
 public class OrderEvent extends CQLEntity {
 
     @PrimaryKey(name = "track_id")
@@ -33,6 +37,9 @@ public class OrderEvent extends CQLEntity {
     private Date timestamp = new Date();
     private Map<String, String> kvm;
     private Map<String, Integer> kvm2;
+
+    @Column(name = "last_entry_id")
+    private String lastEntryId;
 
     @Ignore
     private static int _autoIncrement;
@@ -93,5 +100,13 @@ public class OrderEvent extends CQLEntity {
 
     public void setGuid(String guid) {
         this.guid = guid;
+    }
+
+    public String getLastEntryId() {
+        return lastEntryId;
+    }
+
+    public void setLastEntryId(String lastEntryId) {
+        this.lastEntryId = lastEntryId;
     }
 }
