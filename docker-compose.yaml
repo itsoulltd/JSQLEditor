@@ -33,7 +33,7 @@ services:
     ports:
       - 8081:80
     networks:
-      - web-app-net
+      - jsql-app-net
     depends_on:
       - mysq-db
     restart: on-failure
