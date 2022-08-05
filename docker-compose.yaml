@@ -59,6 +59,6 @@ services:
       #CASSANDRA_PASSWORD: cassandra
     restart: on-failure
     networks:
-      - web-app-net
+      - jsql-app-net
     depends_on:
       - cassandra-db
