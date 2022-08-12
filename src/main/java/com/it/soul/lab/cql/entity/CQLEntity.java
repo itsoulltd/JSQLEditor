@@ -68,13 +68,19 @@ public abstract class CQLEntity extends Entity {
 
     @Override
     public Boolean insert(QueryExecutor exe, String... keys) throws SQLException {
+        return insert(exe, getTTLValue(), keys);
+    }
+
+    public Boolean insert(QueryExecutor exe, long ttl, String... keys) throws SQLException {
         //
         List<Property> properties = getPropertiesFromKeys(exe, keys, false);
         CQLInsertQuery query = exe.createQueryBuilder(QueryType.INSERT)
                 .into(Entity.tableName(getClass()))
                 .values(properties.toArray(new Property[0])).build();
 
-        long ttl = getTTLValue();
+        if (ttl <= 0L) {
+            ttl = getTTLValue();
+        }
         if (ttl > 0L){
             query.usingTTL(ttl);
         }
