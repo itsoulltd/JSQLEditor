@@ -49,7 +49,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		}
 	}
 
-	private Logger LOG = Logger.getLogger(this.getClass().getSimpleName());
+	private static Logger LOG = Logger.getLogger(SQLExecutor.class.getSimpleName());
 	private final Connection conn;
 	private DriverClass dialect = DriverClass.MYSQL;
 
@@ -66,8 +66,13 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 	
 	@Override
 	protected void finalize() throws Throwable {
-		super.finalize();
-		close();//so that unreleased statement object goes to garbage.
+		//As Suggested In JDK-Doc:
+		//Unreleased statement object goes to garbage:
+		try {
+			close();
+		} finally {
+			super.finalize();
+		}
 	}
 	
 	/**
@@ -82,7 +87,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		return statementHolder;
 	}
 	
-	public void close(){
+	public void close() {
 		try {
 			int count = getStatementHolder().size();
 			Boolean isAllClosed = true;
@@ -96,16 +101,19 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 				}
 			}
 			getStatementHolder().clear();
-			LOG.info("Retained Statements count was " + count
-                    + ". \n All statements has been Closed : " + (isAllClosed ? "YES":"NO"));
+			LOG.info("Retained Statements count was "
+					+ count
+                    + ". All statements has been Closed : "
+					+ (isAllClosed ? "YES":"NO"));
 			closeConnections(conn);
 		} catch (SQLException e) {
             LOG.log(Level.WARNING, e.getMessage(), e);
+		} catch (Exception e) {
+			LOG.log(Level.WARNING, e.getMessage());
 		}
 	}
 	
-	private void closeConnections(Connection conn) 
-			throws SQLException{
+	private void closeConnections(Connection conn) throws SQLException {
 		if(conn != null && !conn.isClosed()){
 			try{
 				if(!conn.getAutoCommit()) {
