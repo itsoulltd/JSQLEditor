@@ -90,11 +90,14 @@ public class JDBConnectionPool implements Serializable{
 		return _sharedInstance;
 	}
 
-	@Override
+	/**
+	 * https://www.baeldung.com/java-finalize#avoiding-finalizers
+	 */
+	/*@Override
 	protected void finalize() throws Throwable {
 		super.finalize();
 		_sharedInstance = null;
-	}
+	}*/
 
 	@Override
 	public String toString() {

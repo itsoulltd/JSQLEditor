@@ -63,8 +63,11 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 	}
 
 	public SQLExecutor(Connection conn){ this.conn = conn; }
-	
-	@Override
+
+	/**
+	 * https://www.baeldung.com/java-finalize#avoiding-finalizers
+	 */
+	/*@Override
 	protected void finalize() throws Throwable {
 		//As Suggested In JDK-Doc:
 		//Unreleased statement object goes to garbage:
@@ -73,7 +76,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		} finally {
 			super.finalize();
 		}
-	}
+	}*/
 	
 	/**
      * Following object container holds all Statement object belongs to any connections
