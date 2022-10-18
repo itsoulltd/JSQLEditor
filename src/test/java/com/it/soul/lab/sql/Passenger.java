@@ -41,7 +41,7 @@ public class Passenger extends Entity {
 		calendar.setTime(Objects.nonNull(getDob()) ? getDob() : new Date());
 		int year = calendar.get(Calendar.YEAR) - ((isPositive) ? -age : age);
 		calendar.set(Calendar.YEAR, year);
-		setDob(calendar.getTime());
+		setDob(new java.sql.Date(calendar.getTime().getTime()));
 	}
 	public Integer getId() {
 		return id;
