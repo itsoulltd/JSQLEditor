@@ -2,6 +2,7 @@ package com.it.soul.lab.sql;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.UUID;
 
 import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.entity.PrimaryKey;
@@ -25,7 +26,7 @@ import com.it.soul.lab.sql.query.models.DataType;
 @TableName(value = "Person")
 public class Person extends Entity {
 
-	@PrimaryKey(name = "uuid", auto = false)
+	@PrimaryKey(name = "uuid")
 	private String uuid_idx;
 
 	@Column(name="name", defaultValue="towhid-islam")
@@ -54,7 +55,7 @@ public class Person extends Entity {
 	private Timestamp createTime = new Timestamp(new java.util.Date().getTime());
 	
 	public Person() {
-		super();
+		/*uuid_idx = UUID.randomUUID().toString();*/
 	}
 	public String getUuid_idx() {
 		return uuid_idx;

@@ -761,4 +761,40 @@ public abstract class Entity implements EntityInterface{
 		return results;
 	}
 
+	public static void insert(Class<? extends Entity> entityType
+			, QueryExecutor executor
+			, int batchSize, List<Row> batch) throws SQLException {
+		if (batch.isEmpty()) return;
+		if (batchSize <= 0) batchSize = 10;
+		List<Property> cols = batch.get(0).getProperties();
+		SQLQuery query = executor.createQueryBuilder(QueryType.INSERT)
+				.into(entityType)
+				.values(cols.toArray(new Property[0]))
+				.build();
+		executor.executeInsert(Entity.isAutoID(entityType), batchSize, query, batch);
+	}
+
+	public static void update(Class<? extends Entity> entityType
+			, QueryExecutor executor
+			, ExpressionInterpreter clause, Row row) throws SQLException {
+		List<Property> cols = row.getProperties();
+		if (cols.isEmpty()) return;
+		SQLQuery query = executor.createQueryBuilder(QueryType.UPDATE)
+				.set(cols.toArray(new Property[0]))
+				.from(entityType)
+				.where(clause)
+				.build();
+		executor.executeUpdate(query);
+	}
+
+	public static void delete(Class<? extends Entity> entityType
+			, QueryExecutor executor
+			, ExpressionInterpreter clause) throws SQLException {
+		SQLQuery query = executor.createQueryBuilder(QueryType.DELETE)
+				.rowsFrom(entityType)
+				.where(clause)
+				.build();
+		executor.executeDelete(query);
+	}
+
 }
