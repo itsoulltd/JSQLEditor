@@ -100,7 +100,7 @@ public class EntityCRUDTest {
 
     @Test
     public void CreateInBatchTest() throws SQLException {
-        int count = getCount(Passenger.class, exe, null);
+        int count = Entity.count(Passenger.class, exe, null);
         Assert.assertTrue(count == 0);
         System.out.println("Before COUNT: " + count);
         //
@@ -108,7 +108,7 @@ public class EntityCRUDTest {
         insertSeedPassengerInBatch(exe);
         logger.printMillis("InsertInBatch: ");
         //
-        count = getCount(Passenger.class, exe, null);
+        count = Entity.count(Passenger.class, exe, null);
         Assert.assertTrue(count > 0);
         System.out.println("After COUNT: " + count);
     }
@@ -173,7 +173,7 @@ public class EntityCRUDTest {
     public void DeleteTest() throws Exception {
         //Seeding
         insertSeedPassenger(exe);
-        int count = getCount(Passenger.class, exe, new Where("name").isLike("%Tow%"));
+        int count = Entity.count(Passenger.class, exe, new Where("name").isLike("%Tow%"));
         Assert.assertTrue(count > 0);
         System.out.println("Before Count: " + count);
         //
@@ -181,7 +181,7 @@ public class EntityCRUDTest {
         Entity.delete(Passenger.class, exe, new Where("name").isLike("%Tow%"));
         logger.printMillis("Delete: ");
         //
-        count = getCount(Passenger.class, exe, new Where("name").isLike("%Tow%"));
+        count = Entity.count(Passenger.class, exe, new Where("name").isLike("%Tow%"));
         Assert.assertTrue(count == 0);
         System.out.println("After Count: " + count);
     }
@@ -192,7 +192,7 @@ public class EntityCRUDTest {
         insertSeedPassenger(exe);
         //
         PerformanceLogger logger = new PerformanceLogger();
-        int count = getCount(Passenger.class, exe, null);
+        int count = Entity.count(Passenger.class, exe, null);
         Assert.assertTrue(count > 0);
         logger.printMillis("Scalar: ");
     }

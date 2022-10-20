@@ -797,4 +797,13 @@ public abstract class Entity implements EntityInterface{
 		executor.executeDelete(query);
 	}
 
+	public static int count(Class<? extends Entity> entityType
+			, QueryExecutor executor
+			, ExpressionInterpreter clause) throws SQLException {
+		SQLQuery query = (clause == null)
+				? executor.createQueryBuilder(QueryType.COUNT).columns().from(entityType).build()
+				: executor.createQueryBuilder(QueryType.COUNT).columns().from(entityType).where(clause).build();
+		return executor.getScalarValue(query);
+	}
+
 }
