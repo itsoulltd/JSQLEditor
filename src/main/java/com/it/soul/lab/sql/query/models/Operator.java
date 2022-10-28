@@ -15,7 +15,9 @@ public enum Operator {
 	ASC,
 	DESC,
 	IS_NULL,
-	NOT_NULL;
+	NOT_NULL,
+	BETWEEN,
+	NOT_BETWEEN;
 
 	public String toString(){
 		String eq = "=";
@@ -61,6 +63,12 @@ public enum Operator {
 			break;
 		case NONE:
 			eq = "";
+			break;
+		case BETWEEN:
+			eq = "BETWEEN";
+			break;
+		case NOT_BETWEEN:
+			eq = "NOT BETWEEN";
 			break;
 		default:
 			break;

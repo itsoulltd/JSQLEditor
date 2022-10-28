@@ -13,4 +13,6 @@ public interface WhereClause {
 	Predicate notLike(Object value);
 	Predicate isNull();
     Predicate notNull();
+	Predicate between(Object aVal, Object bVal);
+	Predicate notBetween(Object aVal, Object bVal);
 }

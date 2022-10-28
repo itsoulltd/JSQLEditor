@@ -68,6 +68,11 @@ public class Where implements WhereClause {
             return create(exp);
         }
 
+		private Predicate createBetween(Object[] value, Operator opt){
+			ExpressionInterpreter exp = new BtwExpression(new Property(key, Arrays.asList(value)), opt);
+			return create(exp);
+		}
+
 		@Override
 		public Predicate and(ExpressionInterpreter exp) {
 			createAnd(exp);
@@ -178,5 +183,15 @@ public class Where implements WhereClause {
 	public Predicate notNull() {
 		ExpressionInterpreter exp = new Expression(new Property(getProxy().key, null, DataType.NULL_SKIP), Operator.NOT_NULL);
 		return getProxy().create(exp);
+	}
+
+	@Override
+	public Predicate between(Object aVal, Object bVal) {
+		return getProxy().createBetween(new Object[]{aVal, bVal}, Operator.BETWEEN);
+	}
+
+	@Override
+	public Predicate notBetween(Object aVal, Object bVal) {
+		return getProxy().createBetween(new Object[]{aVal, bVal}, Operator.NOT_BETWEEN);
 	}
 }
