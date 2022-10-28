@@ -555,7 +555,7 @@ public class QueryBuilderTest {
 				.where(new Where("Country").between("Germany", "France"))
 				.build();
 		System.out.println(query.bindValueToString());
-		Assert.assertEquals("SELECT * FROM Customers WHERE Country BETWEEN Germany AND France", query.bindValueToString());
+		Assert.assertEquals("SELECT * FROM Customers WHERE Country BETWEEN 'Germany' AND 'France'", query.bindValueToString());
 
 		query = new SQLQuery.Builder(QueryType.SELECT)
 				.columns()
@@ -563,7 +563,35 @@ public class QueryBuilderTest {
 				.where(new Where("Country_Code").notBetween(91, 98))
 				.build();
 		System.out.println(query.toString());
-		Assert.assertEquals("SELECT * FROM Customers WHERE Country_Code NOT BETWEEN 91 AND 98", query.toString());
+		Assert.assertEquals("SELECT * FROM Customers WHERE Country_Code NOT BETWEEN ? AND ?", query.toString());
+
+		query = new SQLQuery.Builder(QueryType.SELECT)
+				.columns()
+				.from("Customers")
+				.where(new Where("Country_Code").notBetween(91, 98)
+						.and("age").isGreaterThen(54))
+				.build();
+		System.out.println(query.toString());
+		Assert.assertEquals("SELECT * FROM Customers WHERE ( Country_Code NOT BETWEEN ? AND ? AND age > ? )", query.toString());
+
+		query = new SQLQuery.Builder(QueryType.SELECT)
+				.columns()
+				.from("Customers")
+				.where(new Where("Age").between(18, 22)
+						.and("Country_Code").notBetween(91, 98))
+				.build();
+		System.out.println(query.bindValueToString());
+		Assert.assertEquals("SELECT * FROM Customers WHERE ( Age BETWEEN 18 AND 22 AND Country_Code NOT BETWEEN 91 AND 98 )", query.bindValueToString());
+
+		query = new SQLQuery.Builder(QueryType.SELECT)
+				.columns()
+				.from("Products")
+				.where(new Where("Price").between(10, 20)
+						.and("CategoryID").isIn(1, 2, 3))
+				.build();
+		System.out.println(query.bindValueToString());
+		Assert.assertEquals("SELECT * FROM Customers WHERE ( Age BETWEEN 18 AND 22 AND Country_Code NOT BETWEEN 91 AND 98 )"
+				, query.bindValueToString());
 
 		JPQLSelectQuery jpqlSelectQuery = new JPQLQuery.Builder(QueryType.SELECT)
 				.columns()
@@ -571,7 +599,7 @@ public class QueryBuilderTest {
 				.where(new Where("Country").between("Germany", "France"))
 				.build();
 		System.out.println(jpqlSelectQuery.toString());
-		Assert.assertEquals("SELECT e FROM Customers e WHERE e.Country BETWEEN Germany AND France", jpqlSelectQuery.toString());
+		Assert.assertEquals("SELECT e FROM Customers e WHERE e.Country BETWEEN :Country AND :Country", jpqlSelectQuery.toString());
 
 		jpqlSelectQuery = new JPQLQuery.Builder(QueryType.SELECT)
 				.columns()
@@ -579,7 +607,7 @@ public class QueryBuilderTest {
 				.where(new Where("Country").notBetween("Germany", "UK"))
 				.build();
 		System.out.println(jpqlSelectQuery.toString());
-		Assert.assertEquals("SELECT e FROM Customers e WHERE e.Country NOT BETWEEN Germany AND UK", jpqlSelectQuery.toString());
+		Assert.assertEquals("SELECT e FROM Customers e WHERE e.Country NOT BETWEEN :Country AND :Country", jpqlSelectQuery.toString());
 	}
 	
 }

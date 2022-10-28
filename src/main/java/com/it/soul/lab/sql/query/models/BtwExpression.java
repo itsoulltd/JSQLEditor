@@ -19,10 +19,9 @@ public class BtwExpression extends Expression{
             List items = (List) getValueProperty().getValue();
             if (items.size() == 2) { //Must be 2 value
                 if (Character.isWhitespace(getQuantifier()) == false){
-                    return getQuantifier()+ "." + getProperty() + " " + getType().toString() + " " + items.get(0).toString() + " AND " + items.get(1).toString() + "";
-                }
-                else {
-                    return getProperty() + " " + getType().toString() + " " + items.get(0).toString() + " AND " + items.get(1).toString() + "";
+                    return getQuantifier()+ "." + getProperty() + " " + getType().toString() + " " + getExpressMarker() + " AND " + getExpressMarker() + "";
+                } else {
+                    return getProperty() + " " + getType().toString() + " " + getMARKER() + " AND " + getMARKER() + "";
                 }
             }
         }
