@@ -504,6 +504,7 @@ public class QueryBuilderTest {
                 .where(new Where("Country").isIn("Germany", "France", "UK"))
                 .build();
         System.out.println(query.bindValueToString());
+        Assert.assertEquals("SELECT * FROM Customers WHERE Country IN ( 'Germany','France','UK' )", query.bindValueToString());
 
         query = new SQLQuery.Builder(QueryType.SELECT)
                 .columns()
@@ -511,6 +512,7 @@ public class QueryBuilderTest {
                 .where(new Where("Country").isIn(Arrays.asList("Germany")))
                 .build();
         System.out.println(query.bindValueToString());
+		Assert.assertEquals("SELECT * FROM Customers WHERE Country IN ( 'Germany' )", query.bindValueToString());
 
         query = new SQLQuery.Builder(QueryType.SELECT)
                 .columns()
@@ -518,6 +520,15 @@ public class QueryBuilderTest {
                 .where(new Where("Country").isIn(Arrays.asList()))
                 .build();
         System.out.println(query.toString());
+		Assert.assertEquals("SELECT * FROM Customers WHERE Country IN ( ? )", query.toString());
+
+		query = new SQLQuery.Builder(QueryType.SELECT)
+				.columns()
+				.from("Customers")
+				.where(new Where("Country").notIn(Arrays.asList("India", "Pakistan")))
+				.build();
+		System.out.println(query.bindValueToString());
+		Assert.assertEquals("SELECT * FROM Customers WHERE Country NOT IN ( 'India','Pakistan' )", query.bindValueToString());
 
         JPQLSelectQuery jpqlSelectQuery = new JPQLQuery.Builder(QueryType.SELECT)
                 .columns()
@@ -525,6 +536,15 @@ public class QueryBuilderTest {
                 .where(new Where("Country").isIn(Arrays.asList("Germany", "France", "UK")))
                 .build();
         System.out.println(jpqlSelectQuery.toString());
+		Assert.assertEquals("SELECT e FROM Customers e WHERE e.Country IN ( :Country )", jpqlSelectQuery.toString());
+
+		jpqlSelectQuery = new JPQLQuery.Builder(QueryType.SELECT)
+				.columns()
+				.from("Customers")
+				.where(new Where("Country").notIn(Arrays.asList("Germany", "France", "UK")))
+				.build();
+		System.out.println(jpqlSelectQuery.toString());
+		Assert.assertEquals("SELECT e FROM Customers e WHERE e.Country NOT IN ( :Country )", jpqlSelectQuery.toString());
     }
 
 	@Test
