@@ -1,7 +1,5 @@
 package com.it.soul.lab.sql.query.models;
 
-import java.util.List;
-
 public class BtwExpression extends Expression {
 
     private Property secondValueProperty;
@@ -18,8 +16,8 @@ public class BtwExpression extends Expression {
     @Override
     public String interpret() {
         if (getValueProperty() != null && getSecondValueProperty() != null) {
-            if (Character.isWhitespace(getQuantifier()) == false){
-                return getQuantifier()+ "." + getProperty() + " " + getType().toString() + " " + getExpressMarker() + " AND " + getExpressMarker() + "";
+            if (Character.isWhitespace(getQuantifier()) == false) {
+                return getQuantifier()+ "." + getProperty() + " " + getType().toString() + String.format(" %s_%s", getExpressMarker(), "left") + " AND " + String.format("%s_%s", getExpressMarker(), "right") + "";
             } else {
                 return getProperty() + " " + getType().toString() + " " + getMARKER() + " AND " + getMARKER() + "";
             }
@@ -29,8 +27,7 @@ public class BtwExpression extends Expression {
 
     @Override
     public Expression[] resolveExpressions() {
-        return new Expression[] {new Expression(getValueProperty(), getType())
-                , new Expression(getSecondValueProperty(), getType())};
+        return new Expression[] {this, new Expression(getSecondValueProperty(), getType())};
     }
 
 }

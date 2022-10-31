@@ -590,7 +590,7 @@ public class QueryBuilderTest {
 						.and("CategoryID").isIn(1, 2, 3))
 				.build();
 		System.out.println(query.bindValueToString());
-		Assert.assertEquals("SELECT * FROM Customers WHERE ( Age BETWEEN 18 AND 22 AND Country_Code NOT BETWEEN 91 AND 98 )"
+		Assert.assertEquals("SELECT * FROM Products WHERE ( Price BETWEEN 10 AND 20 AND CategoryID IN ( 1,2,3 ) )"
 				, query.bindValueToString());
 
 		JPQLSelectQuery jpqlSelectQuery = new JPQLQuery.Builder(QueryType.SELECT)
@@ -599,7 +599,7 @@ public class QueryBuilderTest {
 				.where(new Where("Country").between("Germany", "France"))
 				.build();
 		System.out.println(jpqlSelectQuery.toString());
-		Assert.assertEquals("SELECT e FROM Customers e WHERE e.Country BETWEEN :Country AND :Country", jpqlSelectQuery.toString());
+		Assert.assertEquals("SELECT e FROM Customers e WHERE e.Country BETWEEN :Country_left AND :Country_right", jpqlSelectQuery.toString());
 
 		jpqlSelectQuery = new JPQLQuery.Builder(QueryType.SELECT)
 				.columns()
@@ -607,7 +607,7 @@ public class QueryBuilderTest {
 				.where(new Where("Country").notBetween("Germany", "UK"))
 				.build();
 		System.out.println(jpqlSelectQuery.toString());
-		Assert.assertEquals("SELECT e FROM Customers e WHERE e.Country NOT BETWEEN :Country AND :Country", jpqlSelectQuery.toString());
+		Assert.assertEquals("SELECT e FROM Customers e WHERE e.Country NOT BETWEEN :Country_left AND :Country_right", jpqlSelectQuery.toString());
 	}
 	
 }
