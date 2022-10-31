@@ -17,9 +17,10 @@ public class BtwExpression extends Expression {
     public String interpret() {
         if (getValueProperty() != null && getSecondValueProperty() != null) {
             if (Character.isWhitespace(getQuantifier()) == false) {
-                return getQuantifier()+ "." + getProperty() + " " + getType().toString() + String.format(" %s_%s", getExpressMarker(), "left") + " AND " + String.format("%s_%s", getExpressMarker(), "right") + "";
+                return String.format("%s.%s %s %s_left AND %s_right", getQuantifier(), getProperty(), getType().toString()
+                        , getExpressMarker(), getExpressMarker());
             } else {
-                return getProperty() + " " + getType().toString() + " " + getMARKER() + " AND " + getMARKER() + "";
+                return String.format("%s %s %s AND %s", getProperty(), getType().toString(), getMARKER(), getMARKER());
             }
         }
         return super.interpret();
