@@ -137,30 +137,28 @@ public class Where implements WhereClause {
 		return getProxy().createExpression(value, Operator.LESS_THAN_OR_EQUAL);
 	}
 
+	private Object[] filteredObjects(Object[] value) {
+		List filtered = new ArrayList();
+		if (value.length > 0){
+			filtered = (List) Arrays.stream(value)
+					.filter(o -> o instanceof List)
+					.flatMap(obj -> ((List)obj).stream())
+					.collect(Collectors.toList());
+		}
+		value = (filtered.size() > 0) ? filtered.toArray() : value;
+		return value;
+	}
+
 	@Override
 	public Predicate isIn(Object...value) {
-        List filtered = new ArrayList();
-        if (value.length > 0){
-            filtered = (List) Arrays.stream(value)
-                    .filter(o -> o instanceof List)
-                    .flatMap(obj -> ((List)obj).stream())
-                    .collect(Collectors.toList());
-        }
-        value = (filtered.size() > 0) ? filtered.toArray() : value;
-        return getProxy().createIn(value, Operator.IN);
+		value = filteredObjects(value);
+		return getProxy().createIn(value, Operator.IN);
 	}
 
 	@Override
 	public Predicate notIn(Object...value) {
-        List filtered = new ArrayList();
-        if (value.length > 0){
-            filtered = (List) Arrays.stream(value)
-                    .filter(o -> o instanceof List)
-                    .flatMap(obj -> ((List)obj).stream())
-                    .collect(Collectors.toList());
-        }
-        value = (filtered.size() > 0) ? filtered.toArray() : value;
-        return getProxy().createIn(value, Operator.NOT_IN);
+		value = filteredObjects(value);
+		return getProxy().createIn(value, Operator.NOT_IN);
 	}
 
 	@Override
