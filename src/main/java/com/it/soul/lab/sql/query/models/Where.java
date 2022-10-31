@@ -46,11 +46,6 @@ public class Where implements WhereClause {
             return this;
         }
 
-        private Predicate createExpression(Object value, Operator opt) {
-            ExpressionInterpreter exp = new Expression(new Property(key, value), opt);
-            return create(exp);
-        }
-
 		private void createAnd(ExpressionInterpreter exp) {
 			expression = new AndExpression(expression, exp);
 		}
@@ -61,6 +56,11 @@ public class Where implements WhereClause {
 
 		private void createNor() {
 			expression = new NotExpression(expression);
+		}
+
+		private Predicate createExpression(Object value, Operator opt) {
+			ExpressionInterpreter exp = new Expression(new Property(key, value), opt);
+			return create(exp);
 		}
 
         private Predicate createIn(Object[] value, Operator opt){
