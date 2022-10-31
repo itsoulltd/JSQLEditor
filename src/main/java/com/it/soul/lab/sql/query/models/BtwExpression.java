@@ -2,14 +2,10 @@ package com.it.soul.lab.sql.query.models;
 
 import java.util.List;
 
-public class BtwExpression extends Expression{
+public class BtwExpression extends Expression {
 
-    public BtwExpression(Property property, Operator type) {
-        super(property, type);
-    }
-
-    public BtwExpression(String property, Operator type) {
-        super(property, type);
+    public BtwExpression(Property first, Property second, Operator type) {
+        super(first, type);
     }
 
     @Override
@@ -26,5 +22,11 @@ public class BtwExpression extends Expression{
             }
         }
         return super.interpret();
+    }
+
+    @Override
+    public Expression[] resolveExpressions() {
+        //TODO:
+        return super.resolveExpressions();
     }
 }

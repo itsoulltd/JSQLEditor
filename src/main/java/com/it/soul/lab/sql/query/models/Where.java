@@ -15,97 +15,6 @@ public class Where implements WhereClause {
 	private PredicateProxy getProxy() {
 		return _proxy;
 	}
-
-	private class PredicateProxy implements Predicate{
-		
-		private String key;
-		private Logic logic = Logic.AND;
-		private ExpressionInterpreter expression;
-
-		public PredicateProxy(String key) {
-			this.key = key;
-		}
-		
-		@Override
-		public String interpret() {
-			return expression.interpret();
-		}
-
-		@Override
-		public Expression[] resolveExpressions() {
-			return expression.resolveExpressions();
-		}
-
-        private Predicate create(ExpressionInterpreter exp){
-            if(expression == null) {
-                expression = exp;
-            }else {
-                if(logic == Logic.AND) { createAnd(exp);}
-                else {createOr(exp);}
-            }
-            return this;
-        }
-
-		private void createAnd(ExpressionInterpreter exp) {
-			expression = new AndExpression(expression, exp);
-		}
-
-		private void createOr(ExpressionInterpreter exp) {
-			expression = new OrExpression(expression, exp);
-		}
-
-		private void createNor() {
-			expression = new NotExpression(expression);
-		}
-
-		private Predicate createExpression(Object value, Operator opt) {
-			ExpressionInterpreter exp = new Expression(new Property(key, value), opt);
-			return create(exp);
-		}
-
-        private Predicate createIn(Object[] value, Operator opt){
-            ExpressionInterpreter exp = new InExpression(new Property(key, Arrays.asList(value)), opt);
-            return create(exp);
-        }
-
-		private Predicate createBetween(Object[] value, Operator opt){
-			ExpressionInterpreter exp = new BtwExpression(new Property(key, Arrays.asList(value)), opt);
-			return create(exp);
-		}
-
-		@Override
-		public Predicate and(ExpressionInterpreter exp) {
-			createAnd(exp);
-			return this;
-		}
-
-		@Override
-		public Predicate or(ExpressionInterpreter exp) {
-			createOr(exp);
-			return this;
-		}
-		
-		@Override
-		public Predicate not() {
-			createNor();
-			return this;
-		}
-		
-		@Override
-		public WhereClause and(String key) {
-			this.key = key;
-			this.logic = Logic.AND;
-			return Where.this;
-		}
-
-		@Override
-		public WhereClause or(String key) {
-			this.key = key;
-			this.logic = Logic.OR;
-			return Where.this;
-		}
-		
-	}
 	
 	@Override
 	public Predicate isEqualTo(Object value) {
@@ -185,11 +94,108 @@ public class Where implements WhereClause {
 
 	@Override
 	public Predicate between(Object aVal, Object bVal) {
-		return getProxy().createBetween(new Object[]{aVal, bVal}, Operator.BETWEEN);
+		return getProxy().createBetween(aVal, bVal, Operator.BETWEEN);
 	}
 
 	@Override
 	public Predicate notBetween(Object aVal, Object bVal) {
-		return getProxy().createBetween(new Object[]{aVal, bVal}, Operator.NOT_BETWEEN);
+		return getProxy().createBetween(aVal, bVal, Operator.NOT_BETWEEN);
 	}
+
+	/////////////////////////Private-Inner-Classes////////////////////////////////
+
+	private class PredicateProxy implements Predicate {
+
+		private String key;
+		private Logic logic = Logic.AND;
+		private ExpressionInterpreter expression;
+
+		public PredicateProxy(String key) {
+			this.key = key;
+		}
+
+		@Override
+		public String interpret() {
+			return expression.interpret();
+		}
+
+		@Override
+		public Expression[] resolveExpressions() {
+			return expression.resolveExpressions();
+		}
+
+		private Predicate create(ExpressionInterpreter exp){
+			if(expression == null) {
+				expression = exp;
+			}else {
+				if(logic == Logic.AND) { createAnd(exp);}
+				else {createOr(exp);}
+			}
+			return this;
+		}
+
+		private void createAnd(ExpressionInterpreter exp) {
+			expression = new AndExpression(expression, exp);
+		}
+
+		private void createOr(ExpressionInterpreter exp) {
+			expression = new OrExpression(expression, exp);
+		}
+
+		private void createNor() {
+			expression = new NotExpression(expression);
+		}
+
+		private Predicate createExpression(Object value, Operator opt) {
+			ExpressionInterpreter exp = new Expression(new Property(key, value), opt);
+			return create(exp);
+		}
+
+		private Predicate createIn(Object[] value, Operator opt){
+			ExpressionInterpreter exp = new InExpression(new Property(key, Arrays.asList(value)), opt);
+			return create(exp);
+		}
+
+		private Predicate createBetween(Object valueA, Object valueB, Operator opt){
+			ExpressionInterpreter exp = new BtwExpression(new Property(key, valueA)
+					, new Property(key, valueB)
+					, opt);
+			return create(exp);
+		}
+
+		@Override
+		public Predicate and(ExpressionInterpreter exp) {
+			createAnd(exp);
+			return this;
+		}
+
+		@Override
+		public Predicate or(ExpressionInterpreter exp) {
+			createOr(exp);
+			return this;
+		}
+
+		@Override
+		public Predicate not() {
+			createNor();
+			return this;
+		}
+
+		@Override
+		public WhereClause and(String key) {
+			this.key = key;
+			this.logic = Logic.AND;
+			return Where.this;
+		}
+
+		@Override
+		public WhereClause or(String key) {
+			this.key = key;
+			this.logic = Logic.OR;
+			return Where.this;
+		}
+
+	}
+
+	//////////////////////////////////////////////////////////////////////////////
 }
