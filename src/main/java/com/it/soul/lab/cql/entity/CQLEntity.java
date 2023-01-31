@@ -4,6 +4,7 @@ import com.it.soul.lab.cql.query.CQLInsertQuery;
 import com.it.soul.lab.sql.QueryExecutor;
 import com.it.soul.lab.sql.entity.Column;
 import com.it.soul.lab.sql.entity.Entity;
+import com.it.soul.lab.sql.entity.Ignore;
 import com.it.soul.lab.sql.entity.PrimaryKey;
 import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.SQLSelectQuery;
@@ -92,8 +93,14 @@ public abstract class CQLEntity extends Entity {
     public static <T extends Entity> Map<String, String> mapColumnsToProperties(Class<T> type) {
         Map<String, String> results = new HashMap<>();
         for (Field field : type.getDeclaredFields()) {
+            if (field.isAnnotationPresent(Ignore.class))
+                continue;
             if (field.isAnnotationPresent(Column.class)){
                 Column column = field.getAnnotation(Column.class);
+                String columnName = (column.name().trim().isEmpty() == false) ? column.name().trim() : field.getName();
+                results.put(columnName, field.getName());
+            }else if (field.isAnnotationPresent(javax.persistence.Column.class)){
+                javax.persistence.Column column = field.getAnnotation(javax.persistence.Column.class);
                 String columnName = (column.name().trim().isEmpty() == false) ? column.name().trim() : field.getName();
                 results.put(columnName, field.getName());
             }else if(field.isAnnotationPresent(PrimaryKey.class)){
