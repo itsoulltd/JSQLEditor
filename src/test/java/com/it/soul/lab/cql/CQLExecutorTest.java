@@ -12,6 +12,7 @@ import com.it.soul.lab.sql.query.models.Where;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Test;
 
 import java.sql.SQLException;
 import java.util.*;
