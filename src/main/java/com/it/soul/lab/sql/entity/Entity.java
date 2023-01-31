@@ -56,7 +56,7 @@ public abstract class Entity implements EntityInterface{
 			field.setAccessible(true);
 			Object value = getFieldValue(field, exe);
 			//Here, we are skipping null value too.
-			if (value == null) return null;
+			//if (value == null) return null;
 			String actualKey = getPropertyKey(field);
 			result = new Property(actualKey, value);
 			field.setAccessible(false);

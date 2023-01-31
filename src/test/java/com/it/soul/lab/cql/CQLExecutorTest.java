@@ -4,19 +4,14 @@ import com.it.soul.lab.cql.query.AlterAction;
 import com.it.soul.lab.cql.query.CQLQuery;
 import com.it.soul.lab.cql.query.CQLSelectQuery;
 import com.it.soul.lab.cql.query.ReplicationStrategy;
-import com.it.soul.lab.sql.SQLExecutor;
 import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.query.QueryType;
-import com.it.soul.lab.sql.query.SQLQuery;
 import com.it.soul.lab.sql.query.SQLScalarQuery;
-import com.it.soul.lab.sql.query.SQLSelectQuery;
-import com.it.soul.lab.sql.query.models.Predicate;
 import com.it.soul.lab.sql.query.models.Property;
 import com.it.soul.lab.sql.query.models.Where;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -198,11 +193,11 @@ public class CQLExecutorTest {
             //
             List<OrderEvent> otherItems = OrderEvent.read(OrderEvent.class, cqlExecutor);
             otherItems.stream().forEach(event -> System.out.println("track_id "+ event.getTrackID()));
+            //
+            Assert.assertTrue(otherItems.size() > 0);
         }catch (Exception e){
             System.out.println(e.getMessage());
         }
-        //To Succeed the build
-        Assert.assertTrue(true);
     }
 
     //@Test
