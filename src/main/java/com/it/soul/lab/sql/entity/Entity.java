@@ -50,8 +50,7 @@ public abstract class Entity implements EntityInterface{
 			Field field = getDeclaredField(fieldName, true);
 			if(field.isAnnotationPresent(PrimaryKey.class)) {
 				if (skipPrimary) {return null;}
-				if ((field.getAnnotation(PrimaryKey.class)).auto() == true
-						 && skipPrimary != false) {return null;}
+				if ((field.getAnnotation(PrimaryKey.class)).auto()) {return null;}
 			}
 			field.setAccessible(true);
 			Object value = getFieldValue(field, exe);

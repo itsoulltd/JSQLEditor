@@ -201,17 +201,14 @@ public abstract class CQLEntity extends Entity {
             Entity instance = type.newInstance();
             if (instance instanceof CQLEntity){
                 List<Property> primaryProps = ((CQLEntity)instance).getPrimaryProperties(exe);
-                int index = 0;
-                while (index < primaryProps.size() && index < match.size()){
-                    Property pProperty = primaryProps.get(index);
-                    Property mProperty = match.get(index);
-                    if (mProperty.getKey().equalsIgnoreCase(pProperty.getKey())){
-                        results.add(mProperty);
+                //BugFix: We have to validate is match properties are in primary/cluster property List
+                for (Property mProp : match) {
+                    if(primaryProps.stream()
+                            .anyMatch(pProp -> mProp.getKey().equalsIgnoreCase(pProp.getKey()))) {
+                        results.add(mProp);
                     }
-                    index++;
                 }
             }
-            instance = null;
         }catch (Exception e){
             e.printStackTrace();
         }
