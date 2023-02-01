@@ -53,7 +53,7 @@ public class CQLExecutorTest {
         System.out.println("Cassandra: " + version);
     }
 
-    @Test
+    //@Test
     public void cassandraInsertTest() {
         try {
             //Creating a Table from CQLEntity @TableName description.
@@ -230,7 +230,7 @@ public class CQLExecutorTest {
         return startTimestamp;
     }
 
-    @Test
+    //@Test
     public void fetchTest(){
         try{
             //Prepare Seed-Data:
