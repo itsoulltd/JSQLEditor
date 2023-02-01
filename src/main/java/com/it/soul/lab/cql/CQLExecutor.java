@@ -706,8 +706,11 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
             }
             else{
                 String fieldName = field.getName();
-                if (field.isAnnotationPresent(Column.class)){
+                if (field.isAnnotationPresent(Column.class)) {
                     Column col = field.getAnnotation(Column.class);
+                    if(col.name().trim().isEmpty() == false) fieldName = col.name().trim();
+                } else if (field.isAnnotationPresent(javax.persistence.Column.class)) {
+                    javax.persistence.Column col = field.getAnnotation(javax.persistence.Column.class);
                     if(col.name().trim().isEmpty() == false) fieldName = col.name().trim();
                 }
                 columnBuf.append(fieldName + " " + getDataType(field) + ",");
