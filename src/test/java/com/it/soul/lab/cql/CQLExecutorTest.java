@@ -7,6 +7,7 @@ import com.it.soul.lab.cql.query.ReplicationStrategy;
 import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.SQLScalarQuery;
+import com.it.soul.lab.sql.query.models.Predicate;
 import com.it.soul.lab.sql.query.models.Property;
 import com.it.soul.lab.sql.query.models.Where;
 import org.junit.After;
@@ -20,6 +21,7 @@ import java.util.*;
 public class CQLExecutorTest {
 
     CQLExecutor cqlExecutor;
+    UUID clusterUUID;
 
     @Before
     public void before() throws SQLException {
@@ -32,6 +34,9 @@ public class CQLExecutorTest {
         if (newKeyspace){
             cqlExecutor.switchKeyspace("OrderTracker");
         }
+        //
+        clusterUUID = UUID.randomUUID();
+        System.out.println(clusterUUID.toString());
     }
 
     @After
@@ -48,26 +53,29 @@ public class CQLExecutorTest {
         System.out.println("Cassandra: " + version);
     }
 
-    //@Test
-    public void cassandraInsertTest(){
+    @Test
+    public void cassandraInsertTest() {
         try {
             //Creating a Table from CQLEntity @TableName description.
-            boolean created = cqlExecutor.createTable(OrderEvent.class);
-            Assert.assertTrue("Successfully Created", created);
-            if (created){
-                //If alter needed:
-                try {
-                    boolean add = cqlExecutor.alterTable(OrderEvent.class, AlterAction.ADD, new Property("last_entry_id", ""));
-                    Assert.assertTrue("Add:", add);
-                } catch (SQLException e) {
-                    System.out.println(e.getMessage());
+            boolean isDropped = cqlExecutor.dropTable(OrderEvent.class);
+            if (isDropped) {
+                boolean created = cqlExecutor.createTable(OrderEvent.class);
+                Assert.assertTrue("Successfully Created", created);
+                if (created){
+                    //If alter needed:
+                    try {
+                        boolean add = cqlExecutor.alterTable(OrderEvent.class, AlterAction.ADD, new Property("last_entry_id", ""));
+                        Assert.assertTrue("Add:", add);
+                    } catch (SQLException e) {
+                        System.out.println(e.getMessage());
+                    }
                 }
             }
-
+            //
             OrderEvent event = new OrderEvent();
-            event.setTrackID(UUID.randomUUID().toString());
-            event.setUserID(UUID.randomUUID().toString());
-            event.setUuid(UUID.randomUUID());
+            event.setTrackID("my-device-tracker-id");
+            event.setUserID("towhid@gmail.com");
+            event.setUuid(clusterUUID);
             event.setGuid("wh0rbu49qh61");
 
             Map<String, String> names = new HashMap<>();
@@ -180,22 +188,76 @@ public class CQLExecutorTest {
         Assert.assertTrue(true);
     }
 
-    //@Test
+    private Long generateSeedOrderEvent() throws SQLException {
+        //Creating a Table from CQLEntity @TableName description.
+        boolean isDropped = cqlExecutor.dropTable(OrderEvent.class);
+        if (isDropped) {
+            boolean created = cqlExecutor.createTable(OrderEvent.class);
+            Assert.assertTrue("Successfully Created", created);
+        }
+        //
+        Long startTimestamp = 0l;
+        for (int count = 0; count < 100; ++count) {
+            OrderEvent event = new OrderEvent();
+            event.setTrackID("my-device-tracker-id");
+            event.setUserID("towhid@gmail.com");
+            event.setUuid(clusterUUID);
+            event.setGuid("wh0rbu49qh61");
+
+            Map<String, String> names = new HashMap<>();
+            names.put("fname-" + count, "James");
+            names.put("lname-" + count, "Julian");
+            event.setKvm(names);
+
+            Map<String, Integer> collections = new HashMap<>();
+            collections.put("age-" + count, 1);
+            collections.put("days-" + count, 24);
+            event.setKvm2(collections);
+            //Insert
+            boolean inserted = event.insert(cqlExecutor);
+            if (startTimestamp == 0l) startTimestamp = event.getTimestamp();
+            Assert.assertTrue("Successfully Inserted", inserted);
+        }
+
+        //RowCount Test:
+        SQLScalarQuery countQuery = new CQLQuery.Builder(QueryType.COUNT)
+                .columns()
+                .on(OrderEvent.class)
+                .build();
+        int rows = cqlExecutor.getScalarValue(countQuery);
+        System.out.println("Total RowCount: " + rows);
+        Assert.assertTrue(rows > 0);
+        return startTimestamp;
+    }
+
+    @Test
     public void fetchTest(){
         try{
+            //Prepare Seed-Data:
+            Long startTime = generateSeedOrderEvent();
             //Cassandra force to have all PartitionKey in where clause and they must have to be in sequence as they appear in table schema.
             //ClusteringKey's are optional they may or may not in clause.
-            /*Predicate predicate = new Where("track_id")
-                                        .isEqualTo("3ab863f1-558b-4621-9410-ef3f2180889f")
-                                        .and("user_id")
-                                        .isEqualTo("776aa40b-8f9c-4e6f-80e9-ae6c5e555be0");
-            List<OrderEvent> otherItems = OrderEvent.read(OrderEvent.class, cqlExecutor, predicate);
-            otherItems.stream().forEach(event -> System.out.println("track_id "+ event.getTrackID()));*/
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.SECOND, 10);
             //
-            List<OrderEvent> otherItems = OrderEvent.read(OrderEvent.class, cqlExecutor);
-            otherItems.stream().forEach(event -> System.out.println("track_id "+ event.getTrackID()));
-            //
+            CQLSelectQuery query = new CQLQuery.Builder(QueryType.SELECT)
+                    .columns()
+                    .from(OrderEvent.class)
+                    .where(new Where("user_id").isEqualTo("towhid@gmail.com")
+                            .and("track_id").isEqualTo("my-device-tracker-id")
+                            .and("uuid").isEqualTo(clusterUUID)
+                            .and("guid").isEqualTo("wh0rbu49qh61")
+                            .and("timestamp").isGreaterThenOrEqual(startTime))
+                    .addLimit(10, 0)
+                    .build();
+            List<OrderEvent> otherItems = cqlExecutor.executeSelect(query, OrderEvent.class);
+            otherItems.stream().forEach(event -> System.out.println("timestamp:  "+ event.getTimestamp()));
             Assert.assertTrue(otherItems.size() > 0);
+            //Read All:
+            /*List<OrderEvent> otherItems2 = OrderEvent.read(OrderEvent.class, cqlExecutor);
+            otherItems2.stream().forEach(event -> System.out.println("timestamp:  "+ event.getTimestamp()));
+            Assert.assertTrue(otherItems2.size() > 0);*/
+            //
         }catch (Exception e){
             System.out.println(e.getMessage());
         }

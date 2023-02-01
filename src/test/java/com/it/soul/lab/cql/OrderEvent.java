@@ -34,7 +34,9 @@ public class OrderEvent extends CQLEntity {
             , options = "'mode': 'CONTAINS', 'analyzer_class': 'org.apache.cassandra.index.sasi.analyzer.StandardAnalyzer', 'case_sensitive': 'false'")
     private String guid; //Clustering ID
 
-    private Date timestamp = new Date();
+    @ClusteringKey(name = "timestamp")
+    private Long timestamp = new Date().getTime();
+
     private Map<String, String> kvm;
     private Map<String, Integer> kvm2;
 
@@ -78,11 +80,11 @@ public class OrderEvent extends CQLEntity {
         this.uuid = uuid;
     }
 
-    public Date getTimestamp() {
+    public Long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Date timestamp) {
+    public void setTimestamp(Long timestamp) {
         this.timestamp = timestamp;
     }
 
