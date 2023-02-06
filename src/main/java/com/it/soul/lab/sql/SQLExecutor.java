@@ -472,7 +472,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 					stmt.executeUpdate();
 					ResultSet rs = stmt.getGeneratedKeys();
 					if (rs != null && rs.next())
-						lastIncrementedID = rs.getInt(1);
+						try { lastIncrementedID = rs.getInt(1); } catch (SQLException e) {}
 				}else{
 					stmt = conn.prepareStatement(query);
 					lastIncrementedID = stmt.executeUpdate();
@@ -507,7 +507,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 					stmt.executeUpdate();
 					ResultSet set = stmt.getGeneratedKeys();
 					if(set != null && set.next()){
-						affectedRows = set.getInt(1);
+						try { affectedRows = set.getInt(1); } catch (SQLException e) {}
 						set.close();
 					}
 				}else{
@@ -596,7 +596,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 				pstmt = conn.prepareStatement(query);
 				rs = pstmt.executeQuery();
 				if (rs.next()) {
-					rowCount = rs.getInt(1);
+					try { rowCount = rs.getInt(1); } catch (SQLException e) {}
 				} else {
 					rowCount=0;
 				}
@@ -627,7 +627,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 						, whereClause.keyValueMap());
 				rs = pstmt.executeQuery();
 				if (rs.next()) {
-					rowCount = rs.getInt(1);
+					try { rowCount = rs.getInt(1); } catch (SQLException e) {}
 				} else {
 					rowCount=0;
 				}
