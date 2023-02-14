@@ -48,13 +48,13 @@ public class SQLJoinQuery extends SQLSelectQuery {
 			if (index++ == 0) {
 				//first case
 				//joinBuffer.append("("+ table.getName() + " " + joinName() + " " + table.joinWith().getName() + table.getExpression().interpret() + ")");
-				joinBuffer.append( table.getAsAlice() + " " + joinName() + " " + table.joinWith().getAsAlice() + table.getExpression().interpret() );
+				joinBuffer.append( table.getAsAlice(dialect) + " " + joinName() + " " + table.joinWith().getAsAlice(dialect) + table.getExpression().interpret() );
 			}else {
 				//every other case
 				String lastBuffer = joinBuffer.toString();
 				joinBuffer.delete(0, lastBuffer.length());
 				//joinBuffer.append("("+ lastBuffer + " " + joinName() + " " + table.joinWith().getName() + table.getExpression().interpret() + ")");
-				joinBuffer.append( lastBuffer + " " + joinName() + " " + table.joinWith().getAsAlice() + table.getExpression().interpret() );
+				joinBuffer.append( lastBuffer + " " + joinName() + " " + table.joinWith().getAsAlice(dialect) + table.getExpression().interpret() );
 			}
 		}
 		if (index > 0) {buffer.append(joinBuffer.toString());}
@@ -239,8 +239,12 @@ public class SQLJoinQuery extends SQLSelectQuery {
 		public String getName() {
 			return (alice != null && !alice.isEmpty()) ? alice : name;
 		}
-		public String getAsAlice() {
-			return (alice != null && !alice.isEmpty()) ? (name + " AS " + alice) : name;
+		public String getAsAlice(DriverClass dialect) {
+			if (dialect == DriverClass.OracleOCI9i) {
+				return (alice != null && !alice.isEmpty()) ? (name + " " + alice) : name;
+			} else {
+				return (alice != null && !alice.isEmpty()) ? (name + " AS " + alice) : name;
+			}
 		}
 		public void join(JoinTable tail) {
 			this.tail = tail;
