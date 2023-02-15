@@ -609,5 +609,59 @@ public class QueryBuilderTest {
 		System.out.println(jpqlSelectQuery.toString());
 		Assert.assertEquals("SELECT e FROM Customers e WHERE e.Country NOT BETWEEN :Country_left AND :Country_right", jpqlSelectQuery.toString());
 	}
+
+	@Test
+	public void mysqlLimitTest() {
+		SQLQuery qu14 = new SQLQuery.Builder(QueryType.SELECT)
+				.columns("name","age", "sex")
+				.from(Entity.tableName(Passenger.class))
+				.where(new Where("age").isGreaterThenOrEqual(18))
+				.orderBy("id", "name desc", "age asc", Operator.DESC.toString("sex"))
+				.addLimit(10, 0)
+				.build();
+
+		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE age >= ? ORDER BY id ASC, name desc, age asc, sex DESC LIMIT 10", qu14.toString());
+		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE age >= 18 ORDER BY id ASC, name desc, age asc, sex DESC LIMIT 10", qu14.bindValueToString());
+
+		SQLQuery qu15 = new SQLQuery.Builder(QueryType.SELECT)
+				.columns("name","age", "sex")
+				.from(Entity.tableName(Passenger.class))
+				.where(new Where("age").isGreaterThenOrEqual(18))
+				.orderBy("id", "name desc", "age asc", Operator.DESC.toString("sex"))
+				.addLimit(10, 5)
+				.build();
+
+		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE age >= ? ORDER BY id ASC, name desc, age asc, sex DESC LIMIT 10 OFFSET 5", qu15.toString());
+		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE age >= ? ORDER BY id ASC, name desc, age asc, sex DESC LIMIT 10 OFFSET 5", qu15.toString());
+		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE age >= 18 ORDER BY id ASC, name desc, age asc, sex DESC LIMIT 10 OFFSET 5", qu15.bindValueToString());
+		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE age >= 18 ORDER BY id ASC, name desc, age asc, sex DESC LIMIT 10 OFFSET 5", qu15.bindValueToString());
+	}
+
+	@Test
+	public void oracleLimitTest() {
+		SQLQuery qu14 = new SQLQuery.Builder(QueryType.SELECT)
+				.columns("name","age", "sex")
+				.from(Entity.tableName(Passenger.class))
+				.where(new Where("age").isGreaterThenOrEqual(18))
+				.orderBy("id", "name desc", "age asc", Operator.DESC.toString("sex"))
+				.addLimit(10, 0)
+				.build();
+
+		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE age >= ? ORDER BY id ASC, name desc, age asc, sex DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY", qu14.toString(DriverClass.OracleOCI9i));
+		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE age >= 18 ORDER BY id ASC, name desc, age asc, sex DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY", qu14.bindValueToString(DriverClass.OracleOCI9i));
+
+		SQLQuery qu15 = new SQLQuery.Builder(QueryType.SELECT)
+				.columns("name","age", "sex")
+				.from(Entity.tableName(Passenger.class))
+				.where(new Where("age").isGreaterThenOrEqual(18))
+				.orderBy("id", "name desc", "age asc", Operator.DESC.toString("sex"))
+				.addLimit(10, 5)
+				.build();
+
+		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE age >= ? ORDER BY id ASC, name desc, age asc, sex DESC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY", qu15.toString(DriverClass.OracleOCI9i));
+		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE age >= ? ORDER BY id ASC, name desc, age asc, sex DESC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY", qu15.toString(DriverClass.OracleOCI9i));
+		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE age >= 18 ORDER BY id ASC, name desc, age asc, sex DESC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY", qu15.bindValueToString(DriverClass.OracleOCI9i));
+		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE age >= 18 ORDER BY id ASC, name desc, age asc, sex DESC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY", qu15.bindValueToString(DriverClass.OracleOCI9i));
+	}
 	
 }
