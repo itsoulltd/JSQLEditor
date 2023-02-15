@@ -668,16 +668,17 @@ public class QueryBuilderTest {
 				.from(Entity.tableName(Passenger.class))
 				.where(new Where("age").isGreaterThenOrEqual(18)
 						.and("name").isEqualTo("TOW"))
+				.orderBy("id", "name desc", "age asc", Operator.DESC.toString("sex"))
 				.addLimit(10, 0)
 				.build();
 
-		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE ( age >= ? AND name = ? ) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY", qu16.toString(DriverClass.OracleOCI9i));
-		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE ( age >= ? AND name = ? ) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY", qu16.toString(DriverClass.OracleOCI9i));
+		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE ( age >= ? AND name = ? ) ORDER BY id ASC, name desc, age asc, sex DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY", qu16.toString(DriverClass.OracleOCI9i));
+		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE ( age >= ? AND name = ? ) ORDER BY id ASC, name desc, age asc, sex DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY", qu16.toString(DriverClass.OracleOCI9i));
 		//
 		System.out.println(qu16.toString(DriverClass.OracleOCI9i));
 		System.out.println(qu16.bindValueToString(DriverClass.OracleOCI9i));
 		String str = qu16.bindValueToString(DriverClass.OracleOCI9i);
-		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE ( age >= 18 AND name = 'TOW' ) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY", str);
+		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE ( age >= 18 AND name = 'TOW' ) ORDER BY id ASC, name desc, age asc, sex DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY", str);
 	}
 	
 }
