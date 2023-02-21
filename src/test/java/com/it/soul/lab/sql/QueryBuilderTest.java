@@ -620,6 +620,8 @@ public class QueryBuilderTest {
 				.addLimit(10, 0)
 				.build();
 
+		System.out.println("qu14: " + qu14.toString());
+		System.out.println("qu14: " + qu14.bindValueToString());
 		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE age >= ? ORDER BY id ASC, name desc, age asc, sex DESC LIMIT 10", qu14.toString());
 		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE age >= 18 ORDER BY id ASC, name desc, age asc, sex DESC LIMIT 10", qu14.bindValueToString());
 
@@ -631,6 +633,8 @@ public class QueryBuilderTest {
 				.addLimit(10, 5)
 				.build();
 
+		System.out.println("qu15: " + qu15.toString());
+		System.out.println("qu15: " + qu15.bindValueToString());
 		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE age >= ? ORDER BY id ASC, name desc, age asc, sex DESC LIMIT 10 OFFSET 5", qu15.toString());
 		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE age >= ? ORDER BY id ASC, name desc, age asc, sex DESC LIMIT 10 OFFSET 5", qu15.toString());
 		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE age >= 18 ORDER BY id ASC, name desc, age asc, sex DESC LIMIT 10 OFFSET 5", qu15.bindValueToString());

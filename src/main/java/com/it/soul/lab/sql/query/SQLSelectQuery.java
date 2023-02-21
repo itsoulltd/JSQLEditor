@@ -53,7 +53,7 @@ public class SQLSelectQuery extends SQLQuery{
 			if (dialect == DriverClass.OracleOCI9i){
 				if (pqlBuffer.toString().contains("LIMIT")) {
 					String limitStr = " LIMIT " + limit;
-					int start = pqlBuffer.length() - limitStr.length() - 1;
+					int start = pqlBuffer.toString().indexOf(limitStr);
 					int end = pqlBuffer.length();
 					pqlBuffer.replace(start, end, "");
 				}
