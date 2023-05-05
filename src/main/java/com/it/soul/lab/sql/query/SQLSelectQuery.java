@@ -50,7 +50,18 @@ public class SQLSelectQuery extends SQLQuery{
 		//Oracle SQL Format => OFFSET %s ROWS FETCH NEXT %s ROWS ONLY
 		//General SQL Format => LIMIT %s OFFSET %s
 		if (limit > 0) {
-			if (dialect == DriverClass.OracleOCI9i){
+			if (dialect == DriverClass.MYSQL
+					|| dialect == DriverClass.H2_EMBEDDED
+					|| dialect == DriverClass.H2_FILE
+					|| dialect == DriverClass.H2_SERVER
+					|| dialect == DriverClass.H2_SERVER_TLS
+					|| dialect == DriverClass.HSQL_EMBEDDED){
+				//
+				if (pqlBuffer.toString().contains("LIMIT")) return;
+				pqlBuffer.append(" LIMIT " + limit) ;
+				if (offset > 0) { pqlBuffer.append(" OFFSET " + offset) ;}
+			}else {
+				//
 				if (pqlBuffer.toString().contains("LIMIT")) {
 					String limitStr = " LIMIT " + limit;
 					int start = pqlBuffer.toString().indexOf(limitStr);
@@ -59,10 +70,6 @@ public class SQLSelectQuery extends SQLQuery{
 				}
 				if (pqlBuffer.toString().contains("ROWS FETCH NEXT")) return;
 				pqlBuffer.append(String.format(" OFFSET %s ROWS FETCH NEXT %s ROWS ONLY", offset, limit));
-			}else {
-				if (pqlBuffer.toString().contains("LIMIT")) return;
-				pqlBuffer.append(" LIMIT " + limit) ;
-				if (offset > 0) { pqlBuffer.append(" OFFSET " + offset) ;}
 			}
 		}
 	}
