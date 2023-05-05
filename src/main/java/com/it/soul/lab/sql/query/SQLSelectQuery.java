@@ -47,8 +47,8 @@ public class SQLSelectQuery extends SQLQuery{
 	}
 
 	protected void appendLimit(StringBuffer pqlBuffer, DriverClass dialect) {
-		//Oracle SQL Format => OFFSET %s ROWS FETCH NEXT %s ROWS ONLY
-		//General SQL Format => LIMIT %s OFFSET %s
+		//General ANIS-SQL Format => OFFSET %s ROWS FETCH NEXT %s ROWS ONLY
+		//Mysql & H2 variants SQL Format => LIMIT %s OFFSET %s
 		if (limit > 0) {
 			if (dialect == DriverClass.MYSQL
 					|| dialect == DriverClass.H2_EMBEDDED
