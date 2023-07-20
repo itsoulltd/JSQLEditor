@@ -35,7 +35,7 @@ services:
     networks:
       - jsql-app-net
     depends_on:
-      - mysq-db
+      - mysql-db
     restart: on-failure
 
   cassandra-db:
