@@ -148,7 +148,15 @@ public abstract class CQLEntity extends Entity {
             , int pageSize
             , int rowCount
             , ExpressionInterpreter expression
-            , Consumer<List<T>> consumer) {
+            , Consumer<List<T>> consumer) { read(aClass, executor, 0, pageSize, rowCount, expression, consumer); }
+
+    public static <T extends Entity> void read(Class<T> aClass
+            , QueryExecutor executor
+            , int offset
+            , int pageSize
+            , int rowCount
+            , ExpressionInterpreter expression
+            , Consumer<List<T>> consumer){
         System.out.println("NOT IMPLEMENTED YET!!! IF NEEDED PLEASE EXTEND");
     }
 

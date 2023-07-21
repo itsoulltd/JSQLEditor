@@ -293,6 +293,54 @@ public class CQLExecutorTest {
     }
 
     //@Test
+    public void readAllTest() throws Exception {
+        //Prepare Seed-Data:
+        Long startTime = generateSeedOrderEvent();
+        //DateFormatter:
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS a");
+        //Where Clause:
+        Predicate clause = new Where("user_id").isEqualTo("towhid@gmail.com")
+                .and("track_id").isEqualTo("my-device-tracker-id")
+                .and("uuid").isEqualTo(clusterUUID)
+                .and("guid").isEqualTo("wh0rbu49qh61")
+                .and("timestamp").isGreaterThenOrEqual(startTime);
+        //
+        List<OrderEvent> otherItems2 = OrderEvent.read(OrderEvent.class, cqlExecutor);
+        //Print Result:
+        otherItems2.stream().forEach(event ->
+                System.out.println("ASC Event:  "
+                        + formatter.format(new Date(event.getTimestamp()))
+                        + " " + event.marshallingToMap(true))
+        );
+        Assert.assertTrue(otherItems2.size() > 0);
+    }
+
+    //@Test
+    public void asyncReadAllTest() throws Exception {
+        //Prepare Seed-Data:
+        Long startTime = generateSeedOrderEvent();
+        //DateFormatter:
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS a");
+        //Where Clause:
+        Predicate clause = new Where("user_id").isEqualTo("towhid@gmail.com")
+                .and("track_id").isEqualTo("my-device-tracker-id")
+                .and("uuid").isEqualTo(clusterUUID)
+                .and("guid").isEqualTo("wh0rbu49qh61")
+                .and("timestamp").isGreaterThenOrEqual(startTime);
+        //
+        OrderEvent.read(OrderEvent.class, cqlExecutor, 10, clause, (orderEvents) -> {
+            //Print Result:
+            orderEvents.stream().forEach(event ->
+                System.out.println("Event:  "
+                        + formatter.format(new Date(event.getTimestamp()))
+                        + " " + event.marshallingToMap(true))
+            );
+            System.out.println("\n");
+        });
+        //
+    }
+
+    //@Test
     public void tableAlterTest() throws SQLException {
         //boolean alter = cqlExecutor.alterTable(OrderEvent.class, AlterAction.ALTER, new Property("<non-primary-key>", "data-type-as-value"));
         //Assert.assertTrue("Alter:", alter);
