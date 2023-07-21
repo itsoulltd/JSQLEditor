@@ -7,6 +7,7 @@ import com.it.soul.lab.cql.query.ReplicationStrategy;
 import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.SQLScalarQuery;
+import com.it.soul.lab.sql.query.models.Operator;
 import com.it.soul.lab.sql.query.models.Predicate;
 import com.it.soul.lab.sql.query.models.Property;
 import com.it.soul.lab.sql.query.models.Where;
@@ -16,6 +17,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class CQLExecutorTest {
@@ -235,28 +238,54 @@ public class CQLExecutorTest {
         try{
             //Prepare Seed-Data:
             Long startTime = generateSeedOrderEvent();
-            //Cassandra force to have all PartitionKey in where clause and they must have to be in sequence as they appear in table schema.
+            //DateFormatter:
+            DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS a");
+
+            //Cassandra force to have all PartitionKey in where clause, and they must have to be in sequence as they appear in table schema.
             //ClusteringKey's are optional they may or may not in clause.
-            Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.SECOND, 10);
-            //
-            CQLSelectQuery query = new CQLQuery.Builder(QueryType.SELECT)
+            //Where Clause:
+            Predicate clause = new Where("user_id").isEqualTo("towhid@gmail.com")
+                    .and("track_id").isEqualTo("my-device-tracker-id")
+                    .and("uuid").isEqualTo(clusterUUID)
+                    .and("guid").isEqualTo("wh0rbu49qh61")
+                    .and("timestamp").isGreaterThenOrEqual(startTime);
+
+            //SearchQuery DESC:
+            CQLSelectQuery query_desc = new CQLQuery.Builder(QueryType.SELECT)
                     .columns()
                     .from(OrderEvent.class)
-                    .where(new Where("user_id").isEqualTo("towhid@gmail.com")
-                            .and("track_id").isEqualTo("my-device-tracker-id")
-                            .and("uuid").isEqualTo(clusterUUID)
-                            .and("guid").isEqualTo("wh0rbu49qh61")
-                            .and("timestamp").isGreaterThenOrEqual(startTime))
+                    .where(clause)
+                    .orderBy(Operator.DESC, "timestamp")
                     .addLimit(10, 0)
                     .build();
-            List<OrderEvent> otherItems = cqlExecutor.executeSelect(query, OrderEvent.class);
-            otherItems.stream().forEach(event -> System.out.println("timestamp:  "+ event.getTimestamp()));
+            List<OrderEvent> otherItems = cqlExecutor.executeSelect(query_desc, OrderEvent.class);
+            //Print Result:
+            otherItems.stream().forEach(event ->
+                    System.out.println("DESC Event:  "
+                            + formatter.format(new Date(event.getTimestamp()))
+                            + " " + event.marshallingToMap(true))
+            );
             Assert.assertTrue(otherItems.size() > 0);
-            //Read All:
-            /*List<OrderEvent> otherItems2 = OrderEvent.read(OrderEvent.class, cqlExecutor);
-            otherItems2.stream().forEach(event -> System.out.println("timestamp:  "+ event.getTimestamp()));
-            Assert.assertTrue(otherItems2.size() > 0);*/
+            System.out.println("\n");
+
+            //Search Asc:
+            CQLSelectQuery query_asc = new CQLQuery.Builder(QueryType.SELECT)
+                    .columns()
+                    .from(OrderEvent.class)
+                    .where(clause)
+                    .orderBy(Operator.ASC, "timestamp")
+                    .addLimit(10, 0)
+                    .build();
+            //
+            //List<OrderEvent> otherItems2 = OrderEvent.read(OrderEvent.class, cqlExecutor, clause);
+            List<OrderEvent> otherItems2 = cqlExecutor.executeSelect(query_asc, OrderEvent.class);
+            //Print Result:
+            otherItems2.stream().forEach(event ->
+                    System.out.println("ASC Event:  "
+                            + formatter.format(new Date(event.getTimestamp()))
+                            + " " + event.marshallingToMap(true))
+            );
+            Assert.assertTrue(otherItems2.size() > 0);
             //
         }catch (Exception e){
             System.out.println(e.getMessage());
