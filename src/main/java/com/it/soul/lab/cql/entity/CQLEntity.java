@@ -12,6 +12,7 @@ import com.it.soul.lab.sql.query.models.*;
 
 import java.lang.reflect.Field;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -141,7 +142,7 @@ public abstract class CQLEntity extends Entity {
             , QueryExecutor executor
             , int pageSize
             , ExpressionInterpreter expression
-            , Consumer<List<T>> consumer) { read(aClass, executor, pageSize, -1, expression, consumer); }
+            , Consumer<List<T>> consumer) { read(aClass, executor, pageSize, 20, expression, consumer); }
 
     public static <T extends Entity> void read(Class<T> aClass
             , QueryExecutor executor
@@ -158,6 +159,65 @@ public abstract class CQLEntity extends Entity {
             , ExpressionInterpreter expression
             , Consumer<List<T>> consumer){
         System.out.println("NOT IMPLEMENTED YET!!! IF NEEDED PLEASE EXTEND");
+        /*read(aClass
+                , executor
+                , pageSize
+                , rowCount
+                , new Property("timestamp", Instant.now().toEpochMilli())
+                , Operator.ASC
+                , (nextKey) -> new Where(nextKey.getKey()).isGreaterThenOrEqual(nextKey.getValue())
+                , consumer);*/
+    }
+
+    @FunctionalInterface
+    public interface WherePredicate {
+        Predicate apply(Property nextPagingKey);
+    }
+
+    public static <T extends Entity> void read(Class<T> aClass
+            , QueryExecutor executor
+            , int pageSize
+            , int rowCount
+            , Property pagingKey
+            , Operator sortOrder
+            , WherePredicate predicate
+            , Consumer<List<T>> consumer) {
+        //
+        if (consumer == null) throw new RuntimeException("Consumer is empty!");
+        if (predicate == null) throw new RuntimeException("expression is empty!");
+        if (pagingKey == null) throw new RuntimeException("pagingKey is empty!");
+        try {
+            int fetchCount = 0;
+            ExpressionInterpreter expression;
+            Property nextKey = pagingKey;
+            do {
+                //Now insert the pagingKey into expression, So that we can read next batch:
+                expression = predicate.apply(nextKey);
+                //Fetch from Cassandra:
+                SQLSelectQuery query = executor.createQueryBuilder(QueryType.SELECT)
+                        .columns()
+                        .from(Entity.tableName(aClass))
+                        .where(expression)
+                        .orderBy(sortOrder, pagingKey.getKey())
+                        .addLimit(pageSize, 0)
+                        .build();
+                List<T> items = executor.executeSelect(query
+                        , aClass
+                        , Entity.mapColumnsToProperties(aClass));
+                consumer.accept(items);
+                //If Items are empty that means end of Fetch:
+                if (items.isEmpty()) {
+                    break;
+                }
+                //Otherwise prepare next query with new next batch using pagingKey:
+                T lastItem = items.get(items.size() - 1);
+                nextKey = lastItem.getRow().keyValueMap().get(pagingKey.getKey());
+                fetchCount += pageSize;
+            } while (fetchCount < rowCount);
+        } catch (SQLException | IllegalAccessException | InstantiationException e) {
+            e.printStackTrace();
+            consumer.accept(Collections.emptyList());
+        }
     }
 
     private static SQLSelectQuery getSqlSelectQuery(QueryExecutor exe, ExpressionInterpreter expression, String name) {
