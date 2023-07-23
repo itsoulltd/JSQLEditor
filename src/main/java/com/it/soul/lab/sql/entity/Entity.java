@@ -715,7 +715,7 @@ public abstract class Entity implements EntityInterface{
 			do {
 				//Now insert the pagingKey into expression, So that we can read next batch:
 				expression = predicate.apply(nextKey);
-				//Fetch from Cassandra:
+				//Fetch from Persistence Store (SQL/NoSQL DB):
 				SQLSelectQuery query = executor.createQueryBuilder(QueryType.SELECT)
 						.columns()
 						.from(Entity.tableName(aClass))
