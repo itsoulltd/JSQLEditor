@@ -13,6 +13,9 @@ import org.junit.Test;
 import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.List;
 
 public class SQLExecutorTest {
@@ -134,5 +137,63 @@ public class SQLExecutorTest {
         Table table = exe.collection(set);
         List<Passenger> results = table.inflate(Passenger.class, Entity.mapColumnsToProperties(Passenger.class));
         Assert.assertTrue(results.size() == 1);
+    }
+
+    private Long seedPassengers() throws SQLException {
+        Long startTimestamp = 0l;
+        for (int count = 0; count < 100; ++count) {
+            Passenger passenger = new Passenger();
+            passenger.setName("Name_" + count);
+            passenger.setAge(20 + count);
+            passenger.setSex("MALE");
+            passenger.setDob(new java.sql.Date(Instant.now().toEpochMilli()));
+            passenger.setCreatedate(new java.sql.Timestamp(Instant.now().toEpochMilli()));
+            //Insert
+            boolean inserted = passenger.insert(exe);
+            if (startTimestamp == 0l) startTimestamp = passenger.getCreatedate().getTime();
+            Assert.assertTrue("Successfully Inserted", inserted);
+        }
+
+        //RowCount Test:
+        SQLScalarQuery countQuery = new SQLQuery.Builder(QueryType.COUNT)
+                .columns()
+                .on(Passenger.class)
+                .build();
+        int rows = exe.getScalarValue(countQuery);
+        System.out.println("Total RowCount: " + rows);
+        Assert.assertTrue(rows > 0);
+        return startTimestamp;
+    }
+
+    @Test
+    public void asyncReadAllTest() throws Exception {
+        //Prepare Seed-Data:
+        Long startTime = seedPassengers();
+        //DateFormatter:
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS a");
+        //
+        // Test Sequence:
+        // (pageSize:10 - rowCount:30)    (pageSize:10 - rowCount:25)  (pageSize:5 - rowCount:6)
+        // (pageSize:30 - rowCount:101)   (pageSize:30 - rowCount:100) (pageSize:30 - rowCount:99)
+        // (pageSize:30 - rowCount:1030)  (pageSize:30 - rowCount:29)
+        // (pageSize:1 - rowCount:-1)   (pageSize:1 - rowCount:0)  [Fetch single row from DB]
+        // (pageSize:0 - rowCount:-1)   (pageSize:-1 - rowCount:-1) [Caution: Both will fetch all rows from DB]
+        Passenger.read(Passenger.class, exe
+                , 10, 30
+                , new Property("CREATEDATE", new java.sql.Date(startTime))
+                , Operator.ASC
+                , (nextKey) -> {
+                    //Where Clause:
+                    return new Where(nextKey.getKey()).isGreaterThenOrEqual(nextKey.getValue());
+                }
+                , (passengers) -> {
+                    //Print Result:
+                    passengers.stream().forEach(event ->
+                            System.out.println("Event:  "
+                                    + formatter.format(event.getCreatedate())
+                                    + " " + event.marshallingToMap(true))
+                    );
+                    System.out.println("Row Count: " + passengers.size() + " \n");
+                });
     }
 }

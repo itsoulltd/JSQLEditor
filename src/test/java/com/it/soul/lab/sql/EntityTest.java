@@ -131,7 +131,7 @@ public class EntityTest {
 
     @Test public void rowDefTest(){
         Row def = Entity.getRowDefinition(Passenger.class);
-        Assert.assertEquals("{DOB=null, SEX=null, ID=null, AGE=null, NAME=null}"
+        Assert.assertEquals("{DOB=null, SEX=null, CREATEDATE=null, ID=null, AGE=null, NAME=null}"
                                     , def.toString());
         System.out.println(def.toString());
 
@@ -148,12 +148,12 @@ public class EntityTest {
         passenger.setAge(34);
         passenger.setSex("Male");
         Row passRow = passenger.getRow();
-        Assert.assertEquals("{DOB=null, SEX=Male, ID=null, AGE=34, NAME=Pass}"
+        Assert.assertEquals("{DOB=null, SEX=Male, CREATEDATE=null, ID=null, AGE=34, NAME=Pass}"
                 , passRow.toString());
         System.out.println(passRow.toString());
 
         Row passRow2 = passenger.getRow("DOB");
-        Assert.assertEquals("{SEX=Male, ID=null, AGE=34, NAME=Pass}"
+        Assert.assertEquals("{SEX=Male, CREATEDATE=null, ID=null, AGE=34, NAME=Pass}"
                 , passRow2.toString());
         System.out.println(passRow2.toString());
 
