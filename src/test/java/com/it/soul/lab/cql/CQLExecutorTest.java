@@ -322,11 +322,14 @@ public class CQLExecutorTest {
         //DateFormatter:
         DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS a");
         //
-        //Test Sequence: (pageSize:10 - rowCount:30) (pageSize:10 - rowCount:25)
-        // (pageSize:30 - rowCount:101) (pageSize:30 - rowCount:100) (pageSize:30 - rowCount:99)
-        // (pageSize:30 - rowCount:1030)  (pageSize:5 - rowCount:6)  (pageSize:30 - rowCount:29)
+        // Test Sequence:
+        // (pageSize:10 - rowCount:30)    (pageSize:10 - rowCount:25)  (pageSize:5 - rowCount:6)
+        // (pageSize:30 - rowCount:101)   (pageSize:30 - rowCount:100) (pageSize:30 - rowCount:99)
+        // (pageSize:30 - rowCount:1030)  (pageSize:30 - rowCount:29)
+        // (pageSize:1 - rowCount:-1)   (pageSize:1 - rowCount:0)  [Fetch single row from DB]
+        // (pageSize:0 - rowCount:-1)   (pageSize:-1 - rowCount:-1) [Caution: Both will fetch all rows from DB]
         OrderEvent.read(OrderEvent.class, cqlExecutor
-                , 30, 1030
+                , 1, 0
                 , new Property("timestamp", startTime)
                 , Operator.ASC
                 , (nextKey) -> {
