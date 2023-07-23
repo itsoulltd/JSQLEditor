@@ -26,7 +26,9 @@ public class SQLExecutorTest {
     public void setUp() throws Exception {
         exe = new SQLExecutor.Builder(DriverClass.H2_EMBEDDED)
                 .database("testH2DB")
-                .credential("sa", "").build();
+                .credential("sa", "")
+                .query(";DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE;") //DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE
+                .build();
         //
         ScriptRunner runner = new ScriptRunner();
         File file = new File("testDB.sql");
@@ -179,7 +181,7 @@ public class SQLExecutorTest {
         // (pageSize:1 - rowCount:-1)   (pageSize:1 - rowCount:0)  [Fetch single row from DB]
         // (pageSize:0 - rowCount:-1)   (pageSize:-1 - rowCount:-1) [Caution: Both will fetch all rows from DB]
         Passenger.read(Passenger.class, exe
-                , 10, 30
+                , 5, 21
                 , new Property("CREATEDATE", new java.sql.Date(startTime))
                 , Operator.ASC
                 , (nextKey) -> {
