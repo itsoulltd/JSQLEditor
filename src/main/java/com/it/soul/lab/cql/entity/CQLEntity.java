@@ -211,7 +211,12 @@ public abstract class CQLEntity extends Entity {
                 }
                 //Otherwise prepare next query with new next batch using pagingKey:
                 T lastItem = items.get(items.size() - 1);
-                nextKey = lastItem.getRow().keyValueMap().get(pagingKey.getKey());
+                Property possibleNextKey = lastItem.getRow().keyValueMap().get(pagingKey.getKey());
+                //If both values are equal then end of Fetch:
+                if (Objects.equals(nextKey.getValue(), possibleNextKey.getValue())){
+                    break;
+                }
+                nextKey = possibleNextKey;
                 fetchCount += pageSize;
             } while (fetchCount < rowCount);
         } catch (SQLException | IllegalAccessException | InstantiationException e) {
