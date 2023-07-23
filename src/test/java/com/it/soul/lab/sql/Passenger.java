@@ -24,6 +24,8 @@ public class Passenger extends Entity {
 	private String sex;
 	@Column(name = "DOB")
 	private Date dob;
+	@Column(name = "CREATEDATE")
+	private Date createdate;
 	@Ignore
 	private static Integer _autoIncrement = 0;
 	public Passenger() {}
@@ -72,6 +74,12 @@ public class Passenger extends Entity {
 	}
 	public void setDob(Date dob) {
 		this.dob = dob;
+	}
+	public Date getCreatedate() {
+		return createdate;
+	}
+	public void setCreatedate(Date createdate) {
+		this.createdate = createdate;
 	}
 
 	public Property getPropertyTest(String key, SQLExecutor exe, boolean skipPrimary) {
