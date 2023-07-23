@@ -321,23 +321,31 @@ public class CQLExecutorTest {
         Long startTime = generateSeedOrderEvent();
         //DateFormatter:
         DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS a");
-        //Where Clause:
-        Predicate clause = new Where("user_id").isEqualTo("towhid@gmail.com")
-                .and("track_id").isEqualTo("my-device-tracker-id")
-                .and("uuid").isEqualTo(clusterUUID)
-                .and("guid").isEqualTo("wh0rbu49qh61")
-                .and("timestamp").isGreaterThenOrEqual(startTime);
         //
-        OrderEvent.read(OrderEvent.class, cqlExecutor, 10, clause, (orderEvents) -> {
-            //Print Result:
-            orderEvents.stream().forEach(event ->
-                System.out.println("Event:  "
-                        + formatter.format(new Date(event.getTimestamp()))
-                        + " " + event.marshallingToMap(true))
-            );
-            System.out.println("\n");
+        //Test Sequence: (pageSize:10 - rowCount:30) (pageSize:10 - rowCount:25)
+        // (pageSize:30 - rowCount:101) (pageSize:30 - rowCount:100) (pageSize:30 - rowCount:99)
+        // (pageSize:30 - rowCount:1030)  (pageSize:5 - rowCount:6)  (pageSize:30 - rowCount:29)
+        OrderEvent.read(OrderEvent.class, cqlExecutor
+                , 30, 1030
+                , new Property("timestamp", startTime)
+                , Operator.ASC
+                , (nextKey) -> {
+                    //Where Clause:
+                    return new Where("user_id").isEqualTo("towhid@gmail.com")
+                            .and("track_id").isEqualTo("my-device-tracker-id")
+                            .and("uuid").isEqualTo(clusterUUID)
+                            .and("guid").isEqualTo("wh0rbu49qh61")
+                            .and(nextKey.getKey()).isGreaterThenOrEqual(nextKey.getValue());
+                }
+                , (orderEvents) -> {
+                    //Print Result:
+                    orderEvents.stream().forEach(event ->
+                        System.out.println("Event:  "
+                                + formatter.format(new Date(event.getTimestamp()))
+                                + " " + event.marshallingToMap(true))
+                    );
+                    System.out.println("Row Count: " + orderEvents.size() + " \n");
         });
-        //
     }
 
     //@Test
