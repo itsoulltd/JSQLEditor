@@ -704,16 +704,22 @@ public abstract class Entity implements EntityInterface{
 			, WherePredicate predicate
 			, Consumer<List<T>> consumer) {
 		//[Caution: N+1 call for rowCount]
+		if (pageSize <= 0) {
+			if (consumer != null) consumer.accept(Collections.emptyList());
+			return;
+		}
 		//Find-out rowCount from table's total number of count.
-		SQLScalarQuery countQuery = executor.createQueryBuilder(QueryType.COUNT)
-				.columns()
-				.on(Entity.tableName(aClass))
-				.build();
 		int rowCount = 0;
-		try {
-			rowCount = executor.getScalarValue(countQuery);
-		} catch (SQLException e) {
-			e.printStackTrace();
+		if (pageSize > 1) {
+			SQLScalarQuery countQuery = executor.createQueryBuilder(QueryType.COUNT)
+					.columns()
+					.on(Entity.tableName(aClass))
+					.build();
+			try {
+				rowCount = executor.getScalarValue(countQuery);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		read(aClass, executor, pageSize, rowCount, pagingKey, sortOrder, predicate, consumer);
 	}
