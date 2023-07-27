@@ -17,6 +17,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.List;
+import java.util.Random;
 
 public class SQLExecutorTest {
 
@@ -142,12 +143,13 @@ public class SQLExecutorTest {
     }
 
     private Long seedPassengers() throws SQLException {
+        Random rand = new Random();
         Long startTimestamp = 0l;
         for (int count = 0; count < 100; ++count) {
             Passenger passenger = new Passenger();
             passenger.setName("Name_" + count);
             passenger.setAge(20 + count);
-            passenger.setSex("MALE");
+            passenger.setSex(rand.nextInt(2) == 1 ? "MALE" : "FEMALE");
             passenger.setDob(new java.sql.Date(Instant.now().toEpochMilli()));
             passenger.setCreatedate(new java.sql.Timestamp(Instant.now().toEpochMilli()));
             //Insert
@@ -182,6 +184,36 @@ public class SQLExecutorTest {
         // (pageSize:0 - rowCount:-1)   (pageSize:-1 - rowCount:-1) [Caution: Both will fetch all rows from DB]
         Passenger.read(Passenger.class, exe
                 , 5, 21
+                , new Property("CREATEDATE", new java.sql.Date(startTime))
+                , Operator.ASC
+                , (nextKey) -> {
+                    //Where Clause:
+                    return new Where(nextKey.getKey()).isGreaterThenOrEqual(nextKey.getValue());
+                }
+                , (passengers) -> {
+                    //Print Result:
+                    passengers.stream().forEach(event ->
+                            System.out.println("Event:  "
+                                    + formatter.format(event.getCreatedate())
+                                    + " " + event.marshallingToMap(true))
+                    );
+                    System.out.println("Row Count: " + passengers.size() + " \n");
+                });
+    }
+
+    @Test
+    public void asyncReadWithOutRowCountTest() throws Exception {
+        //Prepare Seed-Data:
+        Long startTime = seedPassengers();
+        //DateFormatter:
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS a");
+        //
+        // Test Sequence:
+        // (pageSize:10)  (pageSize:30 ) (pageSize:5)
+        // (pageSize:1)   [Fetch single row from DB]
+        // (pageSize:0)   [No row shall return]
+        Passenger.read(Passenger.class, exe
+                , 5
                 , new Property("CREATEDATE", new java.sql.Date(startTime))
                 , Operator.ASC
                 , (nextKey) -> {
