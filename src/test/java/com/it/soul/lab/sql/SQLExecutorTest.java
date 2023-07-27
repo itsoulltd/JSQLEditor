@@ -213,7 +213,7 @@ public class SQLExecutorTest {
         // (pageSize:1)   [Fetch single row from DB]
         // (pageSize:0)   [No row shall return]
         Passenger.read(Passenger.class, exe
-                , 5
+                , 30
                 , new Property("CREATEDATE", new java.sql.Date(startTime))
                 , Operator.ASC
                 , (nextKey) -> {
