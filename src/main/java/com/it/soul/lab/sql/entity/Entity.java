@@ -699,6 +699,28 @@ public abstract class Entity implements EntityInterface{
 	public static <T extends Entity> void read(Class<T> aClass
 			, QueryExecutor executor
 			, int pageSize
+			, Property pagingKey
+			, Operator sortOrder
+			, WherePredicate predicate
+			, Consumer<List<T>> consumer) {
+		//[Caution: N+1 call for rowCount]
+		//Find-out rowCount from table's total number of count.
+		SQLScalarQuery countQuery = executor.createQueryBuilder(QueryType.COUNT)
+				.columns()
+				.on(Entity.tableName(aClass))
+				.build();
+		int rowCount = 0;
+		try {
+			rowCount = executor.getScalarValue(countQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		read(aClass, executor, pageSize, rowCount, pagingKey, sortOrder, predicate, consumer);
+	}
+
+	public static <T extends Entity> void read(Class<T> aClass
+			, QueryExecutor executor
+			, int pageSize
 			, int rowCount
 			, Property pagingKey
 			, Operator sortOrder
