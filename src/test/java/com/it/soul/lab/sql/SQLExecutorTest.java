@@ -230,4 +230,67 @@ public class SQLExecutorTest {
                     System.out.println("Row Count: " + passengers.size() + " \n");
                 });
     }
+
+    @Test
+    public void mysqlLimitOffsetTest() throws SQLException, InstantiationException, IllegalAccessException {
+        //Prepare Seed-Data:
+        Long startTime = seedPassengers();
+        //DateFormatter:
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS a");
+        //=========================================//
+        SQLSelectQuery qu14 = new SQLQuery.Builder(QueryType.SELECT)
+                .columns()
+                .from(Entity.tableName(Passenger.class))
+                .addLimit(5, 0)
+                .build();
+        List<Passenger> res = exe.executeSelect(qu14, Passenger.class);
+        Assert.assertTrue(res.size() == 5);
+        //=========================================//
+        //output result:
+        System.out.println(qu14.toString());
+        System.out.println("Row Count: " + res.size());
+        res.forEach(event ->
+                System.out.println("Event:  "
+                        + formatter.format(event.getCreatedate())
+                        + " " + event.marshallingToMap(true))
+        );
+        System.out.println(" \n");
+        //=========================================//
+        qu14 = new SQLQuery.Builder(QueryType.SELECT)
+                .columns()
+                .from(Entity.tableName(Passenger.class))
+                .addLimit(10, 5)
+                .build();
+        res = exe.executeSelect(qu14, Passenger.class);
+        Assert.assertTrue(res.size() == 10);
+        //=========================================//
+        //output result:
+        System.out.println(qu14.toString());
+        System.out.println("Row Count: " + res.size());
+        res.forEach(event ->
+                System.out.println("Event:  "
+                        + formatter.format(event.getCreatedate())
+                        + " " + event.marshallingToMap(true))
+        );
+        System.out.println(" \n");
+        //=========================================//
+        qu14 = new SQLQuery.Builder(QueryType.SELECT)
+                .columns()
+                .from(Entity.tableName(Passenger.class))
+                .addLimit(10, -5)
+                .build();
+        res = exe.executeSelect(qu14, Passenger.class);
+        Assert.assertTrue(res.size() == 10);
+        //=========================================//
+        //output result:
+        System.out.println(qu14.toString());
+        System.out.println("Row Count: " + res.size());
+        res.forEach(event ->
+                System.out.println("Event:  "
+                        + formatter.format(event.getCreatedate())
+                        + " " + event.marshallingToMap(true))
+        );
+        System.out.println(" \n");
+        //=========================================//
+    }
 }
