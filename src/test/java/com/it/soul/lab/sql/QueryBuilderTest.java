@@ -242,7 +242,7 @@ public class QueryBuilderTest {
 				.addLimit(10, 0)
 				.build();
 
-		Assert.assertEquals("SELECT name, age FROM Passenger WHERE id = ? OR age = ? ORDER BY id ASC LIMIT 10", qu6.toString());
+		Assert.assertEquals("SELECT name, age FROM Passenger WHERE id = ? OR age = ? ORDER BY id ASC LIMIT 10 OFFSET 0", qu6.toString());
 		
 		SQLQuery qu7 = new SQLQuery.Builder(QueryType.SELECT)
 				.columns("name","age")
@@ -260,7 +260,7 @@ public class QueryBuilderTest {
 				.addLimit(10, 0)
 				.build();
 
-		Assert.assertEquals("SELECT name, age FROM Passenger  LIMIT 10", qu9.toString());
+		Assert.assertEquals("SELECT name, age FROM Passenger  LIMIT 10 OFFSET 0", qu9.toString());
 		
 		SQLQuery qu10 = new SQLQuery.Builder(QueryType.SELECT)
 				.columns("name","age")
@@ -622,8 +622,8 @@ public class QueryBuilderTest {
 
 		System.out.println("qu14: " + qu14.toString());
 		System.out.println("qu14: " + qu14.bindValueToString());
-		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE age >= ? ORDER BY id ASC, name desc, age asc, sex DESC LIMIT 10", qu14.toString());
-		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE age >= 18 ORDER BY id ASC, name desc, age asc, sex DESC LIMIT 10", qu14.bindValueToString());
+		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE age >= ? ORDER BY id ASC, name desc, age asc, sex DESC LIMIT 10 OFFSET 0", qu14.toString());
+		Assert.assertEquals("SELECT name, age, sex FROM Passenger WHERE age >= 18 ORDER BY id ASC, name desc, age asc, sex DESC LIMIT 10 OFFSET 0", qu14.bindValueToString());
 
 		SQLQuery qu15 = new SQLQuery.Builder(QueryType.SELECT)
 				.columns("name","age", "sex")

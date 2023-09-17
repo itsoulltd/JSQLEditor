@@ -59,7 +59,7 @@ public class SQLSelectQuery extends SQLQuery{
 				//
 				if (pqlBuffer.toString().contains("LIMIT")) return;
 				pqlBuffer.append(" LIMIT " + limit) ;
-				if (offset > 0) { pqlBuffer.append(" OFFSET " + offset) ;}
+				if (offset >= 0) { pqlBuffer.append(" OFFSET " + offset) ;}
 			}else {
 				//
 				if (pqlBuffer.toString().contains("LIMIT")) {
