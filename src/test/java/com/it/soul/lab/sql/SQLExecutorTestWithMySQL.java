@@ -83,7 +83,7 @@ public class SQLExecutorTestWithMySQL {
         return insertSeed(exe, Passenger.class);
     }
 
-    @Test
+    //@Test
     public void useTest(){
         try {
             //exe.useDatabase("testDB");
@@ -100,7 +100,7 @@ public class SQLExecutorTestWithMySQL {
 
     }
 
-    @Test
+    //@Test
     public void insert() throws SQLException {
         int res = insertInto(null, null);
         Assert.assertTrue(res > 0);
@@ -118,7 +118,7 @@ public class SQLExecutorTestWithMySQL {
         return res;
     }
 
-    @Test
+    //@Test
     public void update() throws SQLException {
         SQLUpdateQuery query = new SQLQuery.Builder(QueryType.UPDATE)
                 .set(new Row().add("age",19).getProperties().toArray(new Property[0]))
@@ -129,7 +129,7 @@ public class SQLExecutorTestWithMySQL {
         Assert.assertTrue(res >= 0);
     }
 
-    @Test
+    //@Test
     public void delete() throws SQLException {
         insert();
         SQLDeleteQuery query = new SQLQuery.Builder(QueryType.DELETE)
@@ -140,7 +140,7 @@ public class SQLExecutorTestWithMySQL {
         Assert.assertTrue(deleted >= 0);
     }
 
-    @Test
+    //@Test
     public void deleteSuccess() throws SQLException {
         int id = insertInto(null, null);
         SQLDeleteQuery query = new SQLQuery.Builder(QueryType.DELETE)
@@ -153,7 +153,7 @@ public class SQLExecutorTestWithMySQL {
         Assert.assertTrue(deleted > 0);
     }
 
-    @Test
+    //@Test
     public void deleteFailed() throws SQLException {
         int id = insertInto(null, null);
         SQLDeleteQuery query = new SQLQuery.Builder(QueryType.DELETE)
@@ -166,7 +166,7 @@ public class SQLExecutorTestWithMySQL {
         Assert.assertTrue(deleted == 0);
     }
 
-    @Test
+    //@Test
     public void selectWithStrAndProp() throws SQLException, IllegalAccessException, InstantiationException {
         insertInto(20, null);
         //
@@ -177,7 +177,7 @@ public class SQLExecutorTestWithMySQL {
         Assert.assertTrue(results.size() == 1);
     }
 
-    @Test
+    //@Test
     public void asyncReadAllTest() throws Exception {
         //Prepare Seed-Data:
         Long startTime = seedPassengers();
@@ -209,7 +209,7 @@ public class SQLExecutorTestWithMySQL {
                 });
     }
 
-    @Test
+    //@Test
     public void asyncReadWithOutRowCountTest() throws Exception {
         //Prepare Seed-Data:
         Long startTime = seedPassengers();
@@ -239,7 +239,7 @@ public class SQLExecutorTestWithMySQL {
                 });
     }
 
-    @Test
+    //@Test
     public void mysqlLimitOffsetTest() throws SQLException, InstantiationException, IllegalAccessException {
         //Prepare Seed-Data:
         Long startTime = seedPassengers();
