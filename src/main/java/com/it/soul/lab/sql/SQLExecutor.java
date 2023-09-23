@@ -10,8 +10,10 @@ import com.it.soul.lab.sql.query.models.Row;
 import com.it.soul.lab.sql.query.models.Table;
 
 import java.sql.*;
-import java.sql.Date;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -378,11 +380,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 
     public Integer executeDelete(SQLDeleteQuery deleteQuery)
 			throws SQLException{
-
-		if(deleteQuery.getWhereParamExpressions() == null || deleteQuery.getWhereParamExpressions().size() <= 0){
-			throw new SQLException("Where parameter should not be null or empty!!!");
-		}
-
+		//
 		int rowUpdated = 0;
 		PreparedStatement stmt=null;
 		String query = deleteQuery.toString(getDialect());
@@ -1424,6 +1422,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
     throws SQLException,IllegalArgumentException{
     	
     	try{
+    		if(params == null) return stmt;
     		if(params.length == paramValues.size()){
             	
             	if(stmt != null){
