@@ -16,10 +16,11 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class SQLExecutorTest {
+public class SQLExecutorTestWithH2DB {
 
     private SQLExecutor exe;
 
@@ -46,6 +47,39 @@ public class SQLExecutorTest {
     public void tearDown() throws Exception {
         exe.close();
         exe = null;
+    }
+
+    private void deleteSeed(SQLExecutor exe, Class<? extends Entity> aClass) throws SQLException {
+        Entity.delete(aClass, exe, null);
+    }
+
+    private Long insertSeed(SQLExecutor exe, Class<? extends Entity> aClass) throws SQLException{
+        Random rand = new Random();
+        Long startTimestamp = 0l;
+
+        List<Row> batch = new ArrayList<>();
+        for (int count = 0; count < 100; ++count) {
+            Passenger passenger = new Passenger();
+            passenger.setName("Name_" + count);
+            passenger.setAge(20 + count);
+            passenger.setSex(rand.nextInt(2) == 1 ? "MALE" : "FEMALE");
+            passenger.setDob(new java.sql.Date(Instant.now().toEpochMilli()));
+            passenger.setCreatedate(new java.sql.Timestamp(Instant.now().toEpochMilli()));
+            //Insert
+            batch.add(passenger.getRow());
+            if (startTimestamp == 0l) startTimestamp = passenger.getCreatedate().getTime();
+        }
+        //Insert In Batch:
+        Entity.insert(aClass, exe, 20, batch);
+        //RowCount Test:
+        int rows = Entity.count(aClass, exe, null);
+        System.out.println("Total RowCount: " + rows);
+        Assert.assertTrue(rows > 0);
+        return startTimestamp;
+    }
+
+    private Long seedPassengers() throws SQLException {
+        return insertSeed(exe, Passenger.class);
     }
 
     @Test
@@ -142,33 +176,6 @@ public class SQLExecutorTest {
         Assert.assertTrue(results.size() == 1);
     }
 
-    private Long seedPassengers() throws SQLException {
-        Random rand = new Random();
-        Long startTimestamp = 0l;
-        for (int count = 0; count < 100; ++count) {
-            Passenger passenger = new Passenger();
-            passenger.setName("Name_" + count);
-            passenger.setAge(20 + count);
-            passenger.setSex(rand.nextInt(2) == 1 ? "MALE" : "FEMALE");
-            passenger.setDob(new java.sql.Date(Instant.now().toEpochMilli()));
-            passenger.setCreatedate(new java.sql.Timestamp(Instant.now().toEpochMilli()));
-            //Insert
-            boolean inserted = passenger.insert(exe);
-            if (startTimestamp == 0l) startTimestamp = passenger.getCreatedate().getTime();
-            Assert.assertTrue("Successfully Inserted", inserted);
-        }
-
-        //RowCount Test:
-        SQLScalarQuery countQuery = new SQLQuery.Builder(QueryType.COUNT)
-                .columns()
-                .on(Passenger.class)
-                .build();
-        int rows = exe.getScalarValue(countQuery);
-        System.out.println("Total RowCount: " + rows);
-        Assert.assertTrue(rows > 0);
-        return startTimestamp;
-    }
-
     @Test
     public void asyncReadAllTest() throws Exception {
         //Prepare Seed-Data:
@@ -232,7 +239,7 @@ public class SQLExecutorTest {
     }
 
     @Test
-    public void mysqlLimitOffsetTest() throws SQLException, InstantiationException, IllegalAccessException {
+    public void h2dbLimitOffsetTest() throws SQLException, InstantiationException, IllegalAccessException {
         //Prepare Seed-Data:
         Long startTime = seedPassengers();
         //DateFormatter:
