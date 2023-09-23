@@ -868,10 +868,9 @@ public abstract class Entity implements EntityInterface{
 	public static void delete(Class<? extends Entity> entityType
 			, QueryExecutor executor
 			, ExpressionInterpreter clause) throws SQLException {
-		SQLQuery query = executor.createQueryBuilder(QueryType.DELETE)
-				.rowsFrom(entityType)
-				.where(clause)
-				.build();
+		SQLQuery query = (clause == null)
+				? executor.createQueryBuilder(QueryType.DELETE).rowsFrom(entityType).build()
+				: executor.createQueryBuilder(QueryType.DELETE).rowsFrom(entityType).where(clause).build();
 		executor.executeDelete(query);
 	}
 
