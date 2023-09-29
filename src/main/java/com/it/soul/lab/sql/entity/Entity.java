@@ -50,7 +50,8 @@ public abstract class Entity implements EntityInterface{
 			Field field = getDeclaredField(fieldName, true);
 			if(field.isAnnotationPresent(PrimaryKey.class)) {
 				if (skipPrimary) {return null;}
-				if ((field.getAnnotation(PrimaryKey.class)).auto()) {return null;}
+				//HOT-FIX: Since isAutoIncrement() was introduced. We don't need following:
+				//if ((field.getAnnotation(PrimaryKey.class)).auto()) {return null;}
 			}
 			field.setAccessible(true);
 			Object value = getFieldValue(field, exe);
@@ -378,6 +379,7 @@ public abstract class Entity implements EntityInterface{
 		int isUpdate = exe.executeUpdate(query);
 		return isUpdate == 1;
 	}
+
 	protected ExpressionInterpreter primaryKeysInWhereExpression(QueryExecutor exe) {
 		//return new Expression(getPrimaryProperty(null), Operator.EQUAL);
 		List<Property> keys = getPrimaryProperties(exe);
