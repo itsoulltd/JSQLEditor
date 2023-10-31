@@ -19,6 +19,7 @@ import org.junit.Test;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.*;
 
 public class CQLExecutorTest {
@@ -191,7 +192,8 @@ public class CQLExecutorTest {
         Assert.assertTrue(true);
     }
 
-    private Long generateSeedOrderEvent() throws SQLException {
+    private Long generateSeedOrderEvent(int limit) throws SQLException {
+        if (limit <= 0) limit = 100;
         //Creating a Table from CQLEntity @TableName description.
         boolean isDropped = cqlExecutor.dropTable(OrderEvent.class);
         if (isDropped) {
@@ -200,7 +202,7 @@ public class CQLExecutorTest {
         }
         //
         Long startTimestamp = 0l;
-        for (int count = 0; count < 100; ++count) {
+        for (int count = 0; count < limit; ++count) {
             OrderEvent event = new OrderEvent();
             event.setTrackID("my-device-tracker-id");
             event.setUserID("towhid@gmail.com");
@@ -237,7 +239,7 @@ public class CQLExecutorTest {
     public void fetchTest(){
         try{
             //Prepare Seed-Data:
-            Long startTime = generateSeedOrderEvent();
+            Long startTime = generateSeedOrderEvent(25);
             //DateFormatter:
             DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS a");
 
@@ -295,30 +297,58 @@ public class CQLExecutorTest {
     @Test
     public void readAllTest() throws Exception {
         //Prepare Seed-Data:
-        Long startTime = generateSeedOrderEvent();
+        Long startTime = generateSeedOrderEvent(20);
         //DateFormatter:
         DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS a");
-        //Where Clause:
-        Predicate clause = new Where("user_id").isEqualTo("towhid@gmail.com")
-                .and("track_id").isEqualTo("my-device-tracker-id")
-                .and("uuid").isEqualTo(clusterUUID)
-                .and("guid").isEqualTo("wh0rbu49qh61")
-                .and("timestamp").isGreaterThenOrEqual(startTime);
         //
         List<OrderEvent> otherItems2 = OrderEvent.read(OrderEvent.class, cqlExecutor);
+        Assert.assertTrue(otherItems2.size() == 20);
         //Print Result:
+        System.out.println("Start Time was: " + formatter.format(new Date(startTime)));
         otherItems2.stream().forEach(event ->
                 System.out.println("ASC Event:  "
                         + formatter.format(new Date(event.getTimestamp()))
                         + " " + event.marshallingToMap(true))
         );
-        Assert.assertTrue(otherItems2.size() > 0);
+    }
+
+    @Test
+    public void readWithWhereTest() throws Exception {
+        //Prepare Seed-Data:
+        int limit = 15;
+        Long startTime = generateSeedOrderEvent(50);
+        Long delayedTimeByMillis = Duration.ofMillis(startTime).plusMillis(50).toMillis();
+        //DateFormatter:
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS a");
+        //Where Clause:
+        Predicate where = new Where("user_id").isEqualTo("towhid@gmail.com")
+                .and("track_id").isEqualTo("my-device-tracker-id")
+                .and("uuid").isEqualTo(clusterUUID)
+                .and("guid").isEqualTo("wh0rbu49qh61")
+                .and("timestamp").isGreaterThenOrEqual(delayedTimeByMillis);
+        //
+        CQLSelectQuery query = new CQLQuery.Builder(QueryType.SELECT)
+                .columns()
+                .from(OrderEvent.class)
+                .where(where)
+                .addLimit(limit, 0)
+                .build();
+        List<OrderEvent> otherItems2 = cqlExecutor.executeSelect(query, OrderEvent.class);
+        Assert.assertTrue(otherItems2.size() <= limit);
+        //Print Result:
+        System.out.println("Start Time was: " + formatter.format(new Date(startTime)));
+        System.out.println("Total Row Found: " + otherItems2.size());
+        otherItems2.stream().forEach(event ->
+                System.out.println("ASC Event:  "
+                        + formatter.format(new Date(event.getTimestamp()))
+                        + " " + event.marshallingToMap(true))
+        );
     }
 
     @Test
     public void asyncReadAllTest() throws Exception {
         //Prepare Seed-Data:
-        Long startTime = generateSeedOrderEvent();
+        Long startTime = generateSeedOrderEvent(0);
         //DateFormatter:
         DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS a");
         //
