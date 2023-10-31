@@ -50,13 +50,13 @@ public class CQLExecutorTest {
         } catch (Exception e) {}
     }
 
-    //@Test
+    @Test
     public void versionTest(){
         String version = cqlExecutor.version();
         System.out.println("Cassandra: " + version);
     }
 
-    //@Test
+    @Test
     public void cassandraInsertTest() {
         try {
             //Creating a Table from CQLEntity @TableName description.
@@ -122,7 +122,7 @@ public class CQLExecutorTest {
         Assert.assertTrue(true);
     }
 
-    //@Test
+    @Test
     public void cassandraCRUDTest(){
         try {
             //Creating a Table from CQLEntity @TableName description.
@@ -233,7 +233,7 @@ public class CQLExecutorTest {
         return startTimestamp;
     }
 
-    //@Test
+    @Test
     public void fetchTest(){
         try{
             //Prepare Seed-Data:
@@ -292,7 +292,7 @@ public class CQLExecutorTest {
         }
     }
 
-    //@Test
+    @Test
     public void readAllTest() throws Exception {
         //Prepare Seed-Data:
         Long startTime = generateSeedOrderEvent();
@@ -315,7 +315,7 @@ public class CQLExecutorTest {
         Assert.assertTrue(otherItems2.size() > 0);
     }
 
-    //@Test
+    @Test
     public void asyncReadAllTest() throws Exception {
         //Prepare Seed-Data:
         Long startTime = generateSeedOrderEvent();
@@ -351,7 +351,7 @@ public class CQLExecutorTest {
         });
     }
 
-    //@Test
+    @Test
     public void tableAlterTest() throws SQLException {
         //boolean alter = cqlExecutor.alterTable(OrderEvent.class, AlterAction.ALTER, new Property("<non-primary-key>", "data-type-as-value"));
         //Assert.assertTrue("Alter:", alter);
@@ -373,7 +373,7 @@ public class CQLExecutorTest {
         Assert.assertTrue(true);
     }
 
-    //@Test
+    @Test
     public void indexTest(){
         try {
             boolean droped = cqlExecutor.dropTable(OrderEvent.class);
