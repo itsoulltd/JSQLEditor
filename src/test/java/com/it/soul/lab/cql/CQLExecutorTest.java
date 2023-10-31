@@ -7,6 +7,7 @@ import com.it.soul.lab.cql.query.ReplicationStrategy;
 import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.query.QueryType;
 import com.it.soul.lab.sql.query.SQLScalarQuery;
+import com.it.soul.lab.sql.query.builder.WhereExpressionBuilder;
 import com.it.soul.lab.sql.query.models.Operator;
 import com.it.soul.lab.sql.query.models.Predicate;
 import com.it.soul.lab.sql.query.models.Property;
@@ -343,6 +344,43 @@ public class CQLExecutorTest {
                         + formatter.format(new Date(event.getTimestamp()))
                         + " " + event.marshallingToMap(true))
         );
+    }
+
+    @Test
+    public void readWithPaginationTest() throws Exception {
+        //Prepare Seed-Data:
+        int numberOfPage = 3;
+        int limit = 10;
+        Long startTime = generateSeedOrderEvent(27);
+        Long delayedStartTime = Duration.ofMillis(startTime).plusMillis(120).toMillis();
+        //DateFormatter:
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS a");
+        //
+        System.out.println("Start Time was: " + formatter.format(new Date(startTime)));
+        for (int i = 1; i <= numberOfPage; i++) {
+            CQLSelectQuery query = new CQLQuery.Builder(QueryType.SELECT)
+                    .columns()
+                    .from(OrderEvent.class)
+                    .where(new Where("user_id").isEqualTo("towhid@gmail.com")
+                            .and("track_id").isEqualTo("my-device-tracker-id")
+                            .and("uuid").isEqualTo(clusterUUID)
+                            .and("guid").isEqualTo("wh0rbu49qh61")
+                            .and("timestamp").isGreaterThen(delayedStartTime))
+                    .addLimit(limit, 0)
+                    .build();
+            List<OrderEvent> otherItems2 = cqlExecutor.executeSelect(query, OrderEvent.class);
+            //Print Result:
+            System.out.println("Total Row Found: " + otherItems2.size());
+            otherItems2.stream().forEach(event ->
+                    System.out.println("ASC Event:  "
+                            + formatter.format(new Date(event.getTimestamp()))
+                            + " " + event.marshallingToMap(true))
+            );
+            //Find the next timestamp for pagination: which will use in next fetch:
+            if (otherItems2.isEmpty()) continue;
+            OrderEvent lastItem = otherItems2.get(otherItems2.size() - 1);
+            delayedStartTime = lastItem.getTimestamp();
+        }// End of For
     }
 
     @Test
