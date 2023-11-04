@@ -734,10 +734,30 @@ public abstract class Entity implements EntityInterface{
 			, Operator sortOrder
 			, WherePredicate predicate
 			, Consumer<List<T>> consumer) {
+		read(aClass, executor
+				, pageSize
+				, rowCount
+				, pagingKey
+				, sortOrder
+				, predicate
+				, (entityType) -> Entity.mapColumnsToProperties(entityType)
+				, consumer);
+	}
+
+	public static <T extends Entity> void read(Class<T> aClass
+			, QueryExecutor executor
+			, int pageSize
+			, int rowCount
+			, Property pagingKey
+			, Operator sortOrder
+			, WherePredicate predicate
+			, ColumnToPropertyMapper mapper
+			, Consumer<List<T>> consumer) {
 		//
 		if (consumer == null) throw new RuntimeException("Consumer is empty!");
 		if (predicate == null) throw new RuntimeException("expression is empty!");
 		if (pagingKey == null) throw new RuntimeException("pagingKey is empty!");
+		if (mapper == null) throw new RuntimeException("mapper is empty!");
 		try {
 			int fetchCount = 0;
 			ExpressionInterpreter expression;
@@ -755,7 +775,7 @@ public abstract class Entity implements EntityInterface{
 						.build();
 				List<T> items = executor.executeSelect(query
 						, aClass
-						, Entity.mapColumnsToProperties(aClass));
+						, mapper.mapColumnsToProperties(aClass));
 				consumer.accept(items);
 				//If Items are empty that means end of Fetch:
 				if (items.isEmpty()) {

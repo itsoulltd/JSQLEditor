@@ -158,7 +158,8 @@ public abstract class CQLEntity extends Entity {
             , ExpressionInterpreter expression
             , Consumer<List<T>> consumer){
         System.out.println("NOT IMPLEMENTED YET!!! IF NEEDED PLEASE EXTEND");
-        /*Entity.read(aClass
+        //Need testing:
+        /*read(aClass
                 , executor
                 , pageSize
                 , rowCount
@@ -166,6 +167,25 @@ public abstract class CQLEntity extends Entity {
                 , Operator.ASC
                 , (nextKey) -> new Where(nextKey.getKey()).isGreaterThenOrEqual(nextKey.getValue())
                 , consumer);*/
+    }
+
+    public static <T extends Entity> void read(Class<T> aClass
+            , QueryExecutor executor
+            , int pageSize
+            , int rowCount
+            , Property pagingKey
+            , Operator sortOrder
+            , WherePredicate predicate
+            , Consumer<List<T>> consumer) {
+        //Call goes to super class Entity.java
+        Entity.read(aClass, executor
+                , pageSize
+                , rowCount
+                , pagingKey
+                , sortOrder
+                , predicate
+                , (entityType) -> CQLEntity.mapColumnsToProperties(entityType)
+                , consumer);
     }
 
     private static SQLSelectQuery getSqlSelectQuery(QueryExecutor exe, ExpressionInterpreter expression, String name) {
