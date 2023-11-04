@@ -170,7 +170,7 @@ public class SQLExecutorTestWithMySQL extends SQLExecutorTest {
                     return new Where(nextKey.getKey()).isGreaterThenOrEqual(nextKey.getValue());
                 }, (aClass) -> {
                     //Mapping:
-                    Map<String, String> mapping = Entity.mapColumnsToProperties(Passenger.class);
+                    Map<String, String> mapping = Entity.mapColumnsToProperties(aClass);
                     Map<String, String> dupMapping = new HashMap<>(mapping.size());
                     mapping.forEach((key, value) -> dupMapping.put(value, value));
                     return dupMapping;
@@ -205,7 +205,7 @@ public class SQLExecutorTestWithMySQL extends SQLExecutorTest {
                     return new Where(nextKey.getKey()).isGreaterThenOrEqual(nextKey.getValue());
                 }, (aClass) -> {
                     //Mapping:
-                    Map<String, String> mapping = Entity.mapColumnsToProperties(Passenger.class);
+                    Map<String, String> mapping = Entity.mapColumnsToProperties(aClass);
                     Map<String, String> dupMapping = new HashMap<>(mapping.size());
                     mapping.forEach((key, value) -> dupMapping.put(value, value));
                     return dupMapping;
