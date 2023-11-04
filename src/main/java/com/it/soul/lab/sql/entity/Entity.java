@@ -705,6 +705,23 @@ public abstract class Entity implements EntityInterface{
 			, Operator sortOrder
 			, WherePredicate predicate
 			, Consumer<List<T>> consumer) {
+		read(aClass, executor
+				, pageSize
+				, pagingKey
+				, sortOrder
+				, predicate
+				, (entityType) -> Entity.mapColumnsToProperties(entityType)
+				, consumer);
+	}
+
+	public static <T extends Entity> void read(Class<T> aClass
+			, QueryExecutor executor
+			, int pageSize
+			, Property pagingKey
+			, Operator sortOrder
+			, WherePredicate predicate
+			, ColumnToPropertyMapper mapper
+			, Consumer<List<T>> consumer) {
 		//[Caution: N+1 call for rowCount]
 		if (pageSize <= 0) {
 			if (consumer != null) consumer.accept(Collections.emptyList());
@@ -723,7 +740,14 @@ public abstract class Entity implements EntityInterface{
 				e.printStackTrace();
 			}
 		}
-		read(aClass, executor, pageSize, rowCount, pagingKey, sortOrder, predicate, consumer);
+		read(aClass, executor
+				, pageSize
+				, rowCount
+				, pagingKey
+				, sortOrder
+				, predicate
+				, mapper
+				, consumer);
 	}
 
 	public static <T extends Entity> void read(Class<T> aClass

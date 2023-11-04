@@ -172,6 +172,23 @@ public abstract class CQLEntity extends Entity {
     public static <T extends Entity> void read(Class<T> aClass
             , QueryExecutor executor
             , int pageSize
+            , Property pagingKey
+            , Operator sortOrder
+            , WherePredicate predicate
+            , Consumer<List<T>> consumer) {
+        //Call goes to super class Entity.java
+        Entity.read(aClass, executor
+                , pageSize
+                , pagingKey
+                , sortOrder
+                , predicate
+                , (entityType) -> CQLEntity.mapColumnsToProperties(entityType)
+                , consumer);
+    }
+
+    public static <T extends Entity> void read(Class<T> aClass
+            , QueryExecutor executor
+            , int pageSize
             , int rowCount
             , Property pagingKey
             , Operator sortOrder
