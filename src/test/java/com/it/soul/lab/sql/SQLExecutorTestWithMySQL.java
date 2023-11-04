@@ -168,8 +168,13 @@ public class SQLExecutorTestWithMySQL extends SQLExecutorTest {
                 , (nextKey) -> {
                     //Where Clause:
                     return new Where(nextKey.getKey()).isGreaterThenOrEqual(nextKey.getValue());
-                }
-                , (passengers) -> {
+                }, (aClass) -> {
+                    //Mapping:
+                    Map<String, String> mapping = Entity.mapColumnsToProperties(Passenger.class);
+                    Map<String, String> dupMapping = new HashMap<>(mapping.size());
+                    mapping.forEach((key, value) -> dupMapping.put(value, value));
+                    return dupMapping;
+                }, (passengers) -> {
                     //Print Result:
                     passengers.stream().forEach(event ->
                             System.out.println("Event:  "
@@ -198,8 +203,13 @@ public class SQLExecutorTestWithMySQL extends SQLExecutorTest {
                 , (nextKey) -> {
                     //Where Clause:
                     return new Where(nextKey.getKey()).isGreaterThenOrEqual(nextKey.getValue());
-                }
-                , (passengers) -> {
+                }, (aClass) -> {
+                    //Mapping:
+                    Map<String, String> mapping = Entity.mapColumnsToProperties(Passenger.class);
+                    Map<String, String> dupMapping = new HashMap<>(mapping.size());
+                    mapping.forEach((key, value) -> dupMapping.put(value, value));
+                    return dupMapping;
+                }, (passengers) -> {
                     //Print Result:
                     passengers.stream().forEach(event ->
                             System.out.println("Event:  "
