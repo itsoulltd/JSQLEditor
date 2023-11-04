@@ -18,7 +18,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
 
-public class SQLExecutorTestWithMySQL {
+public class SQLExecutorTestWithMySQL extends SQLExecutorTest {
 
     private SQLExecutor exe;
 
@@ -50,37 +50,8 @@ public class SQLExecutorTestWithMySQL {
         exe = null;
     }
 
-    private void deleteSeed(SQLExecutor exe, Class<? extends Entity> aClass) throws SQLException {
-        Entity.delete(aClass, exe, null);
-    }
-
-    private Long insertSeed(SQLExecutor exe, Class<? extends Entity> aClass) throws SQLException{
-        Random rand = new Random();
-        Long startTimestamp = 0l;
-
-        List<Row> batch = new ArrayList<>();
-        for (int count = 0; count < 100; ++count) {
-            Passenger passenger = new Passenger();
-            passenger.setName("Name_" + count);
-            passenger.setAge(20 + count);
-            passenger.setSex(rand.nextInt(2) == 1 ? "MALE" : "FEMALE");
-            passenger.setDob(new java.sql.Date(Instant.now().toEpochMilli()));
-            passenger.setCreatedate(new java.sql.Timestamp(Instant.now().toEpochMilli()));
-            //Insert
-            batch.add(passenger.getRow());
-            if (startTimestamp == 0l) startTimestamp = passenger.getCreatedate().getTime();
-        }
-        //Insert In Batch:
-        Entity.insert(aClass, exe, 20, batch);
-        //RowCount Test:
-        int rows = Entity.count(aClass, exe, null);
-        System.out.println("Total RowCount: " + rows);
-        Assert.assertTrue(rows > 0);
-        return startTimestamp;
-    }
-
     private Long seedPassengers() throws SQLException {
-        return insertSeed(exe, Passenger.class);
+        return insertSeed(exe, Passenger.class, 100);
     }
 
     @Test
