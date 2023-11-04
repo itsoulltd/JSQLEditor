@@ -104,6 +104,7 @@
                 <configuration>
                     <excludes>
                         <exclude>CQLExecutorTest.java</exclude>
+                        <exclude>CQLExecutorAsyncReadTest.java</exclude>
                         <exclude>SQLExecutorTestWithMySQL.java</exclude>
                     </excludes>
                 </configuration>
