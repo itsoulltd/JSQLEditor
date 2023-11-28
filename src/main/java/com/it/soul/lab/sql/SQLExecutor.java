@@ -323,19 +323,6 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
                 List<int[]> batchUpdatedRowsCount = new ArrayList<int[]>();
                 if(notBegin) begin();
                 int batchCount = 0;
-                //Using value binding to query:
-				/*stmt = conn.createStatement();
-				for (int index = 0; index < queries.size(); index++) {
-                    SQLUpdateQuery upQuery = queries.get(index);
-                    String queryAfter = upQuery.bindValueToString();
-                    stmt.addBatch(queryAfter);
-                    if ((++batchCount % size) == 0) {
-                        batchUpdatedRowsCount.add(stmt.executeBatch());
-                    }
-                }
-				if(queries.size() % size != 0)
-					batchUpdatedRowsCount.add(stmt.executeBatch());
-				*/
 				//Using Query Param Binding:
 				for (SQLUpdateQuery upQuery : queries) {
 					if (stmt == null) {
@@ -583,7 +570,7 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
         }
     }
 
-	public Integer getScalerValue(String query)
+	public Integer getScalarValue(String query)
 			throws SQLException{
 
 		ResultSet rs = null;
@@ -608,14 +595,14 @@ public class SQLExecutor extends AbstractExecutor implements QueryExecutor<SQLSe
 		return rowCount;
 	}
 
-	public Integer getScalarValue(SQLScalarQuery scalerQuery)
+	public Integer getScalarValue(SQLScalarQuery scalarQuery)
 			throws SQLException{
 
 		ResultSet rs = null;
 		PreparedStatement pstmt = null;
 		int rowCount = 0;
-		String query = scalerQuery.toString(getDialect());
-		Row whereClause = scalerQuery.getWhereProperties();
+		String query = scalarQuery.toString(getDialect());
+		Row whereClause = scalarQuery.getWhereProperties();
 		try{
 			if(conn != null){
 				pstmt = conn.prepareStatement(query);
