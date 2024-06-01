@@ -100,7 +100,7 @@ public class SimpleDataSourceTest {
     }
 
     @Test
-    public void readTest(){
+    public void readTest() {
         //
         loadDataSource();
         //
@@ -169,7 +169,7 @@ public class SimpleDataSourceTest {
     }
 
     @Test
-    public void addTest(){
+    public void addTest() {
         //
         loadIntDataSource();
         System.out.println(intDataSource.size());
@@ -198,7 +198,7 @@ public class SimpleDataSourceTest {
     }
 
     @Test
-    public void additionFuncTest(){
+    public void additionFuncTest() {
 
         ////When String is Key:
         SimpleDataSource<String, Person> dataSource = new SimpleDataSource<>();
@@ -244,7 +244,7 @@ public class SimpleDataSourceTest {
     }
 
     @Test
-    public void addDeleteTests(){
+    public void addDeleteTests() {
         SimpleDataSource<String, Person> dataSource = new SimpleDataSource<>();
 
         Person a = new Person()
