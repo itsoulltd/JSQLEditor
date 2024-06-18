@@ -434,7 +434,7 @@
         //Select From Cassandra:
         CQLSelectQuery query = new CQLQuery.Builder(QueryType.SELECT)
                 .columns()
-                .from(Entity.tableName(OrderEvent.class))
+                .from(OrderEvent.class)
                 .build();
         List<OrderEvent> items = cqlExecutor.executeSelect(query, OrderEvent.class);
         Assert.assertTrue("Successfully Fetched:", items.isEmpty() == false);
