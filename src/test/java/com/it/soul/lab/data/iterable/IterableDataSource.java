@@ -7,8 +7,8 @@ import java.util.Iterator;
 public class IterableDataSource<T> extends SimpleDataSource<Integer, T> implements Iterable<T>, Iterator<T> {
 
     private Iterator<Integer> keySetIterator;
-    private Integer last;
     private Integer current;
+    private Integer last;
 
     @Override
     public Iterator<T> iterator() {
@@ -38,8 +38,7 @@ public class IterableDataSource<T> extends SimpleDataSource<Integer, T> implemen
     }
 
     public Integer last() {
-        if (last != null) return last;
-        //Finding the last item:
+        //Iterate-over to find the last item:
         Iterator<Integer> now = getInMemoryStorage().keySet().iterator();
         do {
             last = now.next();
@@ -50,7 +49,6 @@ public class IterableDataSource<T> extends SimpleDataSource<Integer, T> implemen
     @Override
     public Integer add(T t) throws RuntimeException {
         int hash = t.hashCode();
-        last = hash;
         super.put(hash, t);
         return hash;
     }
