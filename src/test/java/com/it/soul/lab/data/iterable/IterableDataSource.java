@@ -8,6 +8,7 @@ public class IterableDataSource<T> extends SimpleDataSource<Integer, T> implemen
 
     private Iterator<Integer> keySetIterator;
     private Integer last;
+    private Integer current;
 
     @Override
     public Iterator<T> iterator() {
@@ -22,21 +23,28 @@ public class IterableDataSource<T> extends SimpleDataSource<Integer, T> implemen
 
     @Override
     public T next() {
-        T item = read(keySetIterator.next());
+        current = keySetIterator.next();
+        T item = read(current);
         return item;
     }
 
     @Override
     public void remove() {
         //throw new UnsupportedOperationException("Not Implemented Yet!");
-        if (last == null) return;
+        if (current == null) return;
         synchronized (getInMemoryStorage()) {
-            remove(last);
-            Iterator<Integer> now = getInMemoryStorage().keySet().iterator();
-            do {
-                last = now.next();
-            } while (now.hasNext());
+            remove(current);
         }
+    }
+
+    public Integer last() {
+        if (last != null) return last;
+        //Finding the last item:
+        Iterator<Integer> now = getInMemoryStorage().keySet().iterator();
+        do {
+            last = now.next();
+        } while (now.hasNext());
+        return last;
     }
 
     @Override
