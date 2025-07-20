@@ -478,7 +478,7 @@
 ####
 ##### DataSource & DataStorage Api
     
-    //Create a concreate Class Of DataSource. e.g. SimpleDataSource.java
+    //Create an instance of DataSource. e.g. from a concreate implementation SimpleDataSource.java
     SimpleDataSource<String, Object> dataSource = new SimpleDataSource<>();
     
     //API: Create and Insert:
@@ -527,14 +527,14 @@
     int offset = getOffset(page, limit);
     
     //Test Results:
-    When (limit:10 & page:2) Offset expected: 10; actual: 10
-    When (limit:10 & page:-1) Offset expected: 0; actual: 0
-    When (limit:10 & page:7) Offset expected: 60; actual: 60
-    When (limit:10 & page:101) Offset expected: 1000; actual: 1000
-    When (limit:15 & page:2) Offset expected: 15; actual: 15
-    When (limit:15 & page:-1) Offset expected: 0; actual: 0
-    When (limit:20 & page:7) Offset expected: 120; actual: 120
-    When (limit:-1 & page:-1) Offset expected: 0; actual: 0
+    When (limit:10 & page:2)   Offset: 10
+    When (limit:10 & page:-1)  Offset: 0
+    When (limit:10 & page:7)   Offset: 60
+    When (limit:10 & page:101) Offset: 1000
+    When (limit:15 & page:2)   Offset: 15
+    When (limit:15 & page:-1)  Offset: 0
+    When (limit:20 & page:7)   Offset: 120
+    When (limit:-1 & page:-1)  Offset: 0
     
 
 ### Questions?
