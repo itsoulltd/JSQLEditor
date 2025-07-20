@@ -1,8 +1,15 @@
 package com.it.soul.lab.data.simple;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SimpleDataSourceTest {
 
@@ -97,6 +104,36 @@ public class SimpleDataSourceTest {
     @After
     public void tearDown() throws Exception {
 
+    }
+
+    @Test
+    public void readSyncTest() {
+        //Load sample data:
+        loadDataSource();
+
+        //ReadSync and Convert:
+        int maxItem = dataSource.size();
+        Object[] items = dataSource.readSync(0, maxItem);
+        List<Person> converted = Stream.of(items).map(itm -> (Person) itm).collect(Collectors.toList());
+        converted.forEach(person -> System.out.println(person.toString()));
+    }
+
+    @Test
+    public void readAsyncTest() throws InterruptedException {
+        //Load sample data:
+        loadDataSource();
+        CountDownLatch latch = new CountDownLatch(1);
+
+        //ReadAsync and Convert:
+        int maxItem = dataSource.size();
+        dataSource.readAsync(0, maxItem, (items) -> {
+            List<Person> converted = Stream.of(items).map(itm -> (Person) itm).collect(Collectors.toList());
+            converted.forEach(person -> System.out.println(person.toString()));
+            latch.countDown();
+        });
+
+        //Blocking until async-returns:
+        latch.await(1000, TimeUnit.MILLISECONDS);
     }
 
     @Test
@@ -272,6 +309,60 @@ public class SimpleDataSourceTest {
         if(dataSource.contains(a)) dataSource.delete(a);
         System.out.println("Size after delete: " + dataSource.size());
 
+    }
+
+    public int getOffset(int page, int limit) {
+        if (limit <= 0) limit = 10;
+        if (page <= 0) page = 1;
+        int offset = (page - 1) * limit;
+        return offset;
+    }
+
+    @Test
+    public void pageVsOffsetTest() {
+        //Seed:
+        int limit = 10;
+        int offset = 0;
+
+        //Example-01
+        offset = getOffset(2, limit);
+        Assert.assertEquals(10, offset);
+        System.out.println("When (limit:10 & page:2) Offset expected: 10; actual: " + offset);
+
+        //Example-02
+        offset = getOffset(-1, limit);
+        Assert.assertEquals(0, offset);
+        System.out.println("When (limit:10 & page:-1) Offset expected: 0; actual: " + offset);
+
+        //Example-03
+        offset = getOffset(7, limit);
+        Assert.assertEquals(60, offset);
+        System.out.println("When (limit:10 & page:7) Offset expected: 60; actual: " + offset);
+
+        //Example-04
+        offset = getOffset(101, limit);
+        Assert.assertEquals(1000, offset);
+        System.out.println("When (limit:10 & page:101) Offset expected: 1000; actual: " + offset);
+
+        //Example-05
+        offset = getOffset(2, 15);
+        Assert.assertEquals(15, offset);
+        System.out.println("When (limit:15 & page:2) Offset expected: 15; actual: " + offset);
+
+        //Example-06
+        offset = getOffset(-1, 15);
+        Assert.assertEquals(0, offset);
+        System.out.println("When (limit:15 & page:-1) Offset expected: 0; actual: " + offset);
+
+        //Example-07
+        offset = getOffset(7, 20);
+        Assert.assertEquals(120, offset);
+        System.out.println("When (limit:20 & page:7) Offset expected: 120; actual: " + offset);
+
+        //Example-08
+        offset = getOffset(-1, -1);
+        Assert.assertEquals(0, offset);
+        System.out.println("When (limit:-1 & page:-1) Offset expected: 0; actual: " + offset);
     }
 
 }

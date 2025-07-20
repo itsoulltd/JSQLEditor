@@ -475,6 +475,67 @@
     List<OrderEvent> otherItems = OrderEvent.read(OrderEvent.class, cqlExecutor, predicate);
     otherItems.stream().forEach(event -> System.out.println("track_id "+event.getTrackID()));
     
+####
+##### DataSource & DataStorage Api
+    
+    //Create a concreate Class Of DataSource. e.g. SimpleDataSource.java
+    SimpleDataSource<String, Object> dataSource = new SimpleDataSource<>();
+    
+    //API: Create and Insert:
+    Person person = new Person().setName("John")
+                        .setEmail("john@gmail.com").setAge(36)
+                        .setGender("male");
+    dataSource.put("id-001", person);
+    
+    person = new Person().setName("Adam")
+                         .setEmail("adam@gmail.com").setAge(31)
+                         .setGender("male");
+    dataSource.put("id-002", person);
+    //
+    
+    //API: Read by Key
+    Person found = dataSource.read("id-001");
+    
+    //API: Paginated read-sync and Convert:
+    int maxItem = dataSource.size();
+    Object[] items = dataSource.readSync(0, maxItem);
+    List<Person> converted = Stream.of(items).map(itm -> (Person) itm).collect(Collectors.toList());
+    converted.forEach(person -> System.out.println(person.toString()));
+    
+    //API: Remove
+    Person removed = dataSource.remove("id-002");
+    
+    //API: Replace
+    Person replaced = dataSource.replace("id-002", new Person()...);
+    
+####
+##### Page Vs Offset:
+    
+    //Page Vs Offset: When limit/size is given
+    public int getOffset(int page, int limit) {
+         if (limit <= 0) limit = 10;
+         if (page <= 0) page = 1;
+         int offset = (page - 1) * limit;
+         return offset;
+    }
+    
+    //E.g. Usually in rest-api get-method, page variable being passed with starting value from 1;
+    //Where as in database sql-context, we write select query with offset with startting value from 0;
+    //So, usually we have to translate page into offset or vice-versa.
+    int page = 2;
+    int limit = 10;
+    int offset = getOffset(page, limit);
+    
+    //Test Results:
+    When (limit:10 & page:2) Offset expected: 10; actual: 10
+    When (limit:10 & page:-1) Offset expected: 0; actual: 0
+    When (limit:10 & page:7) Offset expected: 60; actual: 60
+    When (limit:10 & page:101) Offset expected: 1000; actual: 1000
+    When (limit:15 & page:2) Offset expected: 15; actual: 15
+    When (limit:15 & page:-1) Offset expected: 0; actual: 0
+    When (limit:20 & page:7) Offset expected: 120; actual: 120
+    When (limit:-1 & page:-1) Offset expected: 0; actual: 0
+    
 
 ### Questions?
 -------------
