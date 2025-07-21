@@ -1,6 +1,7 @@
 package com.it.soul.lab.data.iterable;
 
 import com.it.soul.lab.PerformanceLogger;
+import com.it.soul.lab.data.simple.IterableDataSource;
 import com.it.soul.lab.data.simple.SimpleDataSource;
 import org.junit.Test;
 

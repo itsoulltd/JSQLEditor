@@ -54,6 +54,12 @@ public class SimpleDataSourceTest {
                 .setEmail("adam@gmail.com")
                 .setAge(31)
                 .setGender("male"));
+
+        dataSource.put("p-7", new Person()
+                .setName("Lut")
+                .setEmail("lut@gmail.com")
+                .setAge(32)
+                .setGender("male"));
     }
 
     private void loadIntDataSource(){
@@ -363,6 +369,60 @@ public class SimpleDataSourceTest {
         offset = getOffset(-1, -1);
         Assert.assertEquals(0, offset);
         System.out.println("When (limit:-1 & page:-1) Offset expected: 0; actual: " + offset);
+    }
+
+    @Test
+    public void paginationTest() {
+        //Load Data:
+        loadDataSource();
+        //
+        int maxItem = dataSource.size();
+        System.out.println("===========================ALL==========================");
+        Object[] items = dataSource.readSync(0, maxItem);
+        List<Person> converted = Stream.of(items).map(itm -> (Person) itm).collect(Collectors.toList());
+        converted.forEach(person -> System.out.println(person.toString()));
+        //
+        System.out.println("===========================Page:0-limit:2==========================");
+        int offset = getOffset(0, 2);
+        Object[] readAll = dataSource.readSync(offset, 2);
+        for (Object p : readAll) {
+            System.out.println(p.toString());
+        }
+        //
+        System.out.println("===========================Page:1-limit:2==========================");
+        offset = getOffset(1, 2);
+        readAll = dataSource.readSync(offset, 2);
+        for (Object p : readAll) {
+            System.out.println(p.toString());
+        }
+        //
+        System.out.println("===========================Page:2-limit:2==========================");
+        offset = getOffset(2, 2);
+        readAll = dataSource.readSync(offset, 2);
+        for (Object p : readAll) {
+            System.out.println(p.toString());
+        }
+        //
+        System.out.println("===========================Page:3-limit:2==========================");
+        offset = getOffset(3, 2);
+        readAll = dataSource.readSync(offset, 2);
+        for (Object p : readAll) {
+            System.out.println(p.toString());
+        }
+        //
+        System.out.println("===========================Page:4-limit:2==========================");
+        offset = getOffset(4, 2);
+        readAll = dataSource.readSync(offset, 2);
+        for (Object p : readAll) {
+            System.out.println(p.toString());
+        }
+        //
+        System.out.println("===========================Page:5-limit:2==========================");
+        offset = getOffset(5, 2);
+        readAll = dataSource.readSync(offset, 2);
+        for (Object p : readAll) {
+            System.out.println(p.toString());
+        }
     }
 
 }

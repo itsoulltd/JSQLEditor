@@ -1,6 +1,4 @@
-package com.it.soul.lab.data.iterable;
-
-import com.it.soul.lab.data.simple.SimpleDataSource;
+package com.it.soul.lab.data.simple;
 
 import java.util.Iterator;
 
@@ -30,7 +28,7 @@ public class IterableDataSource<T> extends SimpleDataSource<Integer, T> implemen
 
     @Override
     public void remove() {
-        //throw new UnsupportedOperationException("Not Implemented Yet!");
+        //Remove item during iteration:
         if (current == null) return;
         synchronized (getInMemoryStorage()) {
             remove(current);

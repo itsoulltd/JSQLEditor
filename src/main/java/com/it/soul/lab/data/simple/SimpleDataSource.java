@@ -58,16 +58,16 @@ public class SimpleDataSource<Key, Value> implements DataSource<Key, Value> {
 
     @Override
     public Value[] readSync(int offset, int pageSize) {
-        //In-Memory-Pagination:
+        //Validation:
         int size = size();
-        int maxItemCount = Math.abs(offset) + Math.abs(pageSize);
-        if (maxItemCount <= size){
-            List<Value> items = new ArrayList<>(getInMemoryStorage().values())
-                    .subList(Math.abs(offset), maxItemCount);
-            return (Value[]) items.toArray();
-        }else {
-            return (Value[]) new Object[0];
-        }
+        int fromIndex = Math.abs(offset);
+        if (fromIndex >= size) return (Value[]) new Object[0];
+        int toIndex = Math.abs(offset) + Math.abs(pageSize);
+        if (toIndex > size) toIndex = size;
+        //In-Memory-Pagination:
+        List<Value> items = new ArrayList<>(getInMemoryStorage().values())
+                .subList(fromIndex, toIndex);
+        return (Value[]) items.toArray();
     }
 
     private Executor serviceExe = Executors.newSingleThreadExecutor();
