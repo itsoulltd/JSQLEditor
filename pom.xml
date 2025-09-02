@@ -78,35 +78,33 @@
 
     <build>
         <plugins>
-            <!--<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.1</version>
-                <configuration>
-                    <excludes>
-                        <exclude>CQLExecutorTest.java</exclude>
-                        <exclude>CQLExecutorAsyncReadTest.java</exclude>
-                        <exclude>SQLExecutorTestWithMySQL.java</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>-->
-            <!-- Upgrading to new maven compiler plugins -->
+            <!--Upgrade to new maven compiler plugins -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <excludes>
-                        <exclude>CQLExecutorTest.java</exclude>
-                        <exclude>CQLExecutorAsyncReadTest.java</exclude>
-                        <exclude>SQLExecutorTestWithMySQL.java</exclude>
-                    </excludes>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.3.1</version>
+            </plugin>
+            <!-- -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.3</version>
+                <configuration>
+                    <excludes>
+                        <exclude>CQLExecutorTest.java</exclude>
+                        <exclude>CQLExecutorAsyncReadTest.java</exclude>
+                        <exclude>SQLExecutorTestWithMySQL.java</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
             <!-- -->
         </plugins>
