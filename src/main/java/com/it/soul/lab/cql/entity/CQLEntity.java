@@ -99,8 +99,8 @@ public abstract class CQLEntity extends Entity {
                 Column column = field.getAnnotation(Column.class);
                 String columnName = (column.name().trim().isEmpty() == false) ? column.name().trim() : field.getName();
                 results.put(columnName, field.getName());
-            }else if (field.isAnnotationPresent(javax.persistence.Column.class)){
-                javax.persistence.Column column = field.getAnnotation(javax.persistence.Column.class);
+            }else if (field.isAnnotationPresent(jakarta.persistence.Column.class)){
+                jakarta.persistence.Column column = field.getAnnotation(jakarta.persistence.Column.class);
                 String columnName = (column.name().trim().isEmpty() == false) ? column.name().trim() : field.getName();
                 results.put(columnName, field.getName());
             }else if(field.isAnnotationPresent(PrimaryKey.class)){

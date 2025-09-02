@@ -4,9 +4,9 @@ import com.it.soul.lab.sql.QueryExecutor;
 import com.it.soul.lab.sql.query.*;
 import com.it.soul.lab.sql.query.models.*;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Table;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Table;
 import java.lang.reflect.Field;
 import java.sql.Date;
 import java.sql.*;
@@ -178,7 +178,7 @@ public abstract class Entity implements EntityInterface{
     protected boolean hasColumnAnnotationPresent(Field field) {
         boolean isAnnotated = field.isAnnotationPresent(Column.class)
                 || field.isAnnotationPresent(PrimaryKey.class)
-				|| field.isAnnotationPresent(javax.persistence.Column.class);
+				|| field.isAnnotationPresent(jakarta.persistence.Column.class);
         return isAnnotated;
     }
 
@@ -208,8 +208,8 @@ public abstract class Entity implements EntityInterface{
 			Column column = field.getAnnotation(Column.class);
 			String clName = column.name().trim();
 			return (!clName.isEmpty()) ? clName : field.getName();
-		}else if(field.isAnnotationPresent(javax.persistence.Column.class)) {
-			javax.persistence.Column column = field.getAnnotation(javax.persistence.Column.class);
+		}else if(field.isAnnotationPresent(jakarta.persistence.Column.class)) {
+			jakarta.persistence.Column column = field.getAnnotation(jakarta.persistence.Column.class);
 			String clName = column.name().trim();
 			return (!clName.isEmpty()) ? clName : field.getName();
 		}else if(field.isAnnotationPresent(PrimaryKey.class)) {
@@ -490,7 +490,7 @@ public abstract class Entity implements EntityInterface{
             TableName tableName = type.getAnnotation(TableName.class);
             return tableName.acceptAll();
         }
-        if (type.isAnnotationPresent(javax.persistence.Entity.class)){
+        if (type.isAnnotationPresent(jakarta.persistence.Entity.class)){
 		    return true;
         }
         return false;
@@ -518,7 +518,7 @@ public abstract class Entity implements EntityInterface{
 		for (Field field : Entity.getDeclaredFields(type, true)) {
 			if(acceptAll == false
 					&& field.isAnnotationPresent(Column.class) == false
-					&& field.isAnnotationPresent(javax.persistence.Column.class) == false
+					&& field.isAnnotationPresent(jakarta.persistence.Column.class) == false
 					&& field.isAnnotationPresent(PrimaryKey.class) == false) {
 				continue;
 			}
@@ -532,8 +532,8 @@ public abstract class Entity implements EntityInterface{
 				PrimaryKey primaryKey = field.getAnnotation(PrimaryKey.class);
 				String columnName = (primaryKey.name().trim().isEmpty() == false) ? primaryKey.name().trim() : field.getName();
 				result.put(columnName, field.getName());
-			}else if (field.isAnnotationPresent(javax.persistence.Column.class)){
-                javax.persistence.Column column = field.getAnnotation(javax.persistence.Column.class);
+			}else if (field.isAnnotationPresent(jakarta.persistence.Column.class)){
+                jakarta.persistence.Column column = field.getAnnotation(jakarta.persistence.Column.class);
                 String columnName = (column.name().trim().isEmpty() == false) ? column.name().trim() : field.getName();
                 result.put(columnName, field.getName());
             }

@@ -6,7 +6,7 @@ import com.it.soul.lab.sql.entity.PrimaryKey;
 import com.it.soul.lab.sql.entity.TableName;
 import com.it.soul.lab.sql.query.models.Property;
 
-import javax.persistence.Column;
+import jakarta.persistence.Column;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;

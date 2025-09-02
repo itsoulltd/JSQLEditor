@@ -18,10 +18,10 @@ import com.it.soul.lab.sql.query.models.Expression;
 import com.it.soul.lab.sql.query.models.Property;
 import com.it.soul.lab.sql.query.models.Row;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceException;
+import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import java.math.BigInteger;
 import java.sql.SQLException;
 import java.util.List;

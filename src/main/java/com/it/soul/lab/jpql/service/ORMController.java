@@ -2,10 +2,10 @@ package com.it.soul.lab.jpql.service;
 
 import java.io.Serializable;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.FlushModeType;
-import javax.persistence.Persistence;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.FlushModeType;
+import jakarta.persistence.Persistence;
 
 
 public class ORMController implements Serializable{

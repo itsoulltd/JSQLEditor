@@ -2,9 +2,9 @@ package com.it.soul.lab.jpql.service;
 
 import com.it.soul.lab.sql.entity.TableName;
 
-import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.Table;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Table;
 
 public abstract class AbstractService<T> {
 

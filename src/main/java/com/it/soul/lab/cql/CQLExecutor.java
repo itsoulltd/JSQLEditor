@@ -14,7 +14,6 @@ import com.it.soul.lab.cql.query.*;
 import com.it.soul.lab.cql.query.ReplicationStrategy;
 import com.it.soul.lab.sql.AbstractExecutor;
 import com.it.soul.lab.sql.QueryExecutor;
-import com.it.soul.lab.sql.QueryTransaction;
 import com.it.soul.lab.sql.entity.Column;
 import com.it.soul.lab.sql.entity.Entity;
 import com.it.soul.lab.sql.entity.Ignore;
@@ -709,8 +708,8 @@ public class CQLExecutor extends AbstractExecutor implements QueryExecutor<CQLSe
                 if (field.isAnnotationPresent(Column.class)) {
                     Column col = field.getAnnotation(Column.class);
                     if(col.name().trim().isEmpty() == false) fieldName = col.name().trim();
-                } else if (field.isAnnotationPresent(javax.persistence.Column.class)) {
-                    javax.persistence.Column col = field.getAnnotation(javax.persistence.Column.class);
+                } else if (field.isAnnotationPresent(jakarta.persistence.Column.class)) {
+                    jakarta.persistence.Column col = field.getAnnotation(jakarta.persistence.Column.class);
                     if(col.name().trim().isEmpty() == false) fieldName = col.name().trim();
                 }
                 columnBuf.append(fieldName + " " + getDataType(field) + ",");

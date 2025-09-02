@@ -2,9 +2,9 @@ package com.it.soul.lab.jpql.entity;
 
 import com.it.soul.lab.sql.entity.PrimaryKey;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
 @Entity
 public class JPassenger extends com.it.soul.lab.sql.entity.Entity {

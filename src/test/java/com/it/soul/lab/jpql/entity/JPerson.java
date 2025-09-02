@@ -3,7 +3,7 @@ package com.it.soul.lab.jpql.entity;
 import com.it.soul.lab.sql.entity.PrimaryKey;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.sql.Timestamp;
 
 @Entity(name = "jp_table")
@@ -19,7 +19,7 @@ public class JPerson extends com.it.soul.lab.sql.entity.Entity{
     private Integer age;
 
     @Column(nullable = true)
-    @Type(type = "org.hibernate.type.NumericBooleanType")
+    //@Type(type = "org.hibernate.type.NumericBooleanType")
     private boolean active;
 
     private Timestamp createDate;

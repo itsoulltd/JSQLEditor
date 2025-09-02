@@ -3,7 +3,7 @@ package com.it.soul.lab.jpql.service;
 import java.util.Collection;
 import java.util.Map;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import com.it.soul.lab.sql.query.models.Logic;
 import com.it.soul.lab.sql.query.models.ExpressionInterpreter;
 import com.it.soul.lab.sql.query.models.Property;
